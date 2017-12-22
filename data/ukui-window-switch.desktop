@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=ukui-window-switch
+Name[zh_CN]=ukui-window-switch
+Comment=ukui window switch for ukwm
+Comment[zh_CN]=ukwm窗口切换
+Exec=/usr/bin/ukui-window-switch
+StartupNotify=true
+NoDisplay=true
+Terminal=false
+Categories=GTK;Graphics;System;
