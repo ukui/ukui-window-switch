@@ -8,9 +8,9 @@
 #include <glib.h>
 #include <ukwm/compositor/plugins/ukui_plugin.h>
 
-bool InitUKUIPluginDBusComm(void);
-void FinishUKUIPluginDBusComm(void);
-bool UKUIPluginDBusServiceIsReady(void);
+bool InitUkwmPluginDBusComm(void);
+void FinishUkwmPluginDBusComm(void);
+bool UkwmPluginDBusServiceIsReady(void);
 GList *DBusGetAltTabList(void);
 void DBusActivateWindowByTabListIndex(int index);
 

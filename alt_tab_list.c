@@ -11,7 +11,7 @@
 #include "alt_tab_list.h"
 
 static GDBusConnection *pConnection = NULL;
-static UKUIPlugin *pProxy = NULL;
+static UkwmPlugin *pProxy = NULL;
 
 char *newstr(char *old_str)
 {
@@ -55,7 +55,7 @@ void free_alt_tab_item(alt_tab_item *ati)
 //	free_alt_tab_item((alt_tab_item *)data);
 //}
 
-bool UKUIPluginDBusServiceIsReady(void)
+bool UkwmPluginDBusServiceIsReady(void)
 {
 	gchar *owner_name = NULL;
 	owner_name = g_dbus_proxy_get_name_owner((GDBusProxy *)pProxy);
@@ -72,7 +72,7 @@ bool UKUIPluginDBusServiceIsReady(void)
 	}
 }
 
-bool InitUKUIPluginDBusComm(void)
+bool InitUkwmPluginDBusComm(void)
 {
 	bool bRet = TRUE;
 	GError *pConnError = NULL;
@@ -97,7 +97,7 @@ bool InitUKUIPluginDBusComm(void)
 
 		/** Second step: try to get a connection to the given bus.*/
 		if (pProxy == NULL)
-			pProxy = ukuiplugin_proxy_new_sync(pConnection,
+			pProxy = ukwm_plugin_proxy_new_sync(pConnection,
 												 G_DBUS_PROXY_FLAGS_NONE,
 												 UKUI_PLUGIN_BUS_NAME,
 												 UKUI_PLUGIN_OBJECT_PATH,
@@ -116,7 +116,7 @@ bool InitUKUIPluginDBusComm(void)
 	return true;
 }
 
-void FinishUKUIPluginDBusComm(void)
+void FinishUkwmPluginDBusComm(void)
 {
 	//printf("DBus Debug: %s [%d]\n", __FUNCTION__, __LINE__);
 	g_object_ref(pConnection);
@@ -134,7 +134,7 @@ GList *DBusGetAltTabList(void)
 	GVariant *out_tab_list_gva;
 	GError *error = NULL;
 
-	bRet = ukuiplugin_call_get_alt_tab_list_sync(pProxy, &out_count,
+	bRet = ukwm_plugin_call_get_alt_tab_list_sync(pProxy, &out_count,
 												   &out_tab_list_gva, NULL, &error);
 	if (bRet == FALSE)
 	{
@@ -181,7 +181,7 @@ void DBusActivateWindowByTabListIndex(int index)
 	gboolean bRet;
 
 	//printf("DBus Debug: %s [%d], index = %d\n", __FUNCTION__, __LINE__, index);
-	bRet = ukuiplugin_call_activate_window_by_tab_list_index_sync(pProxy, index, NULL, NULL);
+	bRet = ukwm_plugin_call_activate_window_by_tab_list_index_sync(pProxy, index, NULL, NULL);
 	if (bRet == FALSE)
 	{
 		//printf("Can't activate window: [%d]\n", index);

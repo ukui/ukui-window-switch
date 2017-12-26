@@ -110,15 +110,15 @@ void MainWindow::show_tab_list(int value)
 	    maxY[i] = 0;
 	theLabels.clear();
 
-	InitUKUIPluginDBusComm();
-	while (!UKUIPluginDBusServiceIsReady())
+	InitUkwmPluginDBusComm();
+	while (!UkwmPluginDBusServiceIsReady())
 	{
 	    usleep(1000);
 	}
 
 	this->global_tab_list = DBusGetAltTabList();
 	this->WindowCount = g_list_length(this->global_tab_list);
-	FinishUKUIPluginDBusComm();
+	FinishUkwmPluginDBusComm();
 
 	if (this->WindowCount == 0)
 	{
@@ -346,9 +346,9 @@ void MainWindow::hideWindow()
 	for (i = 0; i < screen_widget.length(); i++)
 	    screen_widget[i]->hide();
 
-	InitUKUIPluginDBusComm();
+	InitUkwmPluginDBusComm();
 	DBusActivateWindowByTabListIndex(this->WindowIndex);
-	FinishUKUIPluginDBusComm();
+	FinishUkwmPluginDBusComm();
 
 	this->hide();
 	this->ShowStatus = false;
