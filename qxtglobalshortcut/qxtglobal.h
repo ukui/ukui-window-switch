@@ -152,7 +152,7 @@ QXT_CORE_EXPORT const char *qxtVersion();
 template <typename PUB>
 class QxtPrivate
 {
-  public:
+public:
 	virtual ~QxtPrivate()
 	{
 	}
@@ -161,7 +161,7 @@ class QxtPrivate
 		qxt_p_ptr = pub;
 	}
 
-  protected:
+protected:
 	inline PUB &qxt_p()
 	{
 		return *qxt_p_ptr;
@@ -171,7 +171,7 @@ class QxtPrivate
 		return *qxt_p_ptr;
 	}
 
-  private:
+private:
 	PUB *qxt_p_ptr;
 };
 
@@ -180,7 +180,7 @@ class QxtPrivateInterface
 {
 	friend class QxtPrivate<PUB>;
 
-  public:
+public:
 	QxtPrivateInterface()
 	{
 		pvt = new PVT;
@@ -203,7 +203,7 @@ class QxtPrivateInterface
 		return *static_cast<PVT *>(pvt);
 	}
 
-  private:
+private:
 	QxtPrivateInterface(const QxtPrivateInterface &) {}
 	QxtPrivateInterface &operator=(const QxtPrivateInterface &) {}
 	QxtPrivate<PUB> *pvt;

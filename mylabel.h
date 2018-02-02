@@ -7,27 +7,27 @@
 
 class MyLabel : public QLabel
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit MyLabel(int index, const QString &text = "", QWidget *parent = 0);
-    ~MyLabel();
+	explicit MyLabel(int index, const QString &text = "", QWidget *parent = 0);
+	~MyLabel();
 signals:
-    void myclicked(int);
+	void myclicked(int);
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
 
 public:
-    void setBrightColor();
-    void setHideColor();
-    QString getTitle();
-    void setTitle(QString title);
-    int getIndex();
-    void setIndex(int index);
+	void setBrightColor();
+	void setHideColor();
+	QString getTitle();
+	void setTitle(QString title);
+	int getIndex();
+	void setIndex(int index);
 
 private:
-    int m_index;
-    QString m_title;
+	int m_index;
+	QString m_title;
 };
 
 #endif //MY_LABEL_H

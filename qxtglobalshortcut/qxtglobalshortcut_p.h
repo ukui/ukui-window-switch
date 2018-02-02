@@ -34,9 +34,9 @@
 #endif
 
 class QxtGlobalShortcutPrivate : public QxtPrivate<QxtGlobalShortcut>
-#if(QT_VERSION>=0x050000)
+		#if(QT_VERSION>=0x050000)
 		, public QAbstractNativeEventFilter
-#endif
+		#endif
 {
 public:
 	QXT_DECLARE_PUBLIC(QxtGlobalShortcut)

@@ -28,21 +28,21 @@ class KeyEventMonitor : public QThread
 {
 	Q_OBJECT
 
-  public:
+public:
 	KeyEventMonitor(QObject *parent = 0);
 
-  Q_SIGNALS:
+Q_SIGNALS:
 	void KeyAltRelease();
 
-  public Q_SLOTS:
+public Q_SLOTS:
 	void isReleaseAlt(int code);
 
-  protected:
+protected:
 	static void callback(XPointer trash, XRecordInterceptData *data);
 	void handleRecordEvent(XRecordInterceptData *);
 	void run();
 
-  private:
+private:
 	bool isRelease;
 };
 

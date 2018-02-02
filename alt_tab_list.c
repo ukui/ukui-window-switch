@@ -117,11 +117,11 @@ bool InitUkwmPluginDBusComm(void)
 		/** Second step: try to get a connection to the given bus.*/
 		if (pProxy == NULL)
 			pProxy = ukwm_plugin_proxy_new_sync(pConnection,
-												 G_DBUS_PROXY_FLAGS_NONE,
-												 UKUI_PLUGIN_BUS_NAME,
-												 UKUI_PLUGIN_OBJECT_PATH,
-												 NULL,
-												 &pProxyError);
+												G_DBUS_PROXY_FLAGS_NONE,
+												UKUI_PLUGIN_BUS_NAME,
+												UKUI_PLUGIN_OBJECT_PATH,
+												NULL,
+												&pProxyError);
 		if (pProxy == NULL)
 		{
 			g_print("InitDBusCommunication: Failed to create proxy. Reason: %s.\n", pProxyError->message);
@@ -137,7 +137,6 @@ bool InitUkwmPluginDBusComm(void)
 
 void FinishUkwmPluginDBusComm(void)
 {
-	//printf("DBus Debug: %s [%d]\n", __FUNCTION__, __LINE__);
 	g_object_ref(pConnection);
 	g_object_ref(pProxy);
 	pConnection = NULL;
@@ -154,13 +153,12 @@ GList *DBusGetAltTabList(void)
 	GError *error = NULL;
 
 	bRet = ukwm_plugin_call_get_alt_tab_list_sync(pProxy, &out_count,
-												   &out_tab_list_gva, NULL, &error);
+												  &out_tab_list_gva, NULL, &error);
 	if (bRet == FALSE)
 	{
-		//printf("Can't get anything.\n");
+		printf("Can't get anything.\n");
 		return NULL;
 	}
-	//printf("out_count = %d\n", out_count);
 
 	char *title_name = NULL;
 
@@ -173,18 +171,14 @@ GList *DBusGetAltTabList(void)
 	{
 		alt_tab_item *ati = new_alt_tab_item();
 
-		g_variant_get(_item, "(siiii)", &title_name,
+		g_variant_get(_item, "(siiiii)", &title_name,
+					  &ati->xid,
 					  &ati->width,
 					  &ati->height,
 					  &ati->x,
 					  &ati->y);
 		ati->title_name = newstr(title_name);
 		tab_list = g_list_append(tab_list, ati);
-		//		printf("Win[%02d]: %s (%03d, %03d) -> (%03d, %03d)\n",
-		//			   i + 1, ati->title_name,
-		//			   ati->x, ati->y,
-		//			   ati->x + ati->width,
-		//			   ati->y + ati->height);
 
 		g_variant_unref(_item);
 		i++;
@@ -199,10 +193,9 @@ void DBusActivateWindowByTabListIndex(int index)
 {
 	gboolean bRet;
 
-	//printf("DBus Debug: %s [%d], index = %d\n", __FUNCTION__, __LINE__, index);
 	bRet = ukwm_plugin_call_activate_window_by_tab_list_index_sync(pProxy, index, NULL, NULL);
 	if (bRet == FALSE)
 	{
-		//printf("Can't activate window: [%d]\n", index);
+		printf("Can't activate window: [%d]\n", index);
 	}
 }

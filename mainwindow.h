@@ -24,6 +24,9 @@
 #include <QKeyEvent>
 #include "mylabel.h"
 
+#undef signals
+#include <glib.h>
+
 #define LINES 4			//Lines for displaying icons
 #define COLS 5			//Icons for each line
 #define TOP_SIZE 10		//Top reserved space
@@ -35,8 +38,15 @@
 
 #define INTERVAL_TIME_MS 125
 
-#undef signals
-#include <glib.h>
+#define PREVIEW_WIDTH		168
+#define PREVIEW_HEIGHT		128
+#define SPACE_WIDTH			8
+#define SPACE_HEIGHT		8
+#define THUMBNAIL_WIDTH		(PREVIEW_WIDTH - SPACE_WIDTH)
+#define THUMBNAIL_HEIGHT	(PREVIEW_HEIGHT - SPACE_HEIGHT)
+#define ICON_WIDTH			48
+#define ICON_HEIGHT			48
+
 
 namespace Ui
 {
@@ -47,15 +57,15 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-  public:
+public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
-  protected:
+protected:
 	void keyPressEvent(QKeyEvent *event);
 	void keyReleaseEvent(QKeyEvent *event);
 
-  private:
+private:
 	bool ShowStatus;
 	bool CanBeRelease;
 	int WindowIndex;
@@ -73,14 +83,14 @@ class MainWindow : public QMainWindow
 
 	Ui::MainWindow *ui;
 
-  private slots:
+private slots:
 	void show_tab_list(int value);
 	void show_forward();
 	void show_backward();
 	void slotMylabel(int index);
 	void doAltRelease();
 
-  private:
+private:
 	void hideWindow();
 };
 

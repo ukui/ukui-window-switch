@@ -22,9 +22,9 @@
 MyLabel::MyLabel(int index, const QString &text, QWidget *parent)
 	: QLabel(parent)
 {
-    //setText(text);
-    m_index = index;
-    m_title = text;
+	//setText(text);
+	m_index = index;
+	m_title = text;
 }
 
 MyLabel::~MyLabel()
@@ -33,41 +33,41 @@ MyLabel::~MyLabel()
 
 void MyLabel::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
-    {
-	emit myclicked(m_index);
-	setBrightColor();
-    }
+	if (event->button() == Qt::LeftButton)
+	{
+		emit myclicked(m_index);
+		setBrightColor();
+	}
 
-    QLabel::mousePressEvent(event); //deliver the event to parent class.
+	QLabel::mousePressEvent(event); //deliver the event to parent class.
 }
 
 void MyLabel::setBrightColor()
 {
-    setStyleSheet("background-color: transparent; border: 2px solid white");
+	setStyleSheet("background-color: transparent; border: 2px solid white");
 }
 
 void MyLabel::setHideColor()
 {
-    setStyleSheet("background-color: transparent; border: 2px solid transparent");
+	setStyleSheet("background-color: transparent; border: 2px solid transparent");
 }
 
 QString MyLabel::getTitle()
 {
-    return m_title;
+	return m_title;
 }
 
 void MyLabel::setTitle(QString title)
 {
-    m_title = title;
+	m_title = title;
 }
 
 int MyLabel::getIndex()
 {
-    return m_index;
+	return m_index;
 }
 
 void MyLabel::setIndex(int index)
 {
-    m_index = index;
+	m_index = index;
 }
