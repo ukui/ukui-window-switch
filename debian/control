@@ -8,11 +8,13 @@ Build-Depends: debhelper (>=11),
                libukwm-1-dev (>=1.1.0),
                qtbase5-dev,
                libblkid-dev,
-               libxcb-util-dev,
+               libxcb-util0-dev,
                libglib2.0-dev,
                qtbase5-private-dev
 Standards-Version: 4.1.4
 Homepage: http://www.ukui.org
+Vcs-Git: https://github.com/ukui/ukui-window-switch.git
+Vcs-Browser: https://github.com/ukui/ukui-window-switch
 
 Package: ukui-window-switch
 Architecture: any
