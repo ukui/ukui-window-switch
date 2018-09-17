@@ -13,7 +13,7 @@ TEMPLATE = app
 
 DESC_XML = data/org.ukui.ukwm.UkwmPlugin.xml
 GENERATED_CH = ukui_plugin_generated
-system(gdbus-codegen --interface org.ukui.ukwm --generate-c-code $${GENERATED_CH} $${DESC_XML})
+system(gdbus-codegen --interface-prefix org.ukui.ukwm --generate-c-code $${GENERATED_CH} $${DESC_XML})
 
 SOURCES += main.cpp \
         mainwindow.cpp \
