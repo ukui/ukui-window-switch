@@ -11,7 +11,7 @@ Build-Depends: debhelper (>=11),
                libxcb-util0-dev,
                libglib2.0-dev,
                qtbase5-private-dev
-Standards-Version: 4.1.5
+Standards-Version: 4.2.1
 Homepage: http://www.ukui.org
 Vcs-Git: https://github.com/ukui/ukui-window-switch.git
 Vcs-Browser: https://github.com/ukui/ukui-window-switch
@@ -20,11 +20,7 @@ Package: ukui-window-switch
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         ukwm (>=1.1.0),
-         libqt5widgets5,
-         libqt5gui5,
-         libqt5core5a,
-         libglib2.0-0
+         ukwm (>=1.1.0)
 Description: Front of the window switch
  Front of the window switcher in UKUI desktop environment.
  Provides the display function(Display window thumbnails and application
