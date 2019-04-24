@@ -1,0 +1,11 @@
+ukui-window-switch (1.1.2-1) unstable; urgency=medium
+
+  * Fix the build error with glib 2.58. (Closes: #908104)
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Wed, 19 Sep 2018 14:15:35 +0800
+
+ukui-window-switch (1.1.1-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #903955)
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Tue, 17 Jul 2018 15:18:52 +0800
