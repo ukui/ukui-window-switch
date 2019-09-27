@@ -19,6 +19,7 @@
 
 #include "mainwindow.h"
 #include <QApplication>
+#include <QTime>
 #include <unistd.h>
 #include "qxtglobalshortcut.h"
 #include <QDebug>
@@ -27,6 +28,7 @@
 #include <sys/file.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <iostream>
 
 #define PROGRAM_NAME "ukui-window-switch"
 #define PATH_MAX_LEN 1024
@@ -74,8 +76,79 @@ int checkProcessRunning(const char *processName)
 	return 0;
 }
 
+void msgHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+	static FILE *fp = NULL;
+	static char log_path[255] = {0};
+	static int uid = -1;
+
+	Q_UNUSED(context);
+
+	if (uid == -1) {
+		uid = getuid();
+		sprintf(log_path, "/run/user/%d/kylin-window-switch.log", uid);
+	}
+
+	bool write_to_log = false;
+	if (access(log_path, F_OK|W_OK) == 0) {
+		write_to_log = true;
+		if (fp == NULL) {
+			fp = fopen(log_path, "a+");
+		}
+	} else {
+		if (fp != NULL)
+			fclose(fp);
+	}
+
+	QDateTime current_time = QDateTime::currentDateTime();
+	QString time_str = current_time.toString("yy.MM.dd hh:mm:ss +zzz");
+
+	char *ctrl_env = getenv("UKWS_DEBUG");
+	QString env;
+
+	QString outMsg;
+	switch (type) {
+	case QtDebugMsg:
+		outMsg = QString("[%1 D]: %2").arg(time_str).arg(msg);
+		break;
+	case QtInfoMsg:
+		outMsg = QString("[%1 I]: %2").arg(time_str).arg(msg);
+		break;
+	case QtWarningMsg:
+		outMsg = QString("[%1 W]: %2").arg(time_str).arg(msg);
+		break;
+	case QtCriticalMsg:
+		outMsg = QString("[%1 C]: %2").arg(time_str).arg(msg);
+		break;
+	case QtFatalMsg:
+		outMsg = QString("[%1 F]: %2").arg(time_str).arg(msg);
+	}
+
+	if (write_to_log) {
+		fprintf(fp, "%s\n", outMsg.toUtf8().data());
+		fflush(fp);
+
+		if (type == QtFatalMsg)
+			abort();
+	} else {
+		if (ctrl_env == NULL)
+			return;
+
+		env = QString(ctrl_env).toLower();
+		if ((env != "true") && (env != "1"))
+			return;
+
+		std::cout << outMsg.toStdString() << std::endl;
+
+		if (type == QtFatalMsg)
+			abort();
+	}
+}
+
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(msgHandler);
+
 	//Check if another process is running.
 	int check_ret = checkProcessRunning(PROGRAM_NAME);
 	if (check_ret != 0)
