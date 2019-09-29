@@ -27,13 +27,12 @@
 #include <QGridLayout>
 #include <QDebug>
 #include <QTime>
+#include <QTimer>
 #include <QPainter>
+#include <QtX11Extras/QX11Info>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-
-
-#include "keyeventmonitor.h"
 
 #undef signals
 extern "C" {
@@ -89,10 +88,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(sc, SIGNAL(activated()), this, SLOT(show_forward()));
 	connect(sc_u, SIGNAL(activated()), this, SLOT(show_backward()));
 
-	KeyEventMonitor *kem = new KeyEventMonitor;
-	connect(kem, SIGNAL(KeyAltRelease()), this, SLOT(doAltRelease()));
-	kem->start();
-	//QWidget::installEventFilter(this); //Install event filter for this window.
+	connect(&(this->altCheckTimer), &QTimer::timeout, this, &MainWindow::checkAltStatus);
+	altCheckTimer.setTimerType(Qt::CoarseTimer);
+	altCheckTimer.setInterval(KEY_CHECK_INTERVAL_TIME_MS);
 
 	snprintf(tab_list_image_file, PATH_MAX_LEN, "/run/user/%d/%s",
 			 getuid(), TAB_LIST_IMAGE_FILE);
@@ -303,7 +301,7 @@ void MainWindow::show_tab_list(int value)
 
 				theLabels.append(one);
 
-				connect(one, SIGNAL(myclicked(int)), this, SLOT(slotMylabel(int)));
+//				connect(one, SIGNAL(myclicked(int)), this, SLOT(slotMylabel(int)));
 			}
 		}
 		XCloseDisplay(display);
@@ -459,13 +457,35 @@ void MainWindow::hideWindow()
 	}
 }
 
-void MainWindow::doAltRelease()
+void MainWindow::checkAltStatus()
 {
-	int times = 0;
-	while ((!this->CanBeRelease) && (times <= 10))
+	if (this->CanBeRelease == false)
+		return;
+
+	bool leftAltReleased = false;
+	bool rightAltReleased = false;
+	char keymap[32] = {0};
+	static Display *display = NULL;
+
+//	if (display == NULL)
+	display = QX11Info::display();
+
+	XQueryKeymap(display, keymap);
+
+	if ((keymap[KEY_MAP_OFFSET_ALT_LEFT] & KEY_MAP_MASK_ALT_LEFT) == 0)
+		leftAltReleased = true;
+
+	if ((keymap[KEY_MAP_OFFSET_ALT_RIGHT] & KEY_MAP_MASK_ALT_RIGHT) == 0)
+		rightAltReleased = true;
+
+	if (leftAltReleased && rightAltReleased)
 	{
-		times++;
-		usleep(100 * 1000);
+		this->altCheckTimer.stop();
+		this->hideWindow();
+//		if (display != NULL)
+//		{
+//			display = NULL;
+//		}
 	}
-	this->hideWindow();
 }
+

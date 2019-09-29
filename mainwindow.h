@@ -22,6 +22,8 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
+#include <QTimer>
+
 #include "mylabel.h"
 
 #undef signals
@@ -47,6 +49,12 @@
 #define ICON_WIDTH			48
 #define ICON_HEIGHT			48
 
+#define KEY_MAP_OFFSET_ALT_LEFT		8
+#define KEY_MAP_OFFSET_ALT_RIGHT	13
+#define KEY_MAP_MASK_ALT_LEFT		0x01
+#define KEY_MAP_MASK_ALT_RIGHT		0x10
+
+#define KEY_CHECK_INTERVAL_TIME_MS	50
 
 namespace Ui
 {
@@ -69,8 +77,9 @@ private:
 	bool ShowStatus;
 	bool CanBeRelease;
 	int WindowIndex;
-	GList *global_tab_list;
 	int WindowCount;
+    QTimer altCheckTimer;
+	GList *global_tab_list;
 
 	QWidget *m_sub;
 	QLabel *m_label;
@@ -84,13 +93,13 @@ private:
 	Ui::MainWindow *ui;
 
 private slots:
-	void show_tab_list(int value);
 	void show_forward();
 	void show_backward();
 	void slotMylabel(int index);
-	void doAltRelease();
+	void checkAltStatus();
 
 private:
+	void show_tab_list(int value);
 	void hideWindow();
 };
 

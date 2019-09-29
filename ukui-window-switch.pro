@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui
+QT += core gui x11extras
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,12 +19,10 @@ SOURCES += main.cpp \
         mainwindow.cpp \
         alt_tab_list.c  \
         ukui_plugin_generated.c \
-        mylabel.cpp \
-        keyeventmonitor.cpp
+        mylabel.cpp
 
 HEADERS += mainwindow.h alt_tab_list.h ukui_plugin_generated.h \
-        mylabel.h \
-        keyeventmonitor.h
+        mylabel.h
 
 FORMS += mainwindow.ui
 
