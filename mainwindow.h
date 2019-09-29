@@ -97,6 +97,8 @@ private slots:
 	void show_backward();
 	void slotMylabel(int index);
 	void checkAltStatus();
+    void onDBusNameOwnerChanged(const QString &name, const QString &oldOwner,
+								const QString &newOwner);
 
 private:
 	void show_tab_list(int value);

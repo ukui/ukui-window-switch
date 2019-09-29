@@ -30,6 +30,8 @@
 #include <QTimer>
 #include <QPainter>
 #include <QtX11Extras/QX11Info>
+#include <QDBusConnection>
+#include <QDBusServiceWatcher>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -45,6 +47,13 @@ char workspace_image_file[PATH_MAX_LEN] = {0};
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+	QDBusServiceWatcher *watcher = new QDBusServiceWatcher(UKUI_PLUGIN_BUS_NAME,
+														   QDBusConnection::sessionBus(),
+														   QDBusServiceWatcher::WatchForOwnerChange,
+														   this);
+	QObject::connect(watcher,  &QDBusServiceWatcher::serviceOwnerChanged,
+					 this, &MainWindow::onDBusNameOwnerChanged);
+
 	ui->setupUi(this);
 	QDesktopWidget *desktop = QApplication::desktop();
 	move((desktop->width() - this->width()) / 2, (desktop->height() - this->height()) / 2);
@@ -489,3 +498,20 @@ void MainWindow::checkAltStatus()
 	}
 }
 
+void MainWindow::onDBusNameOwnerChanged(const QString &name,
+										const QString &oldOwner,
+										const QString &newOwner)
+{
+	Q_UNUSED(oldOwner);
+
+	if (name == UKUI_PLUGIN_BUS_NAME) {
+		if (newOwner.isEmpty()) {
+			qDebug() << "ukwm dbus service status changed:"
+					 << "inactivate";
+			qApp->exit(0);
+		} else {
+			qDebug() << "ukwm dbus service status changed:"
+					 << "activate";
+		}
+	}
+}
