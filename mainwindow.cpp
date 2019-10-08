@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	QxtGlobalShortcut *sc_u = new QxtGlobalShortcut(QKeySequence("Alt+Shift+Tab"), this);
 	if (sc == NULL or sc_u == NULL)
 	{
-		printf("Can not register shortcut, exit...\n");
+		qFatal("Can not register shortcut, exit...");
 		QApplication::exit(1);
 	}
 
@@ -416,6 +416,10 @@ void MainWindow::show_tab_list(int value)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    // Qt event handler is only responsible for handling the autorepeat event
+	if (!event->isAutoRepeat())
+		return;
+
 	unsigned int modifiers = event->modifiers() & Qt::KeyboardModifierMask;
 
 	if ((event->key() == Qt::Key_Tab) || (event->key() == Qt::Key_Backtab))
