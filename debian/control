@@ -10,7 +10,8 @@ Build-Depends: debhelper (>=11),
                libblkid-dev,
                libxcb-util0-dev,
                libglib2.0-dev,
-               qtbase5-private-dev
+               qtbase5-private-dev,
+               libqt5x11extras5-dev,
 Standards-Version: 4.2.1
 Homepage: http://www.ukui.org
 Vcs-Git: https://github.com/ukui/ukui-window-switch.git
