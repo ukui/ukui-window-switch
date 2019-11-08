@@ -192,6 +192,7 @@ void MainWindow::show_tab_list(int value)
 
 	if (!this->ShowStatus)
 	{
+		altCheckTimer.start();
 		for (int i = 0; i < LINES; i++)
 			maxY[i] = 0;
 		theLabels.clear();
