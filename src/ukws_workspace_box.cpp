@@ -1,0 +1,164 @@
+#include "ukws_workspace_box.h"
+
+#include <QWidget>
+#include <QStyleOption>
+#include <QPainter>
+#include <QDebug>
+#include <QMouseEvent>
+#include <QKeyEvent>
+
+#include "ukws_common.h"
+
+UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
+{
+    // 为缩略图控件注册监视对象
+    installEventFilter(this);
+
+    titleLabel = new UkwsWindowExtraLabel();
+    thumbnailLabel = new UkwsWindowExtraLabel();
+    closeButton = new QPushButton("X");
+
+    mainLayout = new QVBoxLayout();
+    topBarLayout = new QHBoxLayout();
+
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sizePolicy.setVerticalPolicy(QSizePolicy::Fixed);
+    titleLabel->setSizePolicy(sizePolicy);
+    sizePolicy.setHorizontalPolicy(QSizePolicy::Fixed);
+    closeButton->setSizePolicy(sizePolicy);
+
+    // 设置控件最大尺寸
+    titleLabel->setFixedHeight(32);
+    titleLabel->setMinimumWidth(1);
+    closeButton->setFixedSize(QSize(24, 24));
+    thumbnailLabel->setMaximumSize(QSize(640, 360));
+    thumbnailLabel->setMinimumSize(QSize(1, 1));
+
+    titleLabel->setContentsMargins(5, 0, 0, 0);
+    closeButton->setContentsMargins(0, 0, 5, 0);
+    thumbnailLabel->setContentsMargins(5, 5, 5, 5);
+
+    /*
+     * 设置控件布局（简单布局，直接手写）
+     *
+     *                 +------------+-------+   -╮
+     * topBarLayout -> |    icon    | close |    |
+     *                 +------------+-------+    |
+     *                 |                    |    | -> mainLayout
+     *                 |     thumbnail      |    |
+     *                 |                    |    |
+     *                 +--------------------+   -╯
+     *
+     */
+
+    mainLayout->setSpacing(3);
+    mainLayout->setAlignment(Qt::AlignCenter);
+    topBarLayout->setSpacing(3);
+    topBarLayout->setAlignment(Qt::AlignJustify);
+
+    topBarLayout->addWidget(titleLabel);
+    topBarLayout->addWidget(closeButton);
+
+    mainLayout->addLayout(topBarLayout);
+    mainLayout->addWidget(thumbnailLabel);
+    this->setLayout(mainLayout);
+    this->setObjectName(UKWS_OBJ_WSBOX);
+    this->thumbnailLabel->setObjectName(UKWS_OBJ_WSBOX_THUMBNAIL);
+
+    connect(closeButton, &QPushButton::released,
+            this, &UkwsWorkspaceBox::onCloseButtonRealsed);
+
+    closeButton->hide();
+
+    this->installEventFilter(this);
+}
+
+QString UkwsWorkspaceBox::getTitle()
+{
+    return this->title;
+}
+
+void UkwsWorkspaceBox::setTitle(QString title)
+{
+    this->title = title;
+//    titleLabel->setText(this->title);
+    this->updateTitleBySize();
+}
+
+void UkwsWorkspaceBox::updateTitleBySize()
+{
+    QFontMetrics fontMetrics(titleLabel->font());
+    int fontSize = fontMetrics.width(this->title);
+    QString formatTitle = this->title;
+    if (fontSize > (titleLabel->width() - 5))
+        formatTitle = fontMetrics.elidedText(this->title, Qt::ElideRight,
+                                             titleLabel->width() - 10);
+
+    titleLabel->setText(formatTitle);
+}
+
+WnckWorkspace *UkwsWorkspaceBox::getWnckWorkspace()
+{
+    return wnckWorkspace;
+}
+
+void UkwsWorkspaceBox::setWnckWorkspace(WnckWorkspace *workspace)
+{
+    wnckWorkspace = workspace;
+}
+
+void UkwsWorkspaceBox::setThumbnail(QPixmap thumbnail)
+{
+    QSize size = this->size();
+    thumbnailLabel->setPixmap(thumbnail.scaled(size,
+                                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+}
+
+bool UkwsWorkspaceBox::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == this) {
+        if (event->type() == QEvent::Enter) {
+            emit doHover(this->index);
+
+            return true;
+        }
+        if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->button() == Qt::LeftButton)
+                emit selectedWorkspace(this->index);
+            return true;
+        }
+
+        if (event->type() == QEvent::Leave) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void UkwsWorkspaceBox::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QStyleOption styleOpt;
+    styleOpt.init(this);
+    QPainter painter(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &styleOpt, &painter, this);
+
+    QWidget::paintEvent(event);
+}
+
+void UkwsWorkspaceBox::onCloseButtonRealsed()
+{
+
+}
+
+void UkwsWorkspaceBox::setTitleStyle(QString style)
+{
+    titleLabel->setStyleSheet(style);
+}
+
+void UkwsWorkspaceBox::setBoxStyle(QString style)
+{
+    this->setStyleSheet(style);
+}

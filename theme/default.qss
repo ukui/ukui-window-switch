@@ -1,0 +1,66 @@
+QWidget#indicator_sub_widget {
+    background-color: rgba(0, 0, 0, 0);
+    border-style: none;
+    border-width: 0px;
+    padding: 0px;
+}
+
+QWidget#indicator_main_widget {
+    background-color: rgba(0, 0, 0, 176);
+    border-style: none;
+    border-width: 0px;
+    padding: 0px;
+}
+
+QWidget#ws_manager_sub_widget {
+    border-radius: 1px;
+    border-style: none;
+    border-width: 0px;
+    padding: 0px;
+}
+
+QWidget#ws_manager_main_widget {
+    border-style: none;
+    border-width: 0px;
+    padding: 0px;
+}
+
+UkwsWindowExtraLabel#winbox-wintitle {
+    font-size: 14px;
+    color: white;
+    padding-left: 3px;
+}
+
+UkwsWindowExtraLabel#winbox-thumbnail:hover {
+    border: 2px solid rgb(255, 255, 255);
+}
+
+UkwsWindowExtraLabel#winbox-thumbnail:!hover {
+    border: 2px solid rgba(255, 255, 255, 0);
+}
+
+QWidget#winbox:hover {
+    padding: 0px;
+    margin: 0px;
+    border: 2px solid rgba(255, 255, 255, 255);
+}
+
+QWidget#winbox:!hover {
+    padding: 0px;
+    margin: 0px;
+    border: 2px solid rgba(255, 255, 255, 0);
+}
+
+/*QWidget#wsbox-thumbnail:hover {
+    padding: 0px;
+    margin: 0px;
+    border: 2px solid rgba(255, 255, 255, 255);
+    font-size: 14px; color: White; padding-left: 3px;
+}
+
+QWidget#wsbox-thumbnail:!hover {
+    padding: 0px;
+    margin: 0px;
+    border: 2px solid rgba(255, 255, 255, 0);
+    font-size: 14px; color: Silver; padding-left: 3px;
+}*/

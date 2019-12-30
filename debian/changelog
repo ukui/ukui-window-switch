@@ -1,3 +1,9 @@
+ukui-window-switch (2.0.0~rc1) unstable; urgency=medium
+
+  * Refactor the ukui-window-switch
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Mon, 30 Dec 2019 17:23:06 +0800
+
 ukui-window-switch (1.1.2-1) unstable; urgency=medium
 
   * Fix the build error with glib 2.58. (Closes: #908104)
