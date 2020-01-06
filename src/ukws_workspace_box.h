@@ -46,6 +46,7 @@ public:
 signals:
     void doHover(int index);
     void selectedWorkspace(int index);
+    void windowChangeWorkspace(int wbIndex, int srcWsIndex, int dstWsIndex);
 
 public slots:
     void onCloseButtonRealsed();

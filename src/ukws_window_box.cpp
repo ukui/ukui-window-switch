@@ -20,6 +20,7 @@ static const QSize UKWS_THUMBNAIL_SIZE = QSize(UKWS_THUMBNAIL_DEFAULT_WIDTH, UKW
 UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 {
 //    this->setAttribute(Qt::WA_TranslucentBackground, true);
+    dragable = false;
 
     titleLabel = new UkwsWindowExtraLabel();
     iconLabel = new UkwsWindowExtraLabel();
@@ -128,7 +129,8 @@ void UkwsWindowBox::paintEvent(QPaintEvent *event)
 
 void UkwsWindowBox::setSubWidgetSize(int w, int h)
 {
-    titleLabel->setFixedSize(w - 5 - 32 - 5, 32);
+    // 左间距5，图标32，中间间距5，右间距5
+    titleLabel->setFixedSize(w - 5 - 32 - 5 - 5, 32);
     this->updateTitleBySize();
     thumbnailLabel->setFixedSize(w - 5 - 5, h - 0 - 32 - 5 - 5 - 5);
 }
@@ -155,8 +157,9 @@ void UkwsWindowBox::setWinboxSizeByHeight(int height)
     w = int(w * scale);
     h = int(h * scale);
 
-    this->setSubWidgetSize(w + 5 + 5, h + 0 + 32 + 5 + 5);
-    this->setFixedSize(w + 5 + 5, height);
+    // 左间距5，缩略图w，右间距5；上间距0，图标标题栏高32，中间间距5，缩略图高h，下间距5
+    this->setSubWidgetSize(5 + w + 5, 0 + 32 + 5 + h + 5);
+    this->setFixedSize(5 + w + 5, height);
 }
 
 WnckWindow *UkwsWindowBox::getWnckWindow()
@@ -185,7 +188,7 @@ void UkwsWindowBox::updateTitleBySize()
     QString formatTitle = this->title;
     if (fontSize > (titleLabel->width() - 5)) {
         formatTitle = fontMetrics.elidedText(this->title, Qt::ElideRight,
-                                             titleLabel->width() - 10);
+                                             titleLabel->width() - 15);
     }
 
     titleLabel->setText(formatTitle);
@@ -215,9 +218,9 @@ void UkwsWindowBox::setOrigThumbnailByWnck()
 void UkwsWindowBox::setThumbnail(QPixmap thumbnail)
 {
     thumbnailLabel->originalQPixmap = thumbnail;
-    thumbnailLabel->setPixmap(thumbnailLabel->originalQPixmap
-                              .scaled(thumbnailSize.width(), thumbnailSize.height(),
-                                      Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    scaledThumbnail = thumbnail.scaled(thumbnailSize.width(), thumbnailSize.height(),
+                                       Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
 void UkwsWindowBox::setThumbnailByWnck()
@@ -225,9 +228,12 @@ void UkwsWindowBox::setThumbnailByWnck()
     QSize size = thumbnailLabel->size();
     if (size.width() == 0 || size.height() == 0)
         thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin));
-    thumbnailLabel->setPixmap(thumbnailLabel->originalQPixmap
-                              .scaled(size.width() , size.height(),
-                                      Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    scaledThumbnail = thumbnailLabel->originalQPixmap.scaled(size.width(),
+                                                             size.height(),
+                                                             Qt::KeepAspectRatio,
+                                                             Qt::SmoothTransformation);
+    thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
 QString UkwsWindowBox::getTitle()
@@ -255,6 +261,13 @@ void UkwsWindowBox::setWindowBoxUnselected()
     this->setStyleSheet("QWidget#winbox{padding:0px; border:2px solid rgb(255, 255, 255, 0);}");
 }
 
+void UkwsWindowBox::moveToWorkspace(int wsIndex)
+{
+    WnckScreen *screen = wnck_window_get_screen(wnckWin);
+    WnckWorkspace *workspace = wnck_screen_get_workspace(screen, wsIndex);
+    wnck_window_move_to_workspace(wnckWin, workspace);
+}
+
 bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
 {
     static bool pressed = 0;
@@ -277,6 +290,42 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         // 在同一个WindowBox中按下鼠标并抬起才算选定
         if (event->type() == QEvent::MouseButtonPress) {
             pressed = true;
+
+            // 禁用拖拽，直接返回
+            if (!dragable)
+                return true;
+
+            // 缩略图置灰
+            QPixmap tempPixmap = scaledThumbnail;
+            QPainter painter;
+            painter.begin(&tempPixmap);
+            painter.fillRect(scaledThumbnail.rect(), QColor(0, 0, 0, 127));
+            painter.end();
+            thumbnailLabel->setPixmap(tempPixmap);
+
+            // 拖拽处理
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            UkwsWindowBox *winbox = static_cast<UkwsWindowBox *>(childAt(mouseEvent->pos()));
+            QDrag *drag = new QDrag(this);
+            QMimeData *mimeData = new QMimeData;
+            QByteArray byteData;
+            QDataStream dataStream(&byteData, QIODevice::WriteOnly);
+
+            dataStream << parentIndex << index << title;
+            mimeData->setData("application/x-dnditemdata", byteData);
+            drag->setMimeData(mimeData);
+            drag->setPixmap(scaledThumbnail);
+            drag->setHotSpot(mouseEvent->pos() - winbox->pos() + QPoint(0, 0 + 32 + 5));
+
+            if (drag->exec()) {
+                qDebug() << "Drag Done";
+                thumbnailLabel->setPixmap(scaledThumbnail);
+            } else {
+                qDebug() << "Drag Cancel";
+                thumbnailLabel->setPixmap(scaledThumbnail);
+            }
+
+            drag->deleteLater();
 
             return true;
         }

@@ -6,8 +6,10 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QMimeData>
 
 #include "ukws_common.h"
+#include "ukws_window_box.h"
 
 UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
 {
@@ -71,6 +73,7 @@ UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
     closeButton->hide();
 
     this->installEventFilter(this);
+    this->setAcceptDrops(true);
 }
 
 QString UkwsWorkspaceBox::getTitle()
@@ -117,20 +120,59 @@ void UkwsWorkspaceBox::setThumbnail(QPixmap thumbnail)
 bool UkwsWorkspaceBox::eventFilter(QObject *object, QEvent *event)
 {
     if (object == this) {
-        if (event->type() == QEvent::Enter) {
+//        if (event->type() == QEvent::Enter) {
+        if (event->type() == QEvent::MouseButtonPress) {
             emit doHover(this->index);
 
             return true;
         }
-        if (event->type() == QEvent::MouseButtonPress) {
+//		if (event->type() == QEvent::MouseButtonPress) {
+        if (event->type() == QEvent::MouseButtonDblClick) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() == Qt::LeftButton)
                 emit selectedWorkspace(this->index);
             return true;
         }
 
-        if (event->type() == QEvent::Leave) {
-            return true;
+//        if (event->type() == QEvent::Leave) {
+//            return true;
+//        }
+
+        if (event->type() == QEvent::DragEnter) {
+            QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent *>(event);
+            QByteArray byteData = dragEvent->mimeData()->data("application/x-dnditemdata");
+            QDataStream dataStream(&byteData, QIODevice::ReadOnly);
+            QString wbTitle;
+            int indIndex;
+            int wbIndex;
+
+            dataStream >> indIndex >> wbIndex >> wbTitle;
+            qDebug() << "===== dragEnter," << indIndex << wbIndex << wbTitle;
+
+            dragEvent->accept();
+        }
+
+        if (event->type() == QEvent::DragLeave) {
+            QDragLeaveEvent *dragLeave = static_cast<QDragLeaveEvent *>(event);
+
+            qDebug() << "===== DragLeave";
+            dragLeave->accept();
+        }
+
+        if (event->type() == QEvent::Drop) {
+            QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
+
+            QByteArray byteData = dropEvent->mimeData()->data("application/x-dnditemdata");
+            QDataStream dataStream(&byteData, QIODevice::ReadOnly);
+            QString wbTitle;
+            int indIndex;
+            int wbIndex;
+
+            dataStream >> indIndex >> wbIndex >> wbTitle;
+            qDebug() << "===== Window Drop," << indIndex << wbIndex << wbTitle;
+            emit windowChangeWorkspace(wbIndex, indIndex, index);
+
+            dropEvent->accept();
         }
     }
 

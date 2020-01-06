@@ -86,12 +86,15 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         ind->wmOperator->workspace = wws;
         ind->wmOperator->needCheckWorkspace = true;
         ind->wmOperator->needCheckScreen = false;
+        ind->index = i;
         ind->reShow(UkwsIndicator::ShowModeTiling, minScale);
 
         connect(wsbox, &UkwsWorkspaceBox::doHover,
                 this, &UkwsWorkspaceManager::setShowingIndicator);
         connect(wsbox, &UkwsWorkspaceBox::selectedWorkspace,
                 this, &UkwsWorkspaceManager::changeWorkspace);
+        connect(wsbox, &UkwsWorkspaceBox::windowChangeWorkspace,
+                this, &UkwsWorkspaceManager::moveWindowWorkspace);
         connect(ind, &UkwsIndicator::isSelected,
                 this, &UkwsWorkspaceManager::selectWinbox);
 
@@ -179,6 +182,31 @@ void UkwsWorkspaceManager::changeWorkspace(int index)
     wnck_workspace_activate(workspace, timestamp);
     reHide();
     emit isHidden();
+}
+
+void UkwsWorkspaceManager::moveWindowWorkspace(int wbIndex, int srcWsIndex, int dstWsIndex)
+{
+    if (srcWsIndex >= indList.size() || (dstWsIndex >= indList.size()))
+        return;
+
+    UkwsIndicator *srcInd = indList.at(srcWsIndex);
+    UkwsIndicator *dstInd = indList.at(dstWsIndex);
+    UkwsWindowBox *wb = srcInd->getWinbox(wbIndex);
+
+    if (wb == nullptr)
+        return;
+
+    wb->moveToWorkspace(dstWsIndex);
+
+//    wb->setWinboxSizeByHeight(boxMinHeight);
+
+    // 从源indicator中移除
+    srcInd->rmWinbox(wb);
+
+    // 根据dst的布局，更新winbox的大小
+
+    // 添加到目标indicator中
+    dstInd->addWinbox(wb);
 }
 
 QString UkwsWorkspaceManager::getBackgroundFileByGSettings(QString schemaDir,
@@ -299,7 +327,7 @@ void UkwsWorkspaceManager::cleanAllWorkspace()
         qDebug() << "clean indicator:" << indList.size();
         indStack->removeWidget(ind);
         indList.removeOne(ind);
-        ind->cleanAllWinBox();
+        ind->cleanAllWinbox();
         ind->deleteLater();
     }
     indList.clear();

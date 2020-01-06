@@ -39,9 +39,10 @@ public:
     explicit UkwsIndicator(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *);
 
-    void addWinBox(UkwsWindowBox *winbox);
-    void cleanWinBox(int index);
-    void cleanAllWinBox();
+    void addWinbox(UkwsWindowBox *winbox);
+    void rmWinbox(UkwsWindowBox *winbox);
+    void cleanAllWinbox();
+    UkwsWindowBox * getWinbox(int winboxIndex);
     void reloadWindowList(int boxMinHeight=0);
     void reSetWindowThumbnailByWnck();
 //    void reShow(UkwsIndicatorShowMode mode=ShowModeUnknown, int minScale=UKWS_WINBOX_MAX_SCALE);
@@ -61,6 +62,7 @@ public:
 
     UkwsIndicatorShowMode showMode;
     UkwsWidgetShowStatus showStatus;
+    int index;
     int selIndex;
 
 protected:

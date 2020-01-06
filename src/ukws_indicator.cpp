@@ -24,6 +24,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     showMode = UkwsIndicator::ShowModeSwitch;
     dragWindow = false;
     showStatus = UkwsWidgetShowStatus::Hidden;
+    index = 0;
     selIndex = -1;
     cpus = 1;
 
@@ -132,28 +133,37 @@ void UkwsIndicator::selectNextWindow()
     flowScrollArea->ensureWidgetVisible(wb);
 }
 
-void UkwsIndicator::addWinBox(UkwsWindowBox *winbox)
+void UkwsIndicator::addWinbox(UkwsWindowBox *winbox)
 {
+    // 添加到列表最后，所以index = size()
+    winbox->index = winboxList.size();
+    winbox->parentIndex = index;
+    winboxList.append(winbox);
     winboxFlowLayout->addWidget(winbox);
     connect(winbox, &UkwsWindowBox::clicked, this, &UkwsIndicator::clickWinbox);
 }
 
-void UkwsIndicator::cleanWinBox(int index)
+void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
 {
-    UkwsWindowBox *winbox = winboxList.at(index);
-    winboxList.removeAt(index);
-    winbox->deleteLater();
+    winboxFlowLayout->removeWidget(winbox);
+    winboxList.removeOne(winbox);
 
+    // 更新索引
+    int size = winboxList.size();
+    UkwsWindowBox *wb;
+    for (int i = 0; i < size; i++) {
+        wb = winboxList.at(i);
+        wb->index = i;
+    }
 }
 
-void UkwsIndicator::cleanAllWinBox()
+void UkwsIndicator::cleanAllWinbox()
 {
-    qDebug() << "UkwsIndicator cleanAllWinBox start";
+//    qDebug() << "UkwsIndicator cleanAllWinBox start";
     // 等待处理完成，并在等待时处理其他事件
     UkwsWorker *worker;
-//    for (int i = 0; i < cpus; i++) {
     foreach(worker, workerList) {
-        qDebug() << "UkwsIndicator workerList:" << workerList.size() << cpus;
+//        qDebug() << "UkwsIndicator workerList:" << workerList.size() << cpus;
         worker->stopWork();
 
         while (!worker->doingThread->isFinished()) {
@@ -165,7 +175,7 @@ void UkwsIndicator::cleanAllWinBox()
         // doingThread只是保存索引，无父子关系，故需要手动释放
         worker->doingThread->deleteLater();
         worker->deleteLater();
-        qDebug() << "UkwsIndicator workerList:";
+//        qDebug() << "UkwsIndicator workerList:";
     }
     workerList.clear();
 
@@ -176,13 +186,21 @@ void UkwsIndicator::cleanAllWinBox()
         winbox->deleteLater();
     }
     winboxList.clear();
-    qDebug() << "UkwsIndicator cleanAllWinBox done";
+//    qDebug() << "UkwsIndicator cleanAllWinBox done";
+}
+
+UkwsWindowBox *UkwsIndicator::getWinbox(int winboxIndex)
+{
+    if (winboxIndex >= winboxList.size())
+        return nullptr;
+    else
+        return winboxList.at(winboxIndex);
 }
 
 void UkwsIndicator::reloadWindowList(int boxMinHeight)
 {
     if (winboxList.size() != 0)
-        cleanAllWinBox();
+        cleanAllWinbox();
 
     wmOperator->updateWindowList();
     int size = wmOperator->windowQList->size();
@@ -202,18 +220,20 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
         WnckWindow *win = wmOperator->windowQList->at(i);
         UkwsWindowBox *wb = new UkwsWindowBox;
 
-        wb->index = i;
         wb->setWnckWindow(win);
 
         // 设置Winbox大小
         wb->setOrigThumbnailByWnck();
         wb->setWinboxSizeByHeight(boxMinHeight);
 
-        winboxList.append(wb);
+//        winboxList.append(wb);
         wb->setIconByWnck();
         wb->setTitle(wnck_window_get_name(win));
 
-        addWinBox(wb);
+        if (showMode == UkwsIndicatorShowMode::ShowModeTiling)
+            wb->dragable = true;
+
+        addWinbox(wb);
     }
 }
 
@@ -226,7 +246,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
 
     // 获取CPU核数
     cpus = sysconf(_SC_NPROCESSORS_ONLN);
-    qDebug() << "Get online cpus:" << cpus;
+//    qDebug() << "Get online cpus:" << cpus;
     if (cpus <= 0)
         cpus = 1;
 
@@ -276,7 +296,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
 //        workerList.at(i)->deleteLater();
 //    }
 
-    qDebug() << "reSetWindowThumbnailByWnck done";
+//    qDebug() << "reSetWindowThumbnailByWnck done";
 }
 
 void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
@@ -333,7 +353,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     if (hasStopSignal) {
         showStatus = UkwsWidgetShowStatus::Interrupted;
         cleanStopSignal();
-        qDebug() << "Interrupted" << "1";
+//        qDebug() << "Interrupted" << "1";
         return;
     }
 
@@ -383,7 +403,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     if (hasStopSignal) {
         showStatus = UkwsWidgetShowStatus::Interrupted;
         cleanStopSignal();
-        qDebug() << "Interrupted" << "3";
+//        qDebug() << "Interrupted" << "3";
         return;
     }
 
@@ -400,7 +420,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
 
 void UkwsIndicator::reHide(bool needActivate)
 {
-    qDebug() << "rehide 1" << showStatus << needActivate;
+//    qDebug() << "rehide 1" << showStatus << needActivate;
     if ((showStatus != UkwsWidgetShowStatus::Shown) &&
             (showStatus != UkwsWidgetShowStatus::Interrupted)) {
         return;
@@ -412,21 +432,21 @@ void UkwsIndicator::reHide(bool needActivate)
     }
 
     showStatus = UkwsWidgetShowStatus::Destructing;
-    qDebug() << "rehide 2" << showStatus << needActivate;
+//    qDebug() << "rehide 2" << showStatus << needActivate;
     this->hide();
     // 优先处理hide事件，完成后再清理后续
     QCoreApplication::processEvents();
-    qDebug() << "test" << selIndex << winboxList.size();
+//    qDebug() << "test" << selIndex << winboxList.size();
 
     if (needActivate) {
         UkwsWindowBox *wb = winboxList.at(selIndex);
-        qDebug() << "selIndex:" << selIndex << wb->getTitle();
+//        qDebug() << "selIndex:" << selIndex << wb->getTitle();
         wb->activateWnckWindow();
         selIndex = -1;
     }
-    qDebug() << "rehide 3" << showStatus;
+//    qDebug() << "rehide 3" << showStatus;
 
-    cleanAllWinBox();
+    cleanAllWinbox();
 
     showStatus = UkwsWidgetShowStatus::Hidden;
 }
@@ -471,7 +491,7 @@ void UkwsIndicator::acitveSelectedWindow()
 void UkwsIndicator::clickWinbox(UkwsWindowBox *wb)
 {
     selIndex = winboxList.indexOf(wb);
-    qDebug() << "clickWinbox";
+//    qDebug() << "clickWinbox";
     emit isSelected(true);
 }
 
@@ -572,7 +592,7 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
             if ((showMode == UkwsIndicator::ShowModeSwitch) &&
                     (showStatus == UkwsWidgetShowStatus::Shown ||
                      showStatus == UkwsWidgetShowStatus::Constructing)) {
-                qDebug() << "WindowDeactivate";
+//                qDebug() << "WindowDeactivate";
                 // 窗口deactivate，取消任何窗口选择，激活当前窗口
                 emit isSelected(false);
 

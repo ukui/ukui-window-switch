@@ -17,6 +17,8 @@ extern "C" {
 #include <QSize>
 #include <QEvent>
 #include <QThread>
+#include <QDrag>
+#include <QMimeData>
 
 #define UKWS_WIDGET_SPACING         3
 #define UKWS_ADDITIONAL_SPACING    10
@@ -62,10 +64,14 @@ public:
     void setWindowBoxSelected();
     void setWindowBoxUnselected();
 
+    void moveToWorkspace(int wsIndex);
+
     bool eventFilter(QObject *watched, QEvent *event);
 
     int index;
+    int parentIndex;
     int winType;
+    bool dragable;
 
     QSize iconSize;
     QSize titleSize;
@@ -89,6 +95,8 @@ private:
     UkwsWindowExtraLabel *titleLabel;
     UkwsWindowExtraLabel *iconLabel;
     UkwsWindowExtraLabel *thumbnailLabel;
+
+    QPixmap scaledThumbnail;
 
     QVBoxLayout *mainLayout;
     QHBoxLayout *topBarLayout;
