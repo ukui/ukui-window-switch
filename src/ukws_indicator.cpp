@@ -27,6 +27,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     index = 0;
     selIndex = -1;
     cpus = 1;
+    hasStopSignal = false;
 
     wmOperator = new UkwsWnckOperator;
     flowScrollArea = new QScrollArea();
@@ -159,11 +160,9 @@ void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
 
 void UkwsIndicator::cleanAllWinbox()
 {
-//    qDebug() << "UkwsIndicator cleanAllWinBox start";
     // 等待处理完成，并在等待时处理其他事件
     UkwsWorker *worker;
     foreach(worker, workerList) {
-//        qDebug() << "UkwsIndicator workerList:" << workerList.size() << cpus;
         worker->stopWork();
 
         while (!worker->doingThread->isFinished()) {
@@ -175,7 +174,6 @@ void UkwsIndicator::cleanAllWinbox()
         // doingThread只是保存索引，无父子关系，故需要手动释放
         worker->doingThread->deleteLater();
         worker->deleteLater();
-//        qDebug() << "UkwsIndicator workerList:";
     }
     workerList.clear();
 
@@ -186,7 +184,6 @@ void UkwsIndicator::cleanAllWinbox()
         winbox->deleteLater();
     }
     winboxList.clear();
-//    qDebug() << "UkwsIndicator cleanAllWinBox done";
 }
 
 UkwsWindowBox *UkwsIndicator::getWinbox(int winboxIndex)
@@ -246,7 +243,6 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
 
     // 获取CPU核数
     cpus = sysconf(_SC_NPROCESSORS_ONLN);
-//    qDebug() << "Get online cpus:" << cpus;
     if (cpus <= 0)
         cpus = 1;
 
@@ -277,26 +273,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
         workerList.at(i)->doingThread->start();
     }
 
-    // 等待处理完成，并在等待时处理其他事件
-//    for (i = 0; i < cpus; i++) {
-//        while (!workerList.at(i)->doingThread->isFinished()) {
-//            if (hasStopSignal) {
-//                // 收到中断请求，中断各个worker
-//                for (int j = 0; j < cpus; j++)
-//                    workerList.at(j)->stopWork();
-//                qDebug() << "Interrupted" << "11";
-//            }
-
-//            QCoreApplication::processEvents();
-//        }
-
-//        // 从while中退出，代表工作已完成（无论是否被终止），可以释放资源
-//        // doingThread只是保存索引，无父子关系，故需要手动释放
-//        workerList.at(i)->doingThread->deleteLater();
-//        workerList.at(i)->deleteLater();
-//    }
-
-//    qDebug() << "reSetWindowThumbnailByWnck done";
+    // 不等待缩略图完全生成，直接进行之后的步骤
 }
 
 void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
@@ -316,6 +293,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         return;
     }
 
+    cleanStopSignal();
     showStatus = UkwsWidgetShowStatus::Constructing;
 
     QDesktopWidget *desktop = QApplication::desktop();
@@ -353,7 +331,6 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     if (hasStopSignal) {
         showStatus = UkwsWidgetShowStatus::Interrupted;
         cleanStopSignal();
-//        qDebug() << "Interrupted" << "1";
         return;
     }
 
@@ -398,12 +375,11 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     }
     this->flowReLayout();
     this->flowScrollArea->verticalScrollBar()->setValue(0);
-
     this->reSetWindowThumbnailByWnck();
+
     if (hasStopSignal) {
         showStatus = UkwsWidgetShowStatus::Interrupted;
         cleanStopSignal();
-//        qDebug() << "Interrupted" << "3";
         return;
     }
 
@@ -420,7 +396,6 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
 
 void UkwsIndicator::reHide(bool needActivate)
 {
-//    qDebug() << "rehide 1" << showStatus << needActivate;
     if ((showStatus != UkwsWidgetShowStatus::Shown) &&
             (showStatus != UkwsWidgetShowStatus::Interrupted)) {
         return;
@@ -432,19 +407,15 @@ void UkwsIndicator::reHide(bool needActivate)
     }
 
     showStatus = UkwsWidgetShowStatus::Destructing;
-//    qDebug() << "rehide 2" << showStatus << needActivate;
     this->hide();
     // 优先处理hide事件，完成后再清理后续
     QCoreApplication::processEvents();
-//    qDebug() << "test" << selIndex << winboxList.size();
 
     if (needActivate) {
         UkwsWindowBox *wb = winboxList.at(selIndex);
-//        qDebug() << "selIndex:" << selIndex << wb->getTitle();
         wb->activateWnckWindow();
         selIndex = -1;
     }
-//    qDebug() << "rehide 3" << showStatus;
 
     cleanAllWinbox();
 
@@ -453,7 +424,6 @@ void UkwsIndicator::reHide(bool needActivate)
 
 bool UkwsIndicator::stopConstructing(int timeoutMS)
 {
-//    qDebug() << "stopConstructing" << showStatus;
     if (showStatus != UkwsWidgetShowStatus::Constructing)
         return true;
 
@@ -468,7 +438,6 @@ bool UkwsIndicator::stopConstructing(int timeoutMS)
 
         // 每5ms检测一次状态
         usleep(5 * 1000);
-//        qDebug() << "waitting stopConstructing";
     }
 
     return false;
@@ -491,7 +460,6 @@ void UkwsIndicator::acitveSelectedWindow()
 void UkwsIndicator::clickWinbox(UkwsWindowBox *wb)
 {
     selIndex = winboxList.indexOf(wb);
-//    qDebug() << "clickWinbox";
     emit isSelected(true);
 }
 
@@ -592,7 +560,6 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
             if ((showMode == UkwsIndicator::ShowModeSwitch) &&
                     (showStatus == UkwsWidgetShowStatus::Shown ||
                      showStatus == UkwsWidgetShowStatus::Constructing)) {
-//                qDebug() << "WindowDeactivate";
                 // 窗口deactivate，取消任何窗口选择，激活当前窗口
                 emit isSelected(false);
 

@@ -43,11 +43,9 @@ void UkwsDbusWatcher::onDBusNameOwnerChanged(const QString &name,
 
     if (name == KYLIN_PLUGIN_BUS_NAME) {
         if (newOwner.isEmpty()) {
-            qDebug() << "service status changed:"
-                     << "inactivate";
+            qWarning() << "service status changed:" << "inactivate";
         } else {
-            qDebug() << "service status changed:"
-                     << "activate";
+            qWarning() << "service status changed:" << "activate";
         }
 
 //        Q_EMIT serviceStatusChanged(!newOwner.isEmpty());

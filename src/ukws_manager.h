@@ -46,9 +46,6 @@ public:
     UkwsWorkspaceManager *ws;
 
 signals:
-    void indShow(UkwsIndicator::UkwsIndicatorShowMode
-                 mode=UkwsIndicator::UkwsIndicatorShowMode::ShowModeUnknown,
-                 int minScale=UKWS_WINBOX_MAX_SCALE);
 
 public slots:
 //    void setCurrentWorkspace(int index);

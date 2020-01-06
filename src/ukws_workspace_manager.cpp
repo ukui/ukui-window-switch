@@ -123,28 +123,30 @@ void UkwsWorkspaceManager::reShow(int minScale)
 
 void UkwsWorkspaceManager::reHide()
 {
-    qDebug() << "UkwsWorkspaceManager reHide";
     if (showStatus != UkwsWidgetShowStatus::Shown) {
         return;
     }
 
     showStatus = UkwsWidgetShowStatus::Destructing;
 
-    qDebug() << "UkwsWorkspaceManager will hide";
     this->hide();
     // 优先处理hide事件，完成后再清理后续
     QCoreApplication::processEvents();
 
-    qDebug() << "UkwsWorkspaceManager hide done";
-
     cleanAllWorkspace();
 
     showStatus = UkwsWidgetShowStatus::Hidden;
-    qDebug() << "UkwsWorkspaceManager reHide done";
 }
 
 void UkwsWorkspaceManager::setShowingIndicator(int index)
 {
+    int size = indList.size();
+    for (int i = 0; i < size; i++)
+        if (i != index)
+            indList.at(i)->hide();
+        else
+            indList.at(i)->show();
+
     indStack->setCurrentIndex(index);
     UkwsIndicator *ind = indList.at(index);
     ind->flowReLayout();
@@ -207,6 +209,10 @@ void UkwsWorkspaceManager::moveWindowWorkspace(int wbIndex, int srcWsIndex, int 
 
     // 添加到目标indicator中
     dstInd->addWinbox(wb);
+
+    // 重新布局
+//    srcInd->flowReLayout();
+//    dstInd->flowReLayout();
 }
 
 QString UkwsWorkspaceManager::getBackgroundFileByGSettings(QString schemaDir,
@@ -312,7 +318,6 @@ void UkwsWorkspaceManager::setBackgroundImage()
 
 void UkwsWorkspaceManager::cleanAllWorkspace()
 {
-    qDebug() << "cleanAllWorkspace start";
     // 清理workspace box
     foreach(UkwsWorkspaceBox *wsbox, spaceBoxList) {
         wsboxLayout->removeWidget(wsbox);
@@ -322,17 +327,13 @@ void UkwsWorkspaceManager::cleanAllWorkspace()
     spaceBoxList.clear();
 
     // 清理indicator
-    qDebug() << "clean indicator";
     foreach(UkwsIndicator *ind, indList) {
-        qDebug() << "clean indicator:" << indList.size();
         indStack->removeWidget(ind);
         indList.removeOne(ind);
         ind->cleanAllWinbox();
         ind->deleteLater();
     }
     indList.clear();
-
-    qDebug() << "cleanAllWorkspace done";
 }
 
 bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)

@@ -22,7 +22,6 @@ void UkwsWorker::doWork()
 {
     cpu_set_t mask;
 
-//    qDebug() << "Worker" << cpu << "start";
     status = UkwsWorker::Running;
 
     // 设置CPU亲和力
@@ -33,7 +32,6 @@ void UkwsWorker::doWork()
     }
 
     // 开始处理
-//    int size = workList.size();
     UkwsWindowBox *wb;
     foreach (wb, workList) {
         if (status == UkwsWorker::Running)
@@ -43,7 +41,6 @@ void UkwsWorker::doWork()
     }
 
     // 设置状态
-//    qDebug() << "Worker" << cpu << "done";
     status = UkwsWorker::Stopped;
     emit workDone();
 }

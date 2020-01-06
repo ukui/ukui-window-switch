@@ -51,7 +51,6 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     ws->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
 
     connect(ind, &UkwsIndicator::isSelected, this, &UkwsManager::hideIndicatorAndActivate);
-    connect(this, &UkwsManager::indShow, ind, &UkwsIndicator::reShow);
     connect(ws, &UkwsWorkspaceManager::isHidden, this, &UkwsManager::hideWorkspace);
 //    connect(altChecker, &UkwsAltChecker::altReleased, this, &UkwsManager::hideIndicator);
 
@@ -88,10 +87,6 @@ bool UkwsManager::showIndicator()
     if (ind->showStatus == UkwsWidgetShowStatus::Shown)
         return true;
 
-//    if (!altChecker->isRunning()) {
-//        qDebug() << "alt checker running";
-//        altChecker->start();
-//    }
     if (!altCheckTimer.isActive())
         altCheckTimer.start();
 
@@ -101,11 +96,7 @@ bool UkwsManager::showIndicator()
 
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         setGrabKeyboard(true);
-        qDebug() << "Will show" << ind->showStatus;
-        ind->cleanStopSignal();
         ind->reShow();
-        qDebug() << "reShow done";
-//        emit indShow();
 
         return true;
     }
@@ -115,7 +106,6 @@ bool UkwsManager::showIndicator()
 
 void UkwsManager::showNextWinbox()
 {
-    qDebug() << "showIndicator +";
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         ind->selIndex = 0;
     }
@@ -126,7 +116,6 @@ void UkwsManager::showNextWinbox()
 
 void UkwsManager::showPrevWinbox()
 {
-    qDebug() << "showIndicator -";
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         ind->selIndex = 0;
     }
@@ -137,7 +126,6 @@ void UkwsManager::showPrevWinbox()
 
 void UkwsManager::hideIndicator()
 {
-    qDebug() << "hideIndicator" << ind->showStatus;
     hideIndicatorAndActivate(true);
 }
 
@@ -146,18 +134,13 @@ void UkwsManager::hideIndicatorAndActivate(bool needActivate)
     if (ind->showStatus == UkwsWidgetShowStatus::Constructing)
         ind->stopConstructing(100000);
 
-    qDebug() << "hideIndicatorAndActivate" << ind->showStatus;
     if (ind->showStatus == UkwsWidgetShowStatus::Destructing)
         return;
 
     if ((ind->showStatus == UkwsWidgetShowStatus::Shown) ||
             (ind->showStatus == UkwsWidgetShowStatus::Interrupted)) {
         altCheckTimer.stop();
-//        if (!altChecker->stop(1000))
-//            altChecker->quit();
-        qDebug() << "will reHide";
         ind->reHide(needActivate);
-        qDebug() << "reHide done";
         setGrabKeyboard(false);
     }
 }
@@ -165,24 +148,20 @@ void UkwsManager::hideIndicatorAndActivate(bool needActivate)
 void UkwsManager::checkShortcutStatus()
 {
     if (!nextShortcut->isRegistered()) {
-        qDebug() << "Re-register next shortcut";
         nextShortcut->setRegistered(true);
     }
 
     if (!prevShortcut->isRegistered()) {
-        qDebug() << "Re-register prev shortcut";
         prevShortcut->setRegistered(true);
     }
 
     if (!workspaceShortcut->isRegistered()) {
-        qDebug() << "Re-register next workspace shortcut";
         workspaceShortcut->setRegistered(true);
     }
 }
 
 void UkwsManager::checkAltStatus()
 {
-//    qDebug() << "checkAltStatus";
     bool leftAltReleased = false;
     bool rightAltReleased = false;
     char keymap[32] = {0};
@@ -200,11 +179,6 @@ void UkwsManager::checkAltStatus()
 
     if (leftAltReleased && rightAltReleased) {
         altCheckTimer.stop();
-        qDebug() << "===== release =====" ;
-//        if (ind->stopConstructing())
-//            qDebug() << "ind->stopConstructing: True";
-//        else
-//            qDebug() << "ind->stopConstructing: False";
         hideIndicator();
     }
 }
@@ -224,7 +198,6 @@ void UkwsManager::setGrabKeyboard(bool needGrab)
 bool UkwsManager::handleWorkspace()
 {
     // 等待指示器构造或者析构完毕，等待1s钟，超时则不继续之后流程
-    qDebug() << "handleworkspace";
     if (!waitingShowStatusStable(ws->showStatus, 1000))
         return false;
 
@@ -252,14 +225,11 @@ bool UkwsManager::showWorkspace()
 
 void UkwsManager::hideWorkspace()
 {
-    qDebug() << "UkwsManager hideWorkspace start";
-
     // 当workspace manager显示的时候才需要隐藏，来自isHidden信号则不需要再次隐藏
     if (ws->showStatus == UkwsWidgetShowStatus::Shown)
         ws->reHide();
 
     setGrabKeyboard(false);
-    qDebug() << "UkwsManager hideWorkspace done";
 }
 
 UkwsAltChecker::UkwsAltChecker(QObject *parent)
@@ -291,7 +261,6 @@ void UkwsAltChecker::run()
             rightAltReleased = true;
 
         if (leftAltReleased && rightAltReleased) {
-            qDebug() << "leftAltReleased && rightAltReleased";
             status = UkwsAltChecker::Stopped;
             emit altReleased();
             return;
@@ -310,8 +279,6 @@ bool UkwsAltChecker::stop(int timeoutMS)
 
     if (status == UkwsAltChecker::Running)
         status = UkwsAltChecker::Stopping;
-
-    qDebug() << "alt checker stop";
 
     QTime curTime = QTime::currentTime();
     curTime.start();

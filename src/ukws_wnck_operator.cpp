@@ -115,7 +115,6 @@ void UkwsWnckOperator::updateWindowList(/*WnckScreen *screen, WnckWorkspace *wor
             if (wnck_window_get_screen(win) != this->screen)
                 needShow = false;
         }
-//         qDebug() << this->screen << "=?" << wnck_window_get_screen(win) << ", will show:" << needShow;
 
         // 过滤掉其他类型的窗口，如桌面、panel、dock等
         if ((wnck_window_get_window_type(win) == WNCK_WINDOW_NORMAL) && needShow)

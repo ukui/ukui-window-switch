@@ -170,9 +170,12 @@ bool UkwsWorkspaceBox::eventFilter(QObject *object, QEvent *event)
 
             dataStream >> indIndex >> wbIndex >> wbTitle;
             qDebug() << "===== Window Drop," << indIndex << wbIndex << wbTitle;
-            emit windowChangeWorkspace(wbIndex, indIndex, index);
-
-            dropEvent->accept();
+            if (indIndex != index) {
+                emit windowChangeWorkspace(wbIndex, indIndex, index);
+                dropEvent->accept();
+            } else {
+                dropEvent->ignore();
+            }
         }
     }
 
