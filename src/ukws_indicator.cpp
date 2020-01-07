@@ -575,6 +575,47 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
             return true;
         }
 
+        if (event->type() == QEvent::DragEnter) {
+            QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent *>(event);
+            QByteArray byteData = dragEvent->mimeData()->data("application/x-dnditemdata");
+            QDataStream dataStream(&byteData, QIODevice::ReadOnly);
+            QString wbTitle;
+            int indIndex;
+            int wbIndex;
+
+            dataStream >> indIndex >> wbIndex >> wbTitle;
+            qDebug() << "===== dragEnter Indicator:" << indIndex << wbIndex << wbTitle;
+
+            dragEvent->accept();
+        }
+
+        if (event->type() == QEvent::DragLeave) {
+            QDragLeaveEvent *dragLeave = static_cast<QDragLeaveEvent *>(event);
+
+            qDebug() << "===== DragLeave Indicator:" << index;
+            dragLeave->accept();
+        }
+
+        if (event->type() == QEvent::Drop) {
+            QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
+
+            QByteArray byteData = dropEvent->mimeData()->data("application/x-dnditemdata");
+            QDataStream dataStream(&byteData, QIODevice::ReadOnly);
+            QString wbTitle;
+            int indIndex;
+            int wbIndex;
+
+            dataStream >> indIndex >> wbIndex >> wbTitle;
+            qDebug() << "===== Window Drop," << indIndex << wbIndex << wbTitle;
+            if (indIndex != index) {
+//                emit windowChangeWorkspace(wbIndex, indIndex, index);
+//                dropEvent->accept();
+                dropEvent->ignore();
+            } else {
+                dropEvent->ignore();
+            }
+        }
+
         return false;
     }
 

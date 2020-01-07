@@ -28,11 +28,10 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 
     titleSize = UKWS_TITLE_SIZE;
     iconSize = UKWS_ICON_SIZE;
-    thumbnailSize = UKWS_THUMBNAIL_SIZE;
     winboxSize = QSize(UKWS_WINDOWBOX_WIDTH, UKWS_WINDOWBOX_HEIGHT);
 
     iconLabel->setAlignment(Qt::AlignCenter);
-    thumbnailLabel->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    thumbnailLabel->setAlignment(Qt::AlignCenter);
 
     iconTransformationMode = Qt::SmoothTransformation;
     thumbnailTransformationMode = Qt::SmoothTransformation;
@@ -63,12 +62,11 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     iconLabel->resize(QSize(32, 32));
     titleLabel->setFixedHeight(32);
     titleLabel->setMinimumWidth(1);
-//    thumbnailLabel->setMaximumSize(QSize(300, 200));
     thumbnailLabel->setMinimumSize(QSize(1, 1));
 
-    iconLabel->setContentsMargins(5, 0, 0, 0);
+//    iconLabel->setContentsMargins(5, 0, 0, 0);
     titleLabel->setContentsMargins(0, 0, 5, 0);
-    thumbnailLabel->setContentsMargins(5, 5, 5, 5);
+//    thumbnailLabel->setContentsMargins(3, 3, 3, 3);
 
     /*
      * 设置控件布局（简单布局，直接手写）
@@ -84,16 +82,16 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
      */
 
     mainLayout->setSpacing(UKWS_WIDGET_SPACING);
-    mainLayout->setAlignment(Qt::AlignTop);
+    mainLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
     topBarLayout->setSpacing(UKWS_WIDGET_SPACING);
-    topBarLayout->setAlignment(Qt::AlignLeft);
+    topBarLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     topBarLayout->addWidget(iconLabel);
     topBarLayout->addWidget(titleLabel);
 
     mainLayout->addLayout(topBarLayout);
-    this->setLayout(mainLayout);
     mainLayout->addWidget(thumbnailLabel);
+    this->setLayout(mainLayout);
 
     // 为缩略图控件注册监视对象
     thumbnailLabel->installEventFilter(this);
@@ -129,37 +127,55 @@ void UkwsWindowBox::paintEvent(QPaintEvent *event)
 
 void UkwsWindowBox::setSubWidgetSize(int w, int h)
 {
-    // 左间距5，图标32，中间间距5，右间距5
-    titleLabel->setFixedSize(w - 5 - 32 - 5 - 5, 32);
+    // winbox宽w，高h，外框2；
+    // icon宽高32，上下间距0，左间距5（缩略图的左边框2，保持对齐），边框0；
+    // title左边距0，右边距5（缩略图右边框2，保持对齐），边框0；
+    // 调整值：2x2 + 5 + 32 + 5 = 46
+    titleLabel->setFixedSize(w - 46, 32);
     this->updateTitleBySize();
-    thumbnailLabel->setFixedSize(w - 5 - 5, h - 0 - 32 - 5 - 5 - 5);
+
+    // winbox宽w，高h，外框2；
+    // icon宽高32，上下间距0
+    // 缩略图，外边距3；
+    // 调整值：宽，2x2 + 3x2 = 10，高，2x2 + 32 + 3x2 = 42
+    thumbnailLabel->setFixedSize(w - 10, h - 42);
 }
 
 void UkwsWindowBox::setWinboxSizeByHeight(int height)
 {
-    int thn_height = height - 0 - 32 - 5 - 5;
+    // winbox边框2；
+    // icon，高32，上下间距0，上下边框0；
+    // 缩略图，外边距3，外边框2，图片间隔2；
+    // 调整值：高，2x2 + 32 + 3x2 + 2x2 + 2x2 = 50
+    int thnHeight = height - 50;
 
     int w, h;
     float scale;
-    float max_scale = 20.0 / 9;
-    int max_w = int(thn_height * max_scale);
+    float maxScale = 20.0 / 9;
+    int maxWidth = int(thnHeight * maxScale);
     w = thumbnailLabel->originalQPixmap.size().width();
     h = thumbnailLabel->originalQPixmap.size().height();
 
-    if (h > thn_height)
-        scale = (float)thn_height / h;
+    // 计算缩放因子
+    if (h > thnHeight)
+        scale = (float)thnHeight / h;
     else
         scale = 1;
 
-    if (w * scale > max_w)
-        scale = (float)max_w / w;
+    // 限制最大宽度，调节缩放因子
+    if (w * scale > maxWidth)
+        scale = (float)maxWidth / w;
 
+    // 计算缩略图大小
     w = int(w * scale);
     h = int(h * scale);
 
-    // 左间距5，缩略图w，右间距5；上间距0，图标标题栏高32，中间间距5，缩略图高h，下间距5
-    this->setSubWidgetSize(5 + w + 5, 0 + 32 + 5 + h + 5);
-    this->setFixedSize(5 + w + 5, height);
+    // winbox边框2；
+    // icon高32，上下间距0，上下边框0；
+    // 缩略图宽w高h，外边距3，外边框2，图片间隔2；
+    // 调整值：宽，2x2 + 3x2 + 2x2 + 2x2 = 18，高，2x2 + 32 + 3x2 + 2x2 + 2x2 = 50
+    this->setSubWidgetSize(w + 18, h + 48);
+    this->setFixedSize(w + 18, height);
 }
 
 WnckWindow *UkwsWindowBox::getWnckWindow()
@@ -215,24 +231,40 @@ void UkwsWindowBox::setOrigThumbnailByWnck()
     thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin));
 }
 
-void UkwsWindowBox::setThumbnail(QPixmap thumbnail)
+void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
 {
-    thumbnailLabel->originalQPixmap = thumbnail;
-    scaledThumbnail = thumbnail.scaled(thumbnailSize.width(), thumbnailSize.height(),
-                                       Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QSize labelSize = thumbnailLabel->size();
+    thumbnailLabel->originalQPixmap = origPixmap;
+
+    // 缩略图，外边框2，图片间距2；
+    // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8
+    scaledThumbnail = origPixmap.scaled(labelSize.width() - 8,
+                                        labelSize.height() - 8,
+                                        Qt::KeepAspectRatio,
+                                        Qt::SmoothTransformation);
+
+    QSize thumbnailSize = scaledThumbnail.size();
+    QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
+    thumbnailOffset = QPoint(size.width(), size.height());
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
 void UkwsWindowBox::setThumbnailByWnck()
 {
-    QSize size = thumbnailLabel->size();
-    if (size.width() == 0 || size.height() == 0)
+    QSize labelSize = thumbnailLabel->size();
+    if (labelSize.width() == 0 || labelSize.height() == 0)
         thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin));
 
-    scaledThumbnail = thumbnailLabel->originalQPixmap.scaled(size.width(),
-                                                             size.height(),
+    // 缩略图，外边框2，图片间距2；
+    // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8
+    scaledThumbnail = thumbnailLabel->originalQPixmap.scaled(labelSize.width() - 8,
+                                                             labelSize.height() - 8,
                                                              Qt::KeepAspectRatio,
                                                              Qt::SmoothTransformation);
+
+    QSize thumbnailSize = scaledThumbnail.size();
+    QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
+    thumbnailOffset = QPoint(size.width(), size.height());
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
@@ -287,9 +319,31 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             return true;
         }
 
-        // 在同一个WindowBox中按下鼠标并抬起才算选定
+        // 左键按下则标记按下状态
         if (event->type() == QEvent::MouseButtonPress) {
-            pressed = true;
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->buttons() & Qt::LeftButton)
+                pressed = true;
+
+            return true;
+        }
+
+        // 在同一个WindowBox中按下鼠标并抬起才算选定
+        if (event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (pressed && (mouseEvent->button() == Qt::LeftButton)) {
+                pressed = false;
+                emit clicked(this);
+
+                return true;
+            }
+        }
+
+        if (event->type() == QEvent::MouseMove) {
+            if (!pressed)
+                return false;
+
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
             // 禁用拖拽，直接返回
             if (!dragable)
@@ -304,8 +358,6 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             thumbnailLabel->setPixmap(tempPixmap);
 
             // 拖拽处理
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            UkwsWindowBox *winbox = static_cast<UkwsWindowBox *>(childAt(mouseEvent->pos()));
             QDrag *drag = new QDrag(this);
             QMimeData *mimeData = new QMimeData;
             QByteArray byteData;
@@ -315,7 +367,16 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             mimeData->setData("application/x-dnditemdata", byteData);
             drag->setMimeData(mimeData);
             drag->setPixmap(scaledThumbnail);
-            drag->setHotSpot(mouseEvent->pos() - winbox->pos() + QPoint(0, 0 + 32 + 5));
+//            drag->setHotSpot(mouseEvent->pos() - winbox->pos() + QPoint(0 - 14, 0 + 32 - 14));
+
+            qDebug() << "----------------";
+            qDebug() << thumbnailLabel->size() - scaledThumbnail.size();
+            qDebug() << thumbnailLabel->contentsRect().size() - scaledThumbnail.size();
+            qDebug() << thumbnailOffset;
+            qDebug() << thumbnailLabel->size();
+            qDebug() << thumbnailLabel->contentsRect().size();
+
+            drag->setHotSpot(mouseEvent->pos() - thumbnailOffset);
 
             if (drag->exec()) {
                 qDebug() << "Drag Done";
@@ -328,15 +389,6 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             drag->deleteLater();
 
             return true;
-        }
-
-        if (event->type() == QEvent::MouseButtonRelease) {
-            if (pressed) {
-                pressed = false;
-                emit clicked(this);
-
-                return true;
-            }
         }
     }
 

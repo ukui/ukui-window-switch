@@ -56,7 +56,7 @@ public:
     void setIcon(QPixmap icon);
     void setIconByWnck();
     void setOrigThumbnailByWnck();
-    void setThumbnail(QPixmap thumbnail);
+    void setThumbnail(QPixmap origPixmap);
     void setThumbnailByWnck();
 
     void setThumbnailHover();
@@ -75,10 +75,10 @@ public:
 
     QSize iconSize;
     QSize titleSize;
-    QSize thumbnailSize;
     QSize thnRealSize;
     QSize winboxSize;
     QRect windowRect;
+    QPoint thumbnailOffset;
 
     Qt::TransformationMode iconTransformationMode;
     Qt::TransformationMode thumbnailTransformationMode;

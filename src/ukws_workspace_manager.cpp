@@ -88,6 +88,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         ind->wmOperator->needCheckScreen = false;
         ind->index = i;
         ind->reShow(UkwsIndicator::ShowModeTiling, minScale);
+        ind->setAcceptDrops(true);
 
         connect(wsbox, &UkwsWorkspaceBox::doHover,
                 this, &UkwsWorkspaceManager::setShowingIndicator);

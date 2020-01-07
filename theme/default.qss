@@ -28,27 +28,34 @@ QWidget#ws_manager_main_widget {
 UkwsWindowExtraLabel#winbox-wintitle {
     font-size: 14px;
     color: white;
-    padding-left: 3px;
+    margin: 0px, 0px, 0px, 5px;
+    border-style: none;
+    border-width: 0px;
+    padding: 0px, 0px, 0px, 3px;
 }
 
 UkwsWindowExtraLabel#winbox-thumbnail:hover {
+    margin: 3px;
     border: 2px solid rgb(255, 255, 255);
+    padding: 0px;
 }
 
 UkwsWindowExtraLabel#winbox-thumbnail:!hover {
+    margin: 3px;
     border: 2px solid rgba(255, 255, 255, 0);
+    padding: 0px;
 }
 
 QWidget#winbox:hover {
-    padding: 0px;
     margin: 0px;
     border: 2px solid rgba(255, 255, 255, 255);
+    padding: 0px;
 }
 
 QWidget#winbox:!hover {
-    padding: 0px;
     margin: 0px;
     border: 2px solid rgba(255, 255, 255, 0);
+    padding: 0px;
 }
 
 /*QWidget#wsbox-thumbnail:hover {
