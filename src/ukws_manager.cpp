@@ -1,6 +1,8 @@
 #include "ukws_manager.h"
 
 #include <QCoreApplication>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QX11Info>
 #include <QTime>
 
@@ -218,7 +220,17 @@ bool UkwsManager::showWorkspace()
 {
     setGrabKeyboard(true);
     ws->reShow();
-    ws->setShowingIndicator(0);
+
+    // 处理所有show事件，完成初始布局
+    QCoreApplication::processEvents();
+
+    // 显示当前的工作区
+    QDesktopWidget *desktop = QApplication::desktop();
+    int screenNum = desktop->screenNumber(this);
+    WnckScreen *screen = wnck_screen_get(screenNum);
+    WnckWorkspace *workspace = wnck_screen_get_active_workspace(screen);
+    int workspaceNum = wnck_workspace_get_number(workspace);
+    ws->setShowingIndicator(workspaceNum);
 
     return true;
 }
