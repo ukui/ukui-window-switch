@@ -75,9 +75,9 @@ public:
     QSize sizeHint() const override;
     QLayoutItem *takeAt(int index) override;
 
-//    mutable int maxWidth = 0;
-//    mutable int maxHeight = 0;
-    int actualHeight;
+    mutable int maxWidth = 0;
+    mutable int maxHeight = 0;
+    int visualHeight;
 //    bool pntFlag = false;
 
 private:

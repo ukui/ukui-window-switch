@@ -55,12 +55,16 @@ UkwsFlowLayout::UkwsFlowLayout(QWidget *parent, int margin, int hSpacing, int vS
     : QLayout(parent), m_hSpace(hSpacing), m_vSpace(vSpacing)
 {
     m_rectList.clear();
+    maxWidth = 0;
+    maxHeight = 0;
     setContentsMargins(margin, margin, margin, margin);
 }
 
 UkwsFlowLayout::UkwsFlowLayout(int margin, int hSpacing, int vSpacing)
     : m_hSpace(hSpacing), m_vSpace(vSpacing)
 {
+    maxWidth = 0;
+    maxHeight = 0;
     setContentsMargins(margin, margin, margin, margin);
 }
 
@@ -162,7 +166,8 @@ int UkwsFlowLayout::doLayout(const QRect &rect, bool testOnly) const
     int x = effectiveRect.x();
     int y = effectiveRect.y();
     int lineHeight = 0;
-    int maxHeight = 0;
+    int layoutWidth = 0;
+    int layoutHeight = 0;
 
     m_rectList.clear();
     QLayoutItem *item;
@@ -194,11 +199,18 @@ int UkwsFlowLayout::doLayout(const QRect &rect, bool testOnly) const
 
         m_rectList.append(QRect(QPoint(x, y), item->sizeHint()));
 
-        if ((y + item->sizeHint().height()) > maxHeight)
-            maxHeight = y + item->sizeHint().height();
+        if (x + item->sizeHint().width() > layoutWidth)
+            layoutWidth = x + item->sizeHint().width();
+
+        if ((y + item->sizeHint().height()) > layoutHeight)
+            layoutHeight = y + item->sizeHint().height();
 
         x = nextX;
         lineHeight = qMax(lineHeight, item->sizeHint().height());
+    }
+    if (!testOnly) {
+        maxWidth = layoutWidth;
+        maxHeight = layoutHeight;
     }
 
     int index;
@@ -240,11 +252,11 @@ int UkwsFlowLayout::doLayout(const QRect &rect, bool testOnly) const
     // 垂直对齐掩码0xf0，顶对齐20，底对齐40，居中对齐80
     int layoutVAlign = this->alignment() & 0xf0;
 
-    if ((layoutVAlign != Qt::AlignTop) && (maxHeight < actualHeight)) {
+    if ((layoutVAlign != Qt::AlignTop) && (layoutHeight < visualHeight)) {
         // 开始垂直对齐修复
         if (itemList.size() > 0) {
             // FlowLayout中有控件
-            alignVFix(actualHeight - maxHeight, effectiveRect);
+            alignVFix(visualHeight - layoutHeight, effectiveRect);
         }
     }
 
