@@ -98,8 +98,15 @@ QPixmap UkwsHelper::getThumbnailByXid(XID xid)
     XGetWindowAttributes(display, xid, &attr);
     XImage *image = XGetImage(display, xid, 0, 0, attr.width, attr.height, 0xffffffff, ZPixmap);
 
-    QPixmap thumbnail = qPixmapFromXImage(image);
-    XDestroyImage(image);
+    QPixmap thumbnail;
+    if (image != nullptr) {
+        thumbnail = qPixmapFromXImage(image);
+        XDestroyImage(image);
+    } else {
+        // 无法获取到图像时，使用黑色半透明图像替代
+        thumbnail = QPixmap(attr.width, attr.height);
+        thumbnail.fill(QColor(0, 0, 0, 127));
+    }
 
     return thumbnail;
 }
