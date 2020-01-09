@@ -44,7 +44,7 @@ HEADERS += \
     src/ukws_worker.h
 
 unix: CONFIG += link_pkgconfig
-unix: PKGCONFIG += x11 libwnck-1.0
+unix: PKGCONFIG += x11 libwnck-3.0
 
 DISTFILES += \
     data/default-background.jpg \
