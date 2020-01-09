@@ -47,7 +47,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     // 主布局，包含“窗口flow控件”和“已选窗口标题”控件
     mainLayout = new QVBoxLayout();
     mainLayout->addWidget(flowScrollArea);
-    mainLayout->setAlignment(Qt::AlignHCenter);
+    mainLayout->setAlignment(Qt::AlignCenter);
     mainLayout->setMargin(0);
 
     this->setLayout(mainLayout);
@@ -465,9 +465,20 @@ void UkwsIndicator::clickWinbox(UkwsWindowBox *wb)
 
 void UkwsIndicator::flowReLayout()
 {
-    QRect rect = winboxFlowLayout->geometry();
-    winboxFlowLayout->actualHeight = rect.height();
-    winboxFlowLayout->setGeometry(rect);
+    // 获取可视区域尺寸
+    QRect visualRect = flowScrollArea->geometry();
+
+    // 设置flowArea尺寸
+    // 宽度：由于可视区宽度限制flowlayout，故这里为可视区宽度
+    // 高度：在高度超过可视区时使用垂直滚动，在高度小于可视区时垂直居中，
+    //      故这里为Max(实际layout高度, 可视区高度)
+    QRect rect;
+    rect.setWidth(visualRect.width());
+//    rect.setHeight(qMax(winboxFlowLayout->maxHeight,
+//                        winboxFlowLayout->heightForWidth(visualRect.width())));
+    rect.setHeight(winboxFlowLayout->maxHeight);
+    winboxFlowLayout->visualHeight = visualRect.height();
+    flowArea->setGeometry(rect);
 }
 
 void UkwsIndicator::moveWindow()
