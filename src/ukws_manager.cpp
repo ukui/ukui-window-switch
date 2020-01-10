@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QDBusError>
 #include <QX11Info>
 #include <QTime>
 
@@ -56,6 +57,15 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     connect(ws, &UkwsWorkspaceManager::isHidden, this, &UkwsManager::hideWorkspace);
 //    connect(altChecker, &UkwsAltChecker::altReleased, this, &UkwsManager::hideIndicator);
 
+    // 连接session总线
+    QDBusConnection connection = QDBusConnection::sessionBus();
+
+    // 在session总线上为UKWS注册服务
+    if(!connection.registerService("org.ukui.WindowSwitch")) {
+        qCritical() << "Register DBus Service Error:" << connection.lastError().message();
+    }
+    // 注册org.ukui.WindowSwitch服务的object，把UkwsManager类的所有公共槽函数导出为object的method
+    connection.registerObject("/org/ukui/WindowSwitch", this, QDBusConnection::ExportAllSlots);
 }
 
 void UkwsManager::setTheme(QString themeString)

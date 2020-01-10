@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QLayout>
 #include <QList>
+#include <QDBusConnection>
 #include <QString>
 #include <QTimer>
 #include <QThread>
@@ -27,6 +28,7 @@ class UkwsAltChecker;
 class UkwsManager : public QWidget
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "org.ukui.WindowSwitch")
 public:
     explicit UkwsManager(QWidget *parent = nullptr);
 
@@ -48,13 +50,14 @@ public:
 signals:
 
 public slots:
-//    void setCurrentWorkspace(int index);
+    bool handleWorkspace();
+
+private slots:
     void showNextWinbox();
     void showPrevWinbox();
     bool showIndicator();
     void hideIndicator();
     void hideIndicatorAndActivate(bool needActivate);
-    bool handleWorkspace();
     bool showWorkspace();
     void hideWorkspace();
 
