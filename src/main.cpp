@@ -22,6 +22,7 @@
 #include <sys/file.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <gdk/gdk.h>
 
 #include "ukws_helper.h"
 #include "ukws_config.h"
@@ -218,6 +219,9 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(msgHandler);
 
     QApplication a(argc, argv);
+
+    // libwnck使用GDK的接口，需要使用gdk_init来初始化GDK
+    gdk_init (&argc, &argv);
 
     QCommandLineParser parser;
     QCommandLineOption showWorkspaceOption("show-workspace", "show or hide workspace view");
