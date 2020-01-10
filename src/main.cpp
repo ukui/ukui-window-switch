@@ -7,12 +7,16 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QScreen>
+#include <QDBusInterface>
+#include <QDBusReply>
 #include <QFile>
 #include <QFileInfo>
 #include <QDate>
 #include <QDebug>
 #include <QTimer>
 #include <QUrl>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 
 #include <stdio.h>
 #include <sys/file.h>
@@ -190,17 +194,46 @@ void msgHandler(QtMsgType type, const QMessageLogContext& context, const QString
         abort();
 }
 
+void handleWorkspaceView()
+{
+    QDBusInterface interface("org.ukui.WindowSwitch", "/org/ukui/WindowSwitch",
+                                "org.ukui.WindowSwitch",
+                                QDBusConnection::sessionBus());
+    if (!interface.isValid()) {
+        qCritical() << QDBusConnection::sessionBus().lastError().message();
+        exit(1);
+    }
+    //调用远程的value方法
+    QDBusReply<bool> reply = interface.call("handleWorkspace");
+    if (reply.isValid()) {
+        if (!reply.value())
+            qWarning() << "Handle Workspace View Failed";
+    } else {
+        qCritical() << "Call Dbus method failed";
+    }
+}
+
 int main(int argc, char *argv[])
 {
     qInstallMessageHandler(msgHandler);
+
+    QApplication a(argc, argv);
+
+    QCommandLineParser parser;
+    QCommandLineOption showWorkspaceOption("show-workspace", "show or hide workspace view");
+    parser.addOption(showWorkspaceOption);
+    parser.process(a);
+
+    if (parser.isSet("show-workspace")) {
+        handleWorkspaceView();
+        return 0;
+    }
 
     //Check if another process is running.
     int checkRet = checkProcessRunning(PROGRAM_NAME);
     if (checkRet != 0) {
         return checkRet;
     }
-
-    QApplication a(argc, argv);
 
     UkwsDbusWatcher dbusWatcher;
 
