@@ -17,6 +17,7 @@
 #include <QUrl>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
+#include <QStyleFactory>
 
 #include <stdio.h>
 #include <sys/file.h>
@@ -218,6 +219,7 @@ int main(int argc, char *argv[])
 {
     qInstallMessageHandler(msgHandler);
 
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
     QApplication a(argc, argv);
 
     // libwnck使用GDK的接口，需要使用gdk_init来初始化GDK
