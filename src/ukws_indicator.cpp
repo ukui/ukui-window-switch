@@ -148,6 +148,7 @@ void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
 {
     winboxFlowLayout->removeWidget(winbox);
     winboxList.removeOne(winbox);
+    disconnect(winbox, &UkwsWindowBox::clicked, this, &UkwsIndicator::clickWinbox);
 
     // 更新索引
     int size = winboxList.size();
