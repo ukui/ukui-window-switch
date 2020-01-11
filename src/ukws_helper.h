@@ -44,6 +44,8 @@ public:
     static QPixmap qPixmapFromXImage(XImage* ximage);
 
     static QPixmap getThumbnailByXid(XID xid = 0);
+
+    static XID getParentWindowId(XID xid);
 };
 
 #endif // UKWS_HELPER_H

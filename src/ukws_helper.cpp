@@ -111,11 +111,21 @@ QPixmap UkwsHelper::qPixmapFromXImage(XImage* ximage)
 
 QPixmap UkwsHelper::getThumbnailByXid(XID xid)
 {
-    Display *display = QX11Info::display();
-
     XWindowAttributes attr;
+    XID parentXid = getParentWindowId(xid);
+    Display *display = QX11Info::display();
+    int ukwmShadowWidth = 26;
+    int ukwmShadowTopOffset = 3;
+
+    if (parentXid != ~0)
+        xid = parentXid;
+
     XGetWindowAttributes(display, xid, &attr);
-    XImage *image = XGetImage(display, xid, 0, 0, attr.width, attr.height, 0xffffffff, ZPixmap);
+    XImage *image = XGetImage(display, xid, ukwmShadowWidth,
+                              ukwmShadowWidth - ukwmShadowTopOffset,
+                              attr.width - ukwmShadowWidth * 2,
+                              attr.height - ukwmShadowWidth * 2,
+                              0xffffffff, ZPixmap);
 
     QPixmap thumbnail;
     if (image != nullptr) {
@@ -128,4 +138,18 @@ QPixmap UkwsHelper::getThumbnailByXid(XID xid)
     }
 
     return thumbnail;
+}
+
+XID UkwsHelper::getParentWindowId(XID xid)
+{
+    XID root, parent, *children = NULL;
+    unsigned int childrenNum;
+
+    if (!XQueryTree(QX11Info::display(), xid, &root, &parent, &children, &childrenNum))
+        return ~0;
+
+    if (children)
+        XFree((char *)children);
+
+    return parent;
 }
