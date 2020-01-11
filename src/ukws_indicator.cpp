@@ -393,6 +393,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         this->move((screenRect.width() - maxWidth) / 2,
                    (screenRect.height() - maxHeight) / 2);
     }
+    this->show();
     this->flowReLayout();
     this->flowScrollArea->verticalScrollBar()->setValue(0);
     this->reSetWindowThumbnailByWnck();
@@ -403,7 +404,6 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         return;
     }
 
-    this->show();
     this->activateWindow();
 
     if (showMode == UkwsIndicatorShowMode::ShowModeSwitch) {
