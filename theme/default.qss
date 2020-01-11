@@ -6,7 +6,7 @@ QWidget#indicator_sub_widget {
 }
 
 QWidget#indicator_main_widget {
-    background-color: rgba(0, 0, 0, 176);
+    background-color: rgba(23, 23, 23, 176);
     border-style: none;
     border-width: 0px;
     padding: 0px;
@@ -35,13 +35,13 @@ UkwsWindowExtraLabel#winbox-wintitle {
 }
 
 UkwsWindowExtraLabel#winbox-thumbnail:hover {
-    margin: 3px;
+    margin: 0px;
     border: 2px solid rgb(255, 255, 255);
     padding: 0px;
 }
 
 UkwsWindowExtraLabel#winbox-thumbnail:!hover {
-    margin: 3px;
+    margin: 0px;
     border: 2px solid rgba(255, 255, 255, 0);
     padding: 0px;
 }
