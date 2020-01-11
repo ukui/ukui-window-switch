@@ -263,14 +263,14 @@ int main(int argc, char *argv[])
     UkwsDbusWatcher dbusWatcher;
 
     UkwsConfig *conf = new UkwsConfig;
-    conf->setConfigFile("ukui-window-switcher.conf", "/etc/ukui-window-switcher");
+    conf->setConfigFile("ukui-window-switch.conf", "/etc/ukui-window-switch");
     conf->configReload();
 
     QString ukwsThemeString;
     QFile ukwsTheme;
     QFileInfo themeFileInfo;
-    ukswDirList << "/usr/share/ukui-window-switcher/" <<
-                   "/home/droiing/workspace/ukui-window-switcher/ukui-window-switcher/ukui-window-switcher/" <<
+    ukswDirList << "/usr/share/ukui-window-switch/" <<
+                   "/home/droiing/workspace/ukui-window-switch/ukui-window-switch/" <<
                    UKWS_DATA_DEFAULT_DIR;
     foreach(QString ukwsDir, ukswDirList) {
         themeFileInfo.setFile(ukwsDir + "/theme/" + conf->theme + ".qss");
