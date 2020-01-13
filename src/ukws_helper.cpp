@@ -17,8 +17,12 @@
  *
  */
 
-#include <QX11Info>
+
 #include "ukws_helper.h"
+
+using namespace UkwsHelperXHeader;
+
+#include <QX11Info>
 
 UkwsHelper::UkwsHelper()
 {
@@ -117,7 +121,7 @@ QPixmap UkwsHelper::getThumbnailByXid(XID xid)
     int ukwmShadowWidth = 26;
     int ukwmShadowTopOffset = 3;
 
-    if (parentXid != ~0)
+    if (parentXid != ~(unsigned long)0)
         xid = parentXid;
 
     XGetWindowAttributes(display, xid, &attr);

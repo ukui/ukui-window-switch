@@ -28,9 +28,14 @@ extern "C" {
 #include <QImage>
 #include <QPixmap>
 
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+namespace UkwsHelperXHeader {
+    #include <X11/X.h>
+    #include <X11/Xlib.h>
+    #include <X11/Xutil.h>
+}
+
+using UkwsHelperXHeader::XImage;
+using UkwsHelperXHeader::XID;
 
 class UkwsHelper
 {
