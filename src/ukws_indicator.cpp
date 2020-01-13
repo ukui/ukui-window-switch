@@ -122,6 +122,7 @@ void UkwsIndicator::selectWindow(int index)
     selIndex = index;
     wb = winboxList.at(selIndex);
     wb->setWindowBoxSelected();
+    flowScrollArea->ensureWidgetVisible(wb);
 }
 
 void UkwsIndicator::selectPrevWindow()
