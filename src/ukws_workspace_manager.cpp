@@ -26,6 +26,7 @@
 #include <QtX11Extras/QX11Info>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QScreen>
 #include <QStyleOption>
 #include <QPainter>
 #include <QX11Info>
@@ -72,7 +73,8 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 
     QDesktopWidget *desktop = QApplication::desktop();
     int screenNum = desktop->screenNumber(this);
-    QRect screenRect = desktop->screenGeometry(screenNum);
+//    QRect screenRect = desktop->screenGeometry(screenNum);
+    QRect screenRect = QGuiApplication::screens().at(screenNum)->geometry();
     WnckScreen *screen = wnck_screen_get(screenNum);
     float scale = 1.0 / 6;
     int w = screenRect.width() * scale;

@@ -26,6 +26,7 @@
 #include <QtX11Extras/QX11Info>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QScreen>
 #include <QStyleOption>
 #include <QPainter>
 #include <QScrollBar>
@@ -316,19 +317,22 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     cleanStopSignal();
     showStatus = UkwsWidgetShowStatus::Constructing;
 
-    QDesktopWidget *desktop = QApplication::desktop();
+//    QDesktopWidget *desktop = QApplication::desktop();
 
     // 自当前屏幕上显示indicator
     // 获取鼠标所在屏幕
     QRect screenRect;
+    int screenCount = QGuiApplication::screens().count();
     int screenIndex = -1;
-    for (int i = 0; i < desktop->screenCount(); i++) {
-        screenRect = desktop->screenGeometry(i);
+    for (int i = 0  ; i < screenCount; i++) {
+//        screenRect = desktop->screenGeometry(i);
+        screenRect = QGuiApplication::screens().at(i)->geometry() ;
         if (screenRect.contains(QCursor::pos()))
             screenIndex = i;
     }
 
-    screenRect =  desktop->availableGeometry(screenIndex);
+//    screenRect =  desktop->availableGeometry(screenIndex);
+    screenRect = QGuiApplication::screens().at(screenIndex)->availableGeometry();
 
     if (showMode == UkwsIndicatorShowMode::ShowModeSwitch) {
         maxWidth = screenRect.width() * 4 / 5;
