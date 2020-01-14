@@ -48,6 +48,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     selIndex = -1;
     cpus = 1;
     hasStopSignal = false;
+    config = nullptr;
 
     wmOperator = new UkwsWnckOperator;
     flowScrollArea = new QScrollArea();
@@ -155,6 +156,11 @@ void UkwsIndicator::selectNextWindow()
     flowScrollArea->ensureWidgetVisible(wb);
 }
 
+void UkwsIndicator::setConfig(UkwsConfig *config)
+{
+    this->config = config;
+}
+
 void UkwsIndicator::addWinbox(UkwsWindowBox *winbox)
 {
     // 添加到列表最后，所以index = size()
@@ -238,6 +244,9 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
     for (int i = 0; i < size; i++) {
         WnckWindow *win = wmOperator->windowQList->at(i);
         UkwsWindowBox *wb = new UkwsWindowBox;
+
+        wb->frameShadowWidth = config->frameShadowWidth;
+        wb->frameshadowTopOffset = config->frameshadowTopOffset;
 
         wb->setWnckWindow(win);
 

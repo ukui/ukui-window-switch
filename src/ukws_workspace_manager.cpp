@@ -40,6 +40,7 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
     indStack = new QStackedWidget;
     wsboxLayout = new QVBoxLayout;
     showStatus = UkwsWidgetShowStatus::Hidden;
+    config = nullptr;
 
     mainLayout = new QHBoxLayout();
     mainLayout->addWidget(indStack);
@@ -357,6 +358,11 @@ void UkwsWorkspaceManager::cleanAllWorkspace()
         ind->deleteLater();
     }
     indList.clear();
+}
+
+void UkwsWorkspaceManager::setConfig(UkwsConfig *config)
+{
+    this->config = config;
 }
 
 bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)

@@ -50,66 +50,16 @@
 #include "ukws_manager.h"
 
 #ifndef UKWS_DATA_DEFAULT_DIR
-#define UKWS_DATA_DEFAULT_DIR "/usr/share/ukui-window-switcher/"
+#define UKWS_DATA_DEFAULT_DIR "/usr/share/ukui-window-switch/"
+#endif
+
+#ifndef UKWS_CONF_DEFAULT_DIR
+#define UKWS_CONF_DEFAULT_DIR "/etc/ukui/ukui-window-switch/"
 #endif
 
 #define PROGRAM_NAME "ukui-window-switch"
 #define PATH_MAX_LEN 1024
 #define PID_STRING_LEN 64
-
-QStringList ukswDirList;
-QString defaultTheme="QWidget#indicator_sub_widget {\
-        background-color: rgba(0, 0, 0, 0);\
-        border-style: none;\
-        border-width: 0px;\
-        padding: 0px;\
-    }\
-\
-    QWidget#indicator_main_widget {\
-        background-color: rgba(0, 0, 0, 176);\
-        border-style: none;\
-        border-width: 0px;\
-        padding: 0px;\
-    }\
-\
-    QWidget#ws_manager_sub_widget {\
-        border-radius: 1px;\
-        border-style: none;\
-        border-width: 0px;\
-        padding: 0px;\
-    }\
-\
-    QWidget#ws_manager_main_widget {\
-        border-style: none;\
-        border-width: 0px;\
-        padding: 0px;\
-    }\
-\
-    UkwsWindowExtraLabel#winbox-wintitle {\
-        font-size: 14px;\
-        color: white;\
-        padding-left: 3px;\
-    }\
-\
-    UkwsWindowExtraLabel#winbox-thumbnail:hover {\
-        border: 2px solid rgb(255, 255, 255);\
-    }\
-\
-    UkwsWindowExtraLabel#winbox-thumbnail:!hover {\
-        border: 2px solid rgba(255, 255, 255, 0);\
-    }\
-\
-    QWidget#winbox:hover {\
-        padding: 0px;\
-        margin: 0px;\
-        border: 2px solid rgba(255, 255, 255, 255);\
-    }\
-\
-    QWidget#winbox:!hover {\
-        padding: 0px;\
-        margin: 0px;\
-        border: 2px solid rgba(255, 255, 255, 0);\
-    }";
 
 int checkProcessRunning(const char *processName)
 {
@@ -263,33 +213,11 @@ int main(int argc, char *argv[])
     UkwsDbusWatcher dbusWatcher;
 
     UkwsConfig *conf = new UkwsConfig;
-    conf->setConfigFile("ukui-window-switch.conf", "/etc/ukui-window-switch");
+    conf->setConfigFile("ukui-window-switch.conf", UKWS_CONF_DEFAULT_DIR);
     conf->configReload();
 
-    QString ukwsThemeString;
-    QFile ukwsTheme;
-    QFileInfo themeFileInfo;
-    ukswDirList << "/usr/share/ukui-window-switch/" <<
-                   "/home/droiing/workspace/ukui-window-switch/ukui-window-switch/" <<
-                   UKWS_DATA_DEFAULT_DIR;
-    foreach(QString ukwsDir, ukswDirList) {
-        themeFileInfo.setFile(ukwsDir + "/theme/" + conf->theme + ".qss");
-        qDebug() << "Theme file check:" << themeFileInfo.absoluteFilePath();
-        if (themeFileInfo.exists())
-            ukwsTheme.setFileName(themeFileInfo.absoluteFilePath());
-    }
-    if (ukwsTheme.fileName() == "") {
-        ukwsThemeString = defaultTheme;
-    } else {
-        qDebug() << "Loading theme file:" << ukwsTheme.fileName();
-        ukwsTheme.open(QFile::ReadOnly);
-        ukwsThemeString = ukwsTheme.readAll();
-        ukwsTheme.close();
-    }
-
     UkwsManager winManager;
-    winManager.setTheme(ukwsThemeString);
-    winManager.config = conf;
+    winManager.setConfig(conf);
 
     return a.exec();
 }

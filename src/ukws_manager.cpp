@@ -87,6 +87,14 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     connection.registerObject("/org/ukui/WindowSwitch", this, QDBusConnection::ExportAllSlots);
 }
 
+void UkwsManager::setConfig(UkwsConfig *config)
+{
+    this->config = config;
+    setTheme(config->themeString);
+    ind->setConfig(config);
+    ws->setConfig(config);
+}
+
 void UkwsManager::setTheme(QString themeString)
 {
     ind->setStyleSheet(themeString);

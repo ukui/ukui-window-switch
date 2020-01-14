@@ -24,6 +24,7 @@
 #include "ukws_window_box.h"
 #include "ukws_flowlayout.h"
 #include "ukws_wnck_operator.h"
+#include "ukws_config.h"
 #include "ukws_worker.h"
 
 #include <QWidget>
@@ -77,7 +78,10 @@ public:
     void selectPrevWindow();
     void selectNextWindow();
 
+    void setConfig(UkwsConfig *config);
+
     UkwsWnckOperator *wmOperator;
+    UkwsConfig *config;
 
     UkwsIndicatorShowMode showMode;
     UkwsWidgetShowStatus showStatus;

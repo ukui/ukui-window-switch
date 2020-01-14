@@ -87,6 +87,9 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event);
 
+    int frameShadowWidth;
+    int frameshadowTopOffset;
+
     int index;
     int parentIndex;
     int winType;

@@ -24,6 +24,7 @@
 #include "ukws_flowlayout.h"
 #include "ukws_wnck_operator.h"
 #include "ukws_workspace_box.h"
+#include "ukws_config.h"
 
 #include <QWidget>
 //#include <QMainWindow>
@@ -54,6 +55,9 @@ public:
     void setBackgroundImage();
     void cleanAllWorkspace();
 
+    void setConfig(UkwsConfig *config);
+
+    UkwsConfig *config;
     UkwsWidgetShowStatus showStatus;
 
 signals:

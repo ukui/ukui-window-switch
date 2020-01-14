@@ -39,6 +39,8 @@ static const QSize UKWS_THUMBNAIL_SIZE = QSize(UKWS_THUMBNAIL_DEFAULT_WIDTH, UKW
 UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 {
 //    this->setAttribute(Qt::WA_TranslucentBackground, true);
+    frameShadowWidth = 0;
+    frameshadowTopOffset = 0;
     dragable = false;
 
     titleLabel = new UkwsWindowExtraLabel();
@@ -247,7 +249,9 @@ void UkwsWindowBox::setIconByWnck()
 
 void UkwsWindowBox::setOrigThumbnailByWnck()
 {
-    thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin));
+    thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin),
+                                                                    frameShadowWidth,
+                                                                    frameshadowTopOffset);
 }
 
 void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
@@ -272,7 +276,9 @@ void UkwsWindowBox::setThumbnailByWnck()
 {
     QSize labelSize = thumbnailLabel->size();
     if (labelSize.width() == 0 || labelSize.height() == 0)
-        thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin));
+        thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin),
+                                                                        frameShadowWidth,
+                                                                        frameshadowTopOffset);
 
     // 缩略图，外边框2，图片间距2；
     // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8

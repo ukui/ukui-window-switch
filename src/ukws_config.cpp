@@ -21,6 +21,64 @@
 
 #include <QDir>
 #include <QSettings>
+#include <QDebug>
+
+#ifndef UKWS_DATA_DEFAULT_DIR
+#define UKWS_DATA_DEFAULT_DIR "/usr/share/ukui-window-switch/"
+#endif
+
+QString defaultTheme="QWidget#indicator_sub_widget {\
+        background-color: rgba(0, 0, 0, 0);\
+        border-style: none;\
+        border-width: 0px;\
+        padding: 0px;\
+    }\
+\
+    QWidget#indicator_main_widget {\
+        background-color: rgba(0, 0, 0, 176);\
+        border-style: none;\
+        border-width: 0px;\
+        padding: 0px;\
+    }\
+\
+    QWidget#ws_manager_sub_widget {\
+        border-radius: 1px;\
+        border-style: none;\
+        border-width: 0px;\
+        padding: 0px;\
+    }\
+\
+    QWidget#ws_manager_main_widget {\
+        border-style: none;\
+        border-width: 0px;\
+        padding: 0px;\
+    }\
+\
+    UkwsWindowExtraLabel#winbox-wintitle {\
+        font-size: 14px;\
+        color: white;\
+        padding-left: 3px;\
+    }\
+\
+    UkwsWindowExtraLabel#winbox-thumbnail:hover {\
+        border: 2px solid rgb(255, 255, 255);\
+    }\
+\
+    UkwsWindowExtraLabel#winbox-thumbnail:!hover {\
+        border: 2px solid rgba(255, 255, 255, 0);\
+    }\
+\
+    QWidget#winbox:hover {\
+        padding: 0px;\
+        margin: 0px;\
+        border: 2px solid rgba(255, 255, 255, 255);\
+    }\
+\
+    QWidget#winbox:!hover {\
+        padding: 0px;\
+        margin: 0px;\
+        border: 2px solid rgba(255, 255, 255, 0);\
+    }";
 
 UkwsConfig::UkwsConfig()
 {
@@ -32,6 +90,7 @@ void UkwsConfig::configReload()
     QSettings conf(configFilePath, QSettings::IniFormat);
     bool ok;
 
+    // 获取缩略图质量
     QString mode;
     mode = conf.value("ScaledMode").toString();
     if (mode == "fast") {
@@ -40,21 +99,61 @@ void UkwsConfig::configReload()
         scaledMode = Qt::SmoothTransformation;
     } else {
         scaledMode = Qt::FastTransformation;
-        qWarning("scaled_mode parameter type error, use defalut mode: fast");
+        qWarning("ScaledMode parameter type error, use defalut mode: fast");
     }
 
-    this->theme = conf.value("Theme").toString();
-    if (this->theme == "") {
-        this->theme = "default";
-        qWarning("theme parameter not set, use defalut");
+    // 获取窗口装饰区shadow的宽度
+    frameShadowWidth = conf.value("FrameShadowWidth").toInt(&ok);
+    if (!ok) {
+        frameShadowWidth = 0;
+        qWarning("FrameShadowWidth parameter type error, use defalut level: %d", 0);
     }
 
+    // 获取窗口装饰区shadow的顶部偏移
+    frameshadowTopOffset = conf.value("FrameshadowTopOffset").toInt(&ok);
+    if (!ok) {
+        frameshadowTopOffset = 0;
+        qWarning("FrameshadowTopOffset parameter type error, use defalut level: %d", 0);
+    }
 
+    // 获取打印的日志等级
     logLevel = conf.value("LogLevel").toInt(&ok);
     if (!ok) {
         logLevel = DEFAULT_LOG_LEVEL;
-        qWarning("log_level parameter type error, use defalut level: %d", DEFAULT_LOG_LEVEL);
+        qWarning("LogLevel parameter type error, use defalut level: %d", DEFAULT_LOG_LEVEL);
     }
+
+    // 获取主题名
+    this->themeName = conf.value("Theme").toString();
+    if (this->themeName == "") {
+        this->themeName = "default";
+        qWarning("Theme parameter not set, use defalut");
+    }
+
+    // 获取主题内容
+    QString ukwsThemeString;
+    QFile ukwsTheme;
+    QFileInfo themeFileInfo;
+    QStringList ukswDirList;
+    ukswDirList << "/usr/share/ukui-window-switch/" <<
+                   "/home/droiing/workspace/ukui-window-switch/ukui-window-switch/" <<
+                   UKWS_DATA_DEFAULT_DIR;
+    foreach(QString ukwsDir, ukswDirList) {
+        themeFileInfo.setFile(ukwsDir + "/theme/" + this->themeName + ".qss");
+        qDebug() << "Theme file check:" << themeFileInfo.absoluteFilePath();
+        if (themeFileInfo.exists())
+            ukwsTheme.setFileName(themeFileInfo.absoluteFilePath());
+    }
+    if (ukwsTheme.fileName() == "") {
+        ukwsThemeString = defaultTheme;
+        qDebug() << "Loading internal default theme";
+    } else {
+        qDebug() << "Loading theme file:" << ukwsTheme.fileName();
+        ukwsTheme.open(QFile::ReadOnly);
+        ukwsThemeString = ukwsTheme.readAll();
+        ukwsTheme.close();
+    }
+    this->themeString = ukwsThemeString;
 }
 
 

@@ -39,9 +39,11 @@ public:
 
 
     Qt::TransformationMode scaledMode;
+    int frameShadowWidth;
+    int frameshadowTopOffset;
     int logLevel;
-    float indicatorMinRatio;
-    QString theme;
+    QString themeName;
+    QString themeString;
 
 private:
     QString configFilePath;

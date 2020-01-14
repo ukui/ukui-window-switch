@@ -54,6 +54,7 @@ public:
     void checkShortcutStatus();
     void checkAltStatus();
     void setGrabKeyboard(bool needGrab);
+    void setConfig(UkwsConfig *config);
     void setTheme(QString themeString);
 
     bool waitingShowStatusStable(UkwsWidgetShowStatus &status, int timeoutMS);
