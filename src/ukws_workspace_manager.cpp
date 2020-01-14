@@ -105,6 +105,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         wsbox->setThumbnail(wsboxBackground);
 
         ind->setFixedWidth(screenRect.width() - w - 10);
+        ind->setConfig(config);
         ind->wmOperator->screen = screen;
         ind->wmOperator->workspace = wws;
         ind->wmOperator->needCheckWorkspace = true;
