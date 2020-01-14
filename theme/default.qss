@@ -58,16 +58,72 @@ QWidget#winbox:!hover {
     padding: 0px;
 }
 
-/*QWidget#wsbox-thumbnail:hover {
-    padding: 0px;
+QScrollBar#flow_scrollbar:vertical {
+    width: 12px;
+    border: 0px none;
+    border-radius: 2px;
     margin: 0px;
-    border: 2px solid rgba(255, 255, 255, 255);
-    font-size: 14px; color: White; padding-left: 3px;
+    background: rgba(0, 0, 0, 10%);
 }
 
-QWidget#wsbox-thumbnail:!hover {
-    padding: 0px;
+QScrollBar#flow_scrollbar:vertical:hover {
+    width: 12px;
+    border: 0px none;
+    border-radius: 2px;
     margin: 0px;
-    border: 2px solid rgba(255, 255, 255, 0);
-    font-size: 14px; color: Silver; padding-left: 3px;
-}*/
+    background: rgba(15, 15, 15, 25%);
+}
+
+QScrollBar#flow_scrollbar::handle:vertical {
+    width: 12px;
+    border-radius: 2px;
+    background: rgba(7, 7, 7, 50%);
+}
+
+QScrollBar#flow_scrollbar::handle:vertical:hover {
+    width: 12px;
+    border-radius: 2px;
+    background: rgba(7, 7, 7, 85%);
+}
+
+QScrollBar#flow_scrollbar::add-line:vertical {
+    width: 12px;
+    height: 0px;
+    border: 0px none;
+    border-radius: 0px;
+/*    background-color: transparent;*/
+    background: rgba(7, 7, 7, 85%);
+    subcontrol-position: bottom;
+}
+
+QScrollBar#flow_scrollbar::sub-line:vertical {
+    width: 12px;
+    height: 0px;
+    border: 0px none;
+    border-radius: 0px;
+/*    background-color: transparent;*/
+    background: rgba(7, 7, 7, 85%);
+    subcontrol-position: top;
+}
+
+QScrollBar#flow_scrollbar::add-page:vertical {
+    background-color: rgba(15, 15, 15, 0%);
+    border: 0px none;
+    border-radius: 0px;
+}
+
+QScrollBar#flow_scrollbar::sub-page:vertical {
+    background-color: rgba(15, 15, 15, 0%);
+    border: 0px none;
+    border-radius: 0px;
+}
+
+QScrollBar#flow_scrollbar::up-arrow:vertical {
+    border: 0px none;
+    border-radius: 0px;
+}
+
+QScrollBar#flow_scrollbar::down-arrow:vertical {
+    border: 0px none;
+    border-radius: 0px;
+}
