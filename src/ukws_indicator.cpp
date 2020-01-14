@@ -23,6 +23,7 @@
 
 #include <QDebug>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QtX11Extras/QX11Info>
 #include <QDesktopWidget>
 #include <QApplication>
@@ -64,19 +65,32 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     flowScrollArea->setWidgetResizable(true);
     flowScrollArea->setWidget(flowArea);
     flowScrollArea->setContentsMargins(0, 0, 0, 0);
+    flowScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    flowScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // 主布局，包含“窗口flow控件”和“已选窗口标题”控件
     mainLayout = new QVBoxLayout();
     mainLayout->addWidget(flowScrollArea);
     mainLayout->setAlignment(Qt::AlignCenter);
     mainLayout->setMargin(0);
-
     this->setLayout(mainLayout);
+
+    // 设置悬浮滚动条
+    flowScrollBar = new QScrollBar(Qt::Vertical, this);
+    flowScrollBar->setVisible(false);
+
+    connect(flowScrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
+            flowScrollBar, &QScrollBar::setValue);
+    connect(flowScrollBar, &QScrollBar::valueChanged,
+            flowScrollArea->verticalScrollBar(), &QScrollBar::setValue);
+    connect(flowScrollArea->verticalScrollBar(), &QScrollBar::rangeChanged,
+            flowScrollBar, &QScrollBar::setRange);
 
     this->setAttribute(Qt::WA_TranslucentBackground, true);
     this->setObjectName(UKWS_OBJ_IND_SUBWIDGET);
     flowArea->setObjectName(UKWS_OBJ_IND_SUBWIDGET);
     flowScrollArea->setObjectName(UKWS_OBJ_IND_SUBWIDGET);
+    flowScrollBar->setObjectName(UKWS_OBJ_FLOW_SCROLLBAR);
     this->setObjectName(UKWS_OBJ_IND_MAINWIDGET);
 
     this->installEventFilter(this);
@@ -659,6 +673,31 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
             } else {
                 dropEvent->ignore();
             }
+        }
+
+        if (event->type() == QEvent::Resize) {
+            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
+            int x = this->width() - 12;
+            flowScrollBar->setGeometry(x, 1, 12, this->height() - 2);
+            flowScrollBar->setPageStep(this->height());
+            QWidget::resizeEvent(resizeEvent);
+
+            return false;
+        }
+
+        if (event->type() == QEvent::Enter) {
+            if (flowScrollBar->maximum() > 0)
+                flowScrollBar->show();
+            QWidget::enterEvent(event);
+
+            return false;
+        }
+
+        if (event->type() == QEvent::Leave) {
+            flowScrollBar->hide();
+            QWidget::leaveEvent(event);
+
+            return false;
         }
 
         return false;

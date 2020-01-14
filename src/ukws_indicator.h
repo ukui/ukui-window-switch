@@ -107,6 +107,7 @@ private:
     UkwsFlowLayout *winboxFlowLayout;
     QWidget *flowArea;
     QScrollArea *flowScrollArea;
+    QScrollBar *flowScrollBar;
 
     QVBoxLayout *mainLayout;
 

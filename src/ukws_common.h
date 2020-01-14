@@ -24,6 +24,7 @@
 #define UKWS_OBJ_IND_MAINWIDGET     "indicator_main_widget"
 #define UKWS_OBJ_WS_MGR_SUBWIDGET   "ws_manager_sub_widget"
 #define UKWS_OBJ_WS_MGR_MAINWIDGET  "ws_manager_main_widget"
+#define UKWS_OBJ_FLOW_SCROLLBAR     "flow_scrollbar"
 #define UKWS_OBJ_WINBOX             "winbox"
 #define UKWS_OBJ_WINBOX_WIN_NAME    "winbox-wintitle"
 #define UKWS_OBJ_WINBOX_THUMBNAIL   "winbox-thumbnail"
