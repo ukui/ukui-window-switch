@@ -74,6 +74,7 @@ public:
 
     void setIcon(QPixmap icon);
     void setIconByWnck();
+    void fixFrameWindowArea();
     void setOrigThumbnailByWnck();
     void setThumbnail(QPixmap origPixmap);
     void setThumbnailByWnck();
@@ -87,8 +88,11 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event);
 
-    int frameShadowWidth;
-    int frameshadowTopOffset;
+    unsigned long frameXid;
+    int offsetLeft;
+    int offsetRight;
+    int offsetTop;
+    int offsetBottom;
 
     int index;
     int parentIndex;
@@ -124,6 +128,7 @@ private:
     QHBoxLayout *topBarLayout;
 
     WnckWindow *wnckWin;
+    bool hasFrame;
 };
 
 #endif // UKWS_WINDOWBOX_H

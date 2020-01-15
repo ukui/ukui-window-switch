@@ -259,9 +259,6 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
         WnckWindow *win = wmOperator->windowQList->at(i);
         UkwsWindowBox *wb = new UkwsWindowBox;
 
-        wb->frameShadowWidth = config->frameShadowWidth;
-        wb->frameshadowTopOffset = config->frameshadowTopOffset;
-
         wb->setWnckWindow(win);
 
         // 设置Winbox大小

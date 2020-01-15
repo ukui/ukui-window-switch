@@ -24,13 +24,17 @@
 #include <QSize>
 #include <QEvent>
 #include <QResizeEvent>
-#include <QX11Info>
+
 #include <QDebug>
 #include <QStyleOption>
 #include <QPainter>
 
 #include "ukws_common.h"
 #include "ukws_helper.h"
+
+using namespace UkwsHelperXHeader;
+
+#include <QX11Info>
 
 static const QSize UKWS_TITLE_SIZE = QSize(UKWS_TITLE_WIDTH, UKWS_TITLE_HEIGHT);
 static const QSize UKWS_ICON_SIZE = QSize(UKWS_ICON_DEFAULT_WIDTH, UKWS_ICON_DEFAULT_HEIGHT);
@@ -39,9 +43,13 @@ static const QSize UKWS_THUMBNAIL_SIZE = QSize(UKWS_THUMBNAIL_DEFAULT_WIDTH, UKW
 UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 {
 //    this->setAttribute(Qt::WA_TranslucentBackground, true);
-    frameShadowWidth = 0;
-    frameshadowTopOffset = 0;
     dragable = false;
+    offsetLeft = 0;
+    offsetRight = 0;
+    offsetTop = 0;
+    offsetBottom = 0;
+    frameXid = 0;
+    hasFrame = false;
 
     titleLabel = new UkwsWindowExtraLabel();
     iconLabel = new UkwsWindowExtraLabel();
@@ -247,11 +255,71 @@ void UkwsWindowBox::setIconByWnck()
                                  Qt::KeepAspectRatio, thumbnailTransformationMode));
 }
 
+void UkwsWindowBox::fixFrameWindowArea()
+{
+    // 判断窗口是否被窗口管理器添加了装饰窗口frame window
+    int frameX, frameY, frameWidth, frameHeigh;
+    int origX, origY, origWidth, origHeigh;
+
+    wnck_window_get_geometry(wnckWin, &frameX, &frameY, &frameWidth, &frameHeigh);
+    wnck_window_get_client_window_geometry(wnckWin, &origX, &origY, &origWidth, &origHeigh);
+
+    if ((origWidth == frameWidth) && (origHeigh == frameHeigh)) {
+        // 无窗口装饰区
+        offsetLeft = 0;
+        offsetRight = 0;
+        offsetTop = 0;
+        offsetBottom = 0;
+        frameXid = wnck_window_get_xid(wnckWin);
+        hasFrame = false;
+    } else {
+        // 有窗口装饰区，获取装饰区
+        XWindowAttributes attr;
+        Display *display = QX11Info::display();
+        XID parentXid = UkwsHelper::getParentWindowId(wnck_window_get_xid(wnckWin));
+
+        if (parentXid == ~(unsigned long)0) {
+            // 获取父窗口ID失败，使用自身的WID作为frame窗口的ID，偏移量全为0
+            offsetLeft = 0;
+            offsetRight = 0;
+            offsetTop = 0;
+            offsetBottom = 0;
+            frameXid = wnck_window_get_xid(wnckWin);
+            hasFrame = false;
+
+            return;
+        } else {
+            // frame窗口为本窗口的父窗口
+            frameXid = parentXid;
+        }
+
+        // 获取frame窗口属性
+        XGetWindowAttributes(display, frameXid, &attr);
+
+        // 过滤窗口阴影
+        offsetLeft = frameX - attr.x;
+        offsetRight = attr.width - offsetLeft - frameWidth;
+        offsetTop = frameY - attr.y;
+        offsetBottom = attr.height - offsetTop - frameHeigh;
+
+        // 边界值修正
+        if (offsetLeft < 0) offsetLeft = 0;
+        if (offsetRight < 0) offsetRight = 0;
+        if (offsetTop < 0) offsetTop = 0;
+        if (offsetBottom < 0) offsetBottom = 0;
+
+        hasFrame = true;
+    }
+}
+
 void UkwsWindowBox::setOrigThumbnailByWnck()
 {
-    thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin),
-                                                                    frameShadowWidth,
-                                                                    frameshadowTopOffset);
+    fixFrameWindowArea();
+    thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(frameXid,
+                                                                    offsetLeft,
+                                                                    offsetRight,
+                                                                    offsetTop,
+                                                                    offsetBottom);
 }
 
 void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
@@ -274,11 +342,14 @@ void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
 
 void UkwsWindowBox::setThumbnailByWnck()
 {
+    fixFrameWindowArea();
     QSize labelSize = thumbnailLabel->size();
     if (labelSize.width() == 0 || labelSize.height() == 0)
-        thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(wnck_window_get_xid(wnckWin),
-                                                                        frameShadowWidth,
-                                                                        frameshadowTopOffset);
+        thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(frameXid,
+                                                                        offsetLeft,
+                                                                        offsetRight,
+                                                                        offsetTop,
+                                                                        offsetBottom);
 
     // 缩略图，外边框2，图片间距2；
     // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8

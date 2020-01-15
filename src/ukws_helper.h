@@ -48,7 +48,8 @@ public:
     static QImage qImageFromXImage(XImage* ximage);
     static QPixmap qPixmapFromXImage(XImage* ximage);
 
-    static QPixmap getThumbnailByXid(XID xid = 0, int shadowWidth = 0, int shadowTopOffset = 0);
+    static QPixmap getThumbnailByXid(XID xid = 0, int offsetLeft = 0, int offsetRight = 0,
+                                     int offsetTop = 0, int offsetBottom = 0);
 
     static XID getParentWindowId(XID xid);
 };
