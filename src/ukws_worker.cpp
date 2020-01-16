@@ -68,3 +68,11 @@ void UkwsWorker::stopWork()
 {
     status = UkwsWorker::Stopping;
 }
+
+bool UkwsWorker::isStopped()
+{
+    if (status == UkwsWorker::Stopped)
+        return true;
+    else
+        return false;
+}

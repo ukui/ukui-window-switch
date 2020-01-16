@@ -111,7 +111,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         ind->wmOperator->needCheckWorkspace = true;
         ind->wmOperator->needCheckScreen = false;
         ind->index = i;
-        ind->reShow(UkwsIndicator::ShowModeTiling, minScale);
+//        ind->reShow(UkwsIndicator::ShowModeTiling, minScale);
         ind->setAcceptDrops(true);
 
         connect(wsbox, &UkwsWorkspaceBox::doHover,
@@ -122,6 +122,8 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
                 this, &UkwsWorkspaceManager::moveWindowWorkspace);
         connect(ind, &UkwsIndicator::isSelected,
                 this, &UkwsWorkspaceManager::selectWinbox);
+        connect(ind, &UkwsIndicator::windowViewPixmapChange,
+                this, &UkwsWorkspaceManager::doIndicatorWindowViewChange);
 
         spaceBoxList.append(wsbox);
         indList.append(ind);
@@ -129,6 +131,9 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         wsboxLayout->addWidget(wsbox);
         indStack->addWidget(ind);
     }
+
+    for (int i = 0; i < size; i++)
+        indList.at(i)->reShow(UkwsIndicator::ShowModeTiling, minScale);
 }
 
 void UkwsWorkspaceManager::reShow(int minScale)
@@ -235,9 +240,25 @@ void UkwsWorkspaceManager::moveWindowWorkspace(int wbIndex, int srcWsIndex, int 
     // 添加到目标indicator中
     dstInd->addWinbox(wb);
 
+    // 更新桌面视图
+    srcInd->updateWindowViewPixmap(true);
+    dstInd->updateWindowViewPixmap(true);
+
     // 重新布局
 //    srcInd->flowReLayout();
 //    dstInd->flowReLayout();
+}
+
+void UkwsWorkspaceManager::doIndicatorWindowViewChange(int indIndex)
+{
+    if (indIndex >= indList.size())
+        return;
+
+    if (indIndex >= spaceBoxList.size())
+        return;
+
+    UkwsWorkspaceBox *wsbox = spaceBoxList.at(indIndex);
+    wsbox->updateDesktopViewThumbnail(indList.at(indIndex)->getWindowView());
 }
 
 QString UkwsWorkspaceManager::getBackgroundFileByGSettings(QString schemaDir,

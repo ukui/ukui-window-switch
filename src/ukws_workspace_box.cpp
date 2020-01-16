@@ -132,8 +132,8 @@ void UkwsWorkspaceBox::setWnckWorkspace(WnckWorkspace *workspace)
 void UkwsWorkspaceBox::setThumbnail(QPixmap thumbnail)
 {
     QSize size = this->size();
-    thumbnailLabel->setPixmap(thumbnail.scaled(size,
-                                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    background = thumbnail.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    thumbnailLabel->setPixmap(background);
 }
 
 bool UkwsWorkspaceBox::eventFilter(QObject *object, QEvent *event)
@@ -215,6 +215,18 @@ void UkwsWorkspaceBox::paintEvent(QPaintEvent *event)
 void UkwsWorkspaceBox::onCloseButtonRealsed()
 {
 
+}
+
+void UkwsWorkspaceBox::updateDesktopViewThumbnail(QPixmap viewPixmap)
+{
+    QPixmap view = background;
+    QPainter painter(&view);
+    QSize size = this->size();
+
+    // 将桌面窗口视图叠加到背景上，行程桌面视图
+    desktopViewPixmap = viewPixmap.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    painter.drawPixmap(0, 0, size.width(), size.height(), desktopViewPixmap);
+    thumbnailLabel->setPixmap(view);
 }
 
 void UkwsWorkspaceBox::setTitleStyle(QString style)

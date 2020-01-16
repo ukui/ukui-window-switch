@@ -69,6 +69,7 @@ public slots:
     void changeWorkspace(int index);
     void selectWinbox(bool needActivate);
     void moveWindowWorkspace(int wbIndex, int srcWsIndex, int dstWsIndex);
+    void doIndicatorWindowViewChange(int indIndex);
 
 private:
     UkwsWnckOperator *wmOperator;

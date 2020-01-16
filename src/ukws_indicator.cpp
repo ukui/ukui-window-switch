@@ -48,6 +48,8 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     index = 0;
     selIndex = -1;
     cpus = 1;
+    updateDesktopViewRequestId = 0;
+    updateDesktopViewHandledId = -1;
     hasStopSignal = false;
     config = nullptr;
 
@@ -170,6 +172,11 @@ void UkwsIndicator::selectNextWindow()
     flowScrollArea->ensureWidgetVisible(wb);
 }
 
+QPixmap UkwsIndicator::getWindowView()
+{
+    return windowViewPixmap;
+}
+
 void UkwsIndicator::setConfig(UkwsConfig *config)
 {
     this->config = config;
@@ -289,6 +296,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
         cpus = 1;
 
     // 准备工作线程
+    updateDesktopViewRequestId++;
     for (i = 0; i < cpus; i++) {
         workThread = new QThread;
         worker = new UkwsWorker;
@@ -299,6 +307,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
         worker->moveToThread(workThread);
         connect(workThread, &QThread::started, worker, &UkwsWorker::doWork);
         connect(worker, &UkwsWorker::workDone, workThread, &QThread::quit);
+        connect(worker, &UkwsWorker::workDone, this, &UkwsIndicator::doWorkerDone);
 //        connect(workThread, &QThread::finished, worker, &UkwsWorker::deleteLater);
         workerList.append(worker);
     }
@@ -382,6 +391,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     // 无可显示的窗口，直接返回
     if (winboxList.size() <= 0) {
         showStatus = UkwsWidgetShowStatus::Shown;
+        // 工作线程、CPU数量，线程的CPU亲和力等都需要设置
+        this->reSetWindowThumbnailByWnck();
         return;
     }
 
@@ -500,6 +511,61 @@ void UkwsIndicator::acitveSelectedWindow()
 
     UkwsWindowBox *wb = winboxList.at(selIndex);
     wb->activateWnckWindow();
+}
+
+bool UkwsIndicator::updateWindowViewPixmap(bool newRequest)
+{
+    UkwsWorker *worker;
+    UkwsWindowBox *wb;
+    int i;
+    bool allWorkDone = true;
+
+    if (newRequest)
+        updateDesktopViewRequestId++;
+
+    // 已有任务在处理当前的视图，直接返回
+    if (updateDesktopViewHandledId == updateDesktopViewRequestId)
+        return false;
+
+    for (i = 0; i < cpus; i++) {
+        worker = workerList.at(i);
+        if (!worker->isStopped())
+            allWorkDone = false;
+    }
+
+    if (!allWorkDone)
+        return false;
+
+    // 所有任务完成（获取窗口截图并生成缩略图），开始合成桌面视图
+    updateDesktopViewHandledId = updateDesktopViewRequestId;
+
+    // 获取鼠标所在屏幕的尺寸
+    QRect screenRect;
+    int screenCount = QGuiApplication::screens().count();
+    for (int i = 0  ; i < screenCount; i++) {
+        screenRect = QGuiApplication::screens().at(i)->geometry() ;
+
+        if (screenRect.contains(QCursor::pos()))
+            break;
+    }
+
+    windowViewPixmap = QPixmap(screenRect.size());
+    windowViewPixmap.fill(Qt::transparent);
+
+    QPainter painter(&windowViewPixmap);
+    for (i = winboxList.size() - 1; i >=0; i--) {
+        wb = winboxList.at(i);
+        painter.drawPixmap(wb->winX, wb->winY, wb->winWidth, wb->winHeight, wb->windowPixmap());
+    }
+
+    emit windowViewPixmapChange(index);
+
+    return true;
+}
+
+bool UkwsIndicator::doWorkerDone()
+{
+    updateWindowViewPixmap(false);
 }
 
 void UkwsIndicator::clickWinbox(UkwsWindowBox *wb)

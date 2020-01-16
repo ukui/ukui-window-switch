@@ -78,6 +78,9 @@ public:
     void selectPrevWindow();
     void selectNextWindow();
 
+    QPixmap getWindowView();
+    bool updateWindowViewPixmap(bool newRequest=false);
+
     void setConfig(UkwsConfig *config);
 
     UkwsWnckOperator *wmOperator;
@@ -93,8 +96,10 @@ protected:
 
 signals:
     void isSelected(bool needActivate);
+    void windowViewPixmapChange(int index);
 
 public slots:
+    bool doWorkerDone();
     void clickWinbox(UkwsWindowBox *wb);
     void reShow(UkwsIndicatorShowMode mode=ShowModeUnknown, int minScale=UKWS_WINBOX_MAX_SCALE);
 
@@ -116,7 +121,10 @@ private:
     bool dragWindow;
     bool hasStopSignal;
     int cpus;
+    int updateDesktopViewRequestId;
+    int updateDesktopViewHandledId;
     QPoint dragPos;
+    QPixmap windowViewPixmap;
 };
 
 #endif // UKWS_INDICATOR_H

@@ -70,9 +70,12 @@ signals:
 public slots:
     void onCloseButtonRealsed();
 //    void activateWnckWorkspace();
+    void updateDesktopViewThumbnail(QPixmap viewPixmap);
 
 private:
     QString title;
+    QPixmap desktopViewPixmap;
+    QPixmap background;
 
     UkwsWindowExtraLabel *titleLabel;
     UkwsWindowExtraLabel *thumbnailLabel;

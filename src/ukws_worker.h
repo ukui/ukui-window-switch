@@ -36,6 +36,7 @@ class UkwsWorker : public QObject
     Q_OBJECT
 public:
     explicit UkwsWorker(QObject *parent = nullptr);
+    bool isStopped();
 
     QList<UkwsWindowBox *> workList;
     int cpu;

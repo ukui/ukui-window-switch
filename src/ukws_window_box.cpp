@@ -44,10 +44,10 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 {
 //    this->setAttribute(Qt::WA_TranslucentBackground, true);
     dragable = false;
-    offsetLeft = 0;
-    offsetRight = 0;
-    offsetTop = 0;
-    offsetBottom = 0;
+    winLeftOffset = 0;
+    winRightOffset = 0;
+    winTopOffset = 0;
+    winBottomOffset = 0;
     frameXid = 0;
     hasFrame = false;
 
@@ -258,18 +258,23 @@ void UkwsWindowBox::setIconByWnck()
 void UkwsWindowBox::fixFrameWindowArea()
 {
     // 判断窗口是否被窗口管理器添加了装饰窗口frame window
-    int frameX, frameY, frameWidth, frameHeigh;
-    int origX, origY, origWidth, origHeigh;
+    int frameX, frameY, frameWidth, frameHeight;
+    int origX, origY, origWidth, origHeight;
 
-    wnck_window_get_geometry(wnckWin, &frameX, &frameY, &frameWidth, &frameHeigh);
-    wnck_window_get_client_window_geometry(wnckWin, &origX, &origY, &origWidth, &origHeigh);
+    wnck_window_get_geometry(wnckWin, &frameX, &frameY, &frameWidth, &frameHeight);
+    wnck_window_get_client_window_geometry(wnckWin, &origX, &origY, &origWidth, &origHeight);
 
-    if ((origWidth == frameWidth) && (origHeigh == frameHeigh)) {
+    winX = frameX;
+    winY = frameY;
+    winWidth = frameWidth;
+    winHeight = frameHeight;
+
+    if ((origWidth == frameWidth) && (origHeight == frameHeight)) {
         // 无窗口装饰区
-        offsetLeft = 0;
-        offsetRight = 0;
-        offsetTop = 0;
-        offsetBottom = 0;
+        winLeftOffset = 0;
+        winRightOffset = 0;
+        winTopOffset = 0;
+        winBottomOffset = 0;
         frameXid = wnck_window_get_xid(wnckWin);
         hasFrame = false;
     } else {
@@ -280,10 +285,14 @@ void UkwsWindowBox::fixFrameWindowArea()
 
         if (parentXid == ~(unsigned long)0) {
             // 获取父窗口ID失败，使用自身的WID作为frame窗口的ID，偏移量全为0
-            offsetLeft = 0;
-            offsetRight = 0;
-            offsetTop = 0;
-            offsetBottom = 0;
+            winX = origX;
+            winY = origY;
+            winWidth = origWidth;
+            winHeight = origHeight;
+            winLeftOffset = 0;
+            winRightOffset = 0;
+            winTopOffset = 0;
+            winBottomOffset = 0;
             frameXid = wnck_window_get_xid(wnckWin);
             hasFrame = false;
 
@@ -297,16 +306,16 @@ void UkwsWindowBox::fixFrameWindowArea()
         XGetWindowAttributes(display, frameXid, &attr);
 
         // 过滤窗口阴影
-        offsetLeft = frameX - attr.x;
-        offsetRight = attr.width - offsetLeft - frameWidth;
-        offsetTop = frameY - attr.y;
-        offsetBottom = attr.height - offsetTop - frameHeigh;
+        winLeftOffset = frameX - attr.x;
+        winRightOffset = attr.width - winLeftOffset - frameWidth;
+        winTopOffset = frameY - attr.y;
+        winBottomOffset = attr.height - winTopOffset - frameHeight;
 
         // 边界值修正
-        if (offsetLeft < 0) offsetLeft = 0;
-        if (offsetRight < 0) offsetRight = 0;
-        if (offsetTop < 0) offsetTop = 0;
-        if (offsetBottom < 0) offsetBottom = 0;
+        if (winLeftOffset < 0) winLeftOffset = 0;
+        if (winRightOffset < 0) winRightOffset = 0;
+        if (winTopOffset < 0) winTopOffset = 0;
+        if (winBottomOffset < 0) winBottomOffset = 0;
 
         hasFrame = true;
     }
@@ -316,10 +325,10 @@ void UkwsWindowBox::setOrigThumbnailByWnck()
 {
     fixFrameWindowArea();
     thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(frameXid,
-                                                                    offsetLeft,
-                                                                    offsetRight,
-                                                                    offsetTop,
-                                                                    offsetBottom);
+                                                                    winLeftOffset,
+                                                                    winRightOffset,
+                                                                    winTopOffset,
+                                                                    winBottomOffset);
 }
 
 void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
@@ -346,10 +355,10 @@ void UkwsWindowBox::setThumbnailByWnck()
     QSize labelSize = thumbnailLabel->size();
     if (labelSize.width() == 0 || labelSize.height() == 0)
         thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(frameXid,
-                                                                        offsetLeft,
-                                                                        offsetRight,
-                                                                        offsetTop,
-                                                                        offsetBottom);
+                                                                        winLeftOffset,
+                                                                        winRightOffset,
+                                                                        winTopOffset,
+                                                                        winBottomOffset);
 
     // 缩略图，外边框2，图片间距2；
     // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8
@@ -362,6 +371,11 @@ void UkwsWindowBox::setThumbnailByWnck()
     QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
     thumbnailOffset = QPoint(size.width(), size.height());
     thumbnailLabel->setPixmap(scaledThumbnail);
+}
+
+QPixmap UkwsWindowBox::windowPixmap()
+{
+    return thumbnailLabel->originalQPixmap;
 }
 
 QString UkwsWindowBox::getTitle()

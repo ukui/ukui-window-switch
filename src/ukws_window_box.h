@@ -78,6 +78,7 @@ public:
     void setOrigThumbnailByWnck();
     void setThumbnail(QPixmap origPixmap);
     void setThumbnailByWnck();
+    QPixmap windowPixmap();
 
     void setThumbnailHover();
     void setThumbnailNormal();
@@ -89,10 +90,14 @@ public:
     bool eventFilter(QObject *watched, QEvent *event);
 
     unsigned long frameXid;
-    int offsetLeft;
-    int offsetRight;
-    int offsetTop;
-    int offsetBottom;
+    int winX;
+    int winY;
+    int winWidth;
+    int winHeight;
+    int winLeftOffset;
+    int winRightOffset;
+    int winTopOffset;
+    int winBottomOffset;
 
     int index;
     int parentIndex;
