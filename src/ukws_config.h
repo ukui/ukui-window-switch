@@ -23,6 +23,10 @@
 #include <QObject>
 #include <QString>
 
+#ifndef UKWS_CONF_DEFAULT_DIR
+#define UKWS_CONF_DEFAULT_DIR "/etc/ukui/ukui-window-switch/"
+#endif
+
 #define DEFAULT_LOG_LEVEL   5
 
 class UkwsConfig : public QObject

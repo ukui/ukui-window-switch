@@ -53,10 +53,6 @@
 #define UKWS_DATA_DEFAULT_DIR "/usr/share/ukui-window-switch/"
 #endif
 
-#ifndef UKWS_CONF_DEFAULT_DIR
-#define UKWS_CONF_DEFAULT_DIR "/etc/ukui/ukui-window-switch/"
-#endif
-
 #define PROGRAM_NAME "ukui-window-switch"
 #define PATH_MAX_LEN 1024
 #define PID_STRING_LEN 64
@@ -184,6 +180,25 @@ void handleWorkspaceView()
     }
 }
 
+void reloadConfig()
+{
+    QDBusInterface interface("org.ukui.WindowSwitch", "/org/ukui/WindowSwitch",
+                                "org.ukui.WindowSwitch",
+                                QDBusConnection::sessionBus());
+    if (!interface.isValid()) {
+        qCritical() << QDBusConnection::sessionBus().lastError().message();
+        exit(1);
+    }
+    //调用远程的value方法
+    QDBusReply<bool> reply = interface.call("reloadConfig");
+    if (reply.isValid()) {
+        if (!reply.value())
+            qWarning() << "Reload Config Failed";
+    } else {
+        qCritical() << "Call Dbus method failed";
+    }
+}
+
 int main(int argc, char *argv[])
 {
     qInstallMessageHandler(msgHandler);
@@ -196,11 +211,18 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     QCommandLineOption showWorkspaceOption("show-workspace", "show or hide workspace view");
+    QCommandLineOption reloadConfigOption("reload", "reload config");
     parser.addOption(showWorkspaceOption);
+    parser.addOption(reloadConfigOption);
     parser.process(a);
 
     if (parser.isSet("show-workspace")) {
         handleWorkspaceView();
+        return 0;
+    }
+
+    if (parser.isSet("reload")) {
+        reloadConfig();
         return 0;
     }
 

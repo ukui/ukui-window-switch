@@ -71,6 +71,7 @@ signals:
 
 public slots:
     bool handleWorkspace();
+    bool reloadConfig();
 
 private slots:
     void showNextWinbox();

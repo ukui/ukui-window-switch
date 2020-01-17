@@ -253,6 +253,16 @@ bool UkwsManager::handleWorkspace()
     return false;
 }
 
+bool UkwsManager::reloadConfig()
+{
+    config->setConfigFile("ukui-window-switch.conf", UKWS_CONF_DEFAULT_DIR);
+    config->configReload();
+
+    this->setConfig(config);
+
+    return true;
+}
+
 bool UkwsManager::showWorkspace()
 {
     setGrabKeyboard(true);
