@@ -6,7 +6,7 @@ QWidget#indicator_sub_widget {
     padding: 0px;
 }
 
-QWidget#indicator_main_widget_switch {
+UkwsIndicator#indicator_main_widget_switch {
     margin: 0;
     background-color: rgba(23, 23, 23, 176);
     border-radius: 5px;
@@ -15,7 +15,7 @@ QWidget#indicator_main_widget_switch {
     padding: 0px;
 }
 
-QWidget#indicator_main_widget_tiling {
+UkwsIndicator#indicator_main_widget_tiling {
     margin: 0;
     background-color: rgba(23, 23, 23, 176);
     border-radius: 0px;
@@ -58,17 +58,17 @@ UkwsWindowExtraLabel#winbox-thumbnail:!hover {
     padding: 0px;
 }
 
-QWidget#winbox:hover {
+/*UkwsWindowBox#winbox:hover {
     margin: 0px;
     border: 2px solid rgba(255, 255, 255, 255);
     padding: 0px;
 }
 
-QWidget#winbox:!hover {
+UkwsWindowBox#winbox:!hover {
     margin: 0px;
     border: 2px solid rgba(255, 255, 255, 0);
     padding: 0px;
-}
+}*/
 
 QScrollBar#flow_scrollbar:vertical {
     width: 12px;
@@ -138,4 +138,28 @@ QScrollBar#flow_scrollbar::up-arrow:vertical {
 QScrollBar#flow_scrollbar::down-arrow:vertical {
     border: 0px none;
     border-radius: 0px;
+}
+
+UkwsWorkspaceBox#wsbox[selected=false] UkwsWindowExtraLabel {
+    font-size: 14px;
+    color: Silver;
+    padding: 0px;
+}
+
+UkwsWorkspaceBox#wsbox[selected=true] UkwsWindowExtraLabel {
+    font-size: 14px;
+    color: White;
+    padding: 0px;
+}
+
+UkwsWorkspaceBox#wsbox[selected=false] UkwsWindowExtraLabel#wsbox-thumbnail {
+    margin: 0px;
+    padding: 0px;
+    border: 2px solid rgba(255, 255, 255, 0);
+}
+
+UkwsWorkspaceBox#wsbox[selected=true] UkwsWindowExtraLabel#wsbox-thumbnail {
+    margin: 0px;
+    padding: 0px;
+    border: 2px solid rgba(255, 255, 255, 255);
 }

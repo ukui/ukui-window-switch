@@ -93,6 +93,7 @@ UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
 
     this->installEventFilter(this);
     this->setAcceptDrops(true);
+    this->setProperty("selected", false);
 }
 
 QString UkwsWorkspaceBox::getTitle()

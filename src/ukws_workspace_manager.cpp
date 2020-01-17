@@ -190,18 +190,12 @@ void UkwsWorkspaceManager::setShowingIndicator(int index)
 
     UkwsWorkspaceBox *wsbox;
     foreach (wsbox, spaceBoxList) {
-        wsbox->setBoxStyle("QWidget {font-size: 14px; color: Silver; padding-left: 0px;}"
-                           "QWidget#wsbox-thumbnail {"
-                           "padding: 0px; margin: 0px;"
-                           "border: 2px solid rgba(255, 255, 255, 0);"
-                           "}");
+        wsbox->setProperty("selected", false);
+        wsbox->setStyle(QApplication::style());
     }
     wsbox = spaceBoxList.at(index);
-    wsbox->setBoxStyle("QWidget {font-size: 14px; color: White; padding-left: 0px;}"
-                       "QWidget#wsbox-thumbnail {"
-                       "padding: 0px; margin: 0px;"
-                       "border: 2px solid rgba(255, 255, 255, 255);"
-                       "}");
+    wsbox->setProperty("selected", true);
+    wsbox->setStyle(QApplication::style());
 }
 
 void UkwsWorkspaceManager::selectWinbox(bool needActivate)
