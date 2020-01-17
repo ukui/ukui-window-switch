@@ -563,7 +563,7 @@ bool UkwsIndicator::updateWindowViewPixmap(bool newRequest)
     return true;
 }
 
-bool UkwsIndicator::doWorkerDone()
+void UkwsIndicator::doWorkerDone()
 {
     updateWindowViewPixmap(false);
 }

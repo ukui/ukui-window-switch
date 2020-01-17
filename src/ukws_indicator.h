@@ -99,7 +99,7 @@ signals:
     void windowViewPixmapChange(int index);
 
 public slots:
-    bool doWorkerDone();
+    void doWorkerDone();
     void clickWinbox(UkwsWindowBox *wb);
     void reShow(UkwsIndicatorShowMode mode=ShowModeUnknown, int minScale=UKWS_WINBOX_MAX_SCALE);
 
