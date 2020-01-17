@@ -50,9 +50,9 @@ UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
 
     // 设置控件最大尺寸
     titleLabel->setFixedHeight(32);
-    titleLabel->setMinimumWidth(1);
+    titleLabel->setMinimumWidth(32);
     closeButton->setFixedSize(QSize(24, 24));
-    thumbnailLabel->setMaximumSize(QSize(640, 360));
+//    thumbnailLabel->setMaximumSize(QSize(640, 360));
     thumbnailLabel->setMinimumSize(QSize(1, 1));
 
     titleLabel->setContentsMargins(5, 0, 0, 0);
@@ -72,9 +72,9 @@ UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
      *
      */
 
-    mainLayout->setSpacing(3);
+    mainLayout->setSpacing(0);
     mainLayout->setAlignment(Qt::AlignCenter);
-    topBarLayout->setSpacing(3);
+    topBarLayout->setSpacing(0);
     topBarLayout->setAlignment(Qt::AlignJustify);
 
     topBarLayout->addWidget(titleLabel);
@@ -129,9 +129,16 @@ void UkwsWorkspaceBox::setWnckWorkspace(WnckWorkspace *workspace)
     wnckWorkspace = workspace;
 }
 
-void UkwsWorkspaceBox::setThumbnail(QPixmap thumbnail)
+void UkwsWorkspaceBox::setSizeByThumbnailSize(int width, int height)
 {
-    QSize size = this->size();
+    titleLabel->setFixedSize(width, 32);
+    thumbnailLabel->setFixedSize(width, height);
+    this->setFixedSize(width + 18, height + 32 + 18);
+}
+
+void UkwsWorkspaceBox::setBackground(QPixmap thumbnail)
+{
+    QSize size = thumbnailLabel->size();
     background = thumbnail.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     thumbnailLabel->setPixmap(background);
 }
@@ -221,7 +228,7 @@ void UkwsWorkspaceBox::updateDesktopViewThumbnail(QPixmap viewPixmap)
 {
     QPixmap view = background;
     QPainter painter(&view);
-    QSize size = this->size();
+    QSize size = thumbnailLabel->size();
 
     // 将桌面窗口视图叠加到背景上，行程桌面视图
     desktopViewPixmap = viewPixmap.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);

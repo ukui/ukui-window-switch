@@ -52,7 +52,8 @@ public:
     WnckWorkspace *getWnckWorkspace();
     void setWnckWorkspace(WnckWorkspace *workspace);
 
-    void setThumbnail(QPixmap thumbnail);
+    void setSizeByThumbnailSize(int width, int height);
+    void setBackground(QPixmap thumbnail);
     void setTitleStyle(QString style);
     void setBoxStyle(QString style);
 

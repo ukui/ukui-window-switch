@@ -93,7 +93,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     flowArea->setObjectName(UKWS_OBJ_IND_SUBWIDGET);
     flowScrollArea->setObjectName(UKWS_OBJ_IND_SUBWIDGET);
     flowScrollBar->setObjectName(UKWS_OBJ_FLOW_SCROLLBAR);
-    this->setObjectName(UKWS_OBJ_IND_MAINWIDGET);
+    this->setObjectName(UKWS_OBJ_IND_MAINWIDGET_SWITCH);
 
     this->installEventFilter(this);
 }

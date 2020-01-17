@@ -45,6 +45,7 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
     mainLayout = new QHBoxLayout();
     mainLayout->addWidget(indStack);
     mainLayout->addLayout(wsboxLayout);
+    mainLayout->addSpacing(10);
     mainLayout->setAlignment(Qt::AlignHCenter);
     wsboxLayout->setAlignment(Qt::AlignTop);
 
@@ -77,7 +78,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 //    QRect screenRect = desktop->screenGeometry(screenNum);
     QRect screenRect = QGuiApplication::screens().at(screenNum)->geometry();
     WnckScreen *screen = wnck_screen_get(screenNum);
-    float scale = 1.0 / 6;
+    float scale = 1.0 / 7.5;
     int w = screenRect.width() * scale;
     int h = screenRect.height() * scale;
 
@@ -86,8 +87,13 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     wmOperator->updateWorkspaceList();
     int size = wmOperator->workspaceQList->size();
 
+    // 获取背景图片
     this->getBackground();
+
+    // 设置工作区视图的最底层背景
     this->setBackgroundImage();
+
+    wsboxLayout->addSpacing(5);
 
     QPixmap wsboxBackground = background.scaled(QSize(w, h),
                                                 Qt::IgnoreAspectRatio,
@@ -100,11 +106,11 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 
         wsbox->index = i;
         wsbox->setTitle(wnck_workspace_get_name(wws));
-        wsbox->setFixedSize(w, h);
+        wsbox->setSizeByThumbnailSize(w, h);
         wsbox->setWnckWorkspace(wws);
-        wsbox->setThumbnail(wsboxBackground);
+        wsbox->setBackground(wsboxBackground);
 
-        ind->setFixedWidth(screenRect.width() - w - 10);
+        ind->setFixedWidth(screenRect.width() - w - 18 - 10);
         ind->setConfig(config);
         ind->wmOperator->screen = screen;
         ind->wmOperator->workspace = wws;
@@ -113,6 +119,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         ind->index = i;
 //        ind->reShow(UkwsIndicator::ShowModeTiling, minScale);
         ind->setAcceptDrops(true);
+        ind->setObjectName(UKWS_OBJ_IND_MAINWIDGET_Tiling);
 
         connect(wsbox, &UkwsWorkspaceBox::doHover,
                 this, &UkwsWorkspaceManager::setShowingIndicator);

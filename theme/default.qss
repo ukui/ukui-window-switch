@@ -1,12 +1,24 @@
 QWidget#indicator_sub_widget {
     background-color: rgba(0, 0, 0, 0);
+    margin: 0;
     border-style: none;
     border-width: 0px;
     padding: 0px;
 }
 
-QWidget#indicator_main_widget {
+QWidget#indicator_main_widget_switch {
+    margin: 0;
     background-color: rgba(23, 23, 23, 176);
+    border-radius: 5px;
+    border-style: none;
+    border-width: 0px;
+    padding: 0px;
+}
+
+QWidget#indicator_main_widget_tiling {
+    margin: 0;
+    background-color: rgba(23, 23, 23, 176);
+    border-radius: 0px;
     border-style: none;
     border-width: 0px;
     padding: 0px;

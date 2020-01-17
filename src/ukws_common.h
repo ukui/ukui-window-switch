@@ -21,7 +21,8 @@
 #define UKWS_COMMON_H
 
 #define UKWS_OBJ_IND_SUBWIDGET      "indicator_sub_widget"
-#define UKWS_OBJ_IND_MAINWIDGET     "indicator_main_widget"
+#define UKWS_OBJ_IND_MAINWIDGET_SWITCH     "indicator_main_widget_switch"
+#define UKWS_OBJ_IND_MAINWIDGET_Tiling     "indicator_main_widget_tiling"
 #define UKWS_OBJ_WS_MGR_SUBWIDGET   "ws_manager_sub_widget"
 #define UKWS_OBJ_WS_MGR_MAINWIDGET  "ws_manager_main_widget"
 #define UKWS_OBJ_FLOW_SCROLLBAR     "flow_scrollbar"
