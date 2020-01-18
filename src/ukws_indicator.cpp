@@ -590,6 +590,10 @@ void UkwsIndicator::flowReLayout()
     rect.setHeight(winboxFlowLayout->maxHeight);
     winboxFlowLayout->visualHeight = visualRect.height();
     flowArea->setGeometry(rect);
+
+    // 非可见控件的layout变动后，需要标记为脏数据，用于重新强制计算刷新布局
+    winboxFlowLayout->invalidate();
+    winboxFlowLayout->update();
 }
 
 void UkwsIndicator::moveWindow()
