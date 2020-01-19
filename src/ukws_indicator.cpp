@@ -430,6 +430,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
                    (screenRect.height() - maxHeight) / 2);
     }
     this->show();
+    flowScrollBar->hide();
     this->flowReLayout();
     this->flowScrollArea->verticalScrollBar()->setValue(0);
     this->reSetWindowThumbnailByWnck();
@@ -753,7 +754,8 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
         }
 
         if (event->type() == QEvent::Enter) {
-            if (flowScrollBar->maximum() > 0)
+            if ((winboxFlowLayout->visualHeight > winboxFlowLayout->geometry().height())
+                    && (flowScrollBar->maximum() > 0))
                 flowScrollBar->show();
             QWidget::enterEvent(event);
 
