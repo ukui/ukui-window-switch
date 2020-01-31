@@ -1,8 +1,17 @@
-ukui-window-switch (2.0.0~rc1) unstable; urgency=medium
+ukui-window-switch (2.0.0-1) unstable; urgency=medium
 
-  * Refactor the ukui-window-switch
+  * New upstream release.
+    - Refactor the ukui-window-switch
+  * debian/{compat,control}:
+    - Use debhelper-compat notation. Bump to DH compat level version 12.
+    - Bump Standards-Version: to 4.5.0. No changes needed.
+    - Add Rules-Requires-Root: no.
+  * debian/copyright:
+    - Update copyright.
+  * debian/rules:
+    - export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
- -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Mon, 30 Dec 2019 17:23:06 +0800
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Fri, 31 Jan 2020 21:33:13 +0800
 
 ukui-window-switch (1.1.2-1) unstable; urgency=medium
 

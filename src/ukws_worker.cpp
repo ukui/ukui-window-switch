@@ -47,7 +47,7 @@ void UkwsWorker::doWork()
     CPU_ZERO(&mask);    /* 初始化set集，将set置为空*/
     CPU_SET(cpu, &mask);
     if (sched_setaffinity(0, sizeof(mask), &mask) == -1) {
-        qWarning("Worker %d set CPU affinity failue, ERROR:%s", cpu, strerror(errno));
+        qWarning("Worker %d set CPU affinity failure, ERROR:%s", cpu, strerror(errno));
     }
 
     // 开始处理

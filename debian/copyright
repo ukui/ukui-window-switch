@@ -4,7 +4,6 @@ Upstream-Contact: Droiing <jianglinxuan@kylios.cn>
 Source: https://github.com/ukui/ukui-window-switch
 
 Files: AUTHORS
-       COPYING
        README
        man/*
        data/*
@@ -36,6 +35,7 @@ Files: AUTHORS
        src/ukws_workspace_box.h
        src/ukws_workspace_manager.cpp
        src/ukws_workspace_manager.h
+       theme/default.qss
 Copyright: 2020, Tianjin KYLIN Information Technology Co., Ltd.
 License: GPL-2+
 
