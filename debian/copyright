@@ -5,6 +5,7 @@ Source: https://github.com/ukui/ukui-window-switch
 
 Files: AUTHORS
        README
+       NEWS
        man/*
        data/*
        debian/*
