@@ -21,6 +21,7 @@
 #define UKWS_WORKER_H
 
 #include "ukws_window_box.h"
+#include "ukws_window_info.h"
 
 #include <QObject>
 #include <QThread>
@@ -34,11 +35,20 @@ class UkwsWorker : public QObject
     };
 
     Q_OBJECT
+
 public:
-    explicit UkwsWorker(QObject *parent = nullptr);
+    enum UkwsWorkerType {
+        Winbox,
+        Winpixmap,
+    };
+
+    explicit UkwsWorker(UkwsWorkerType type, QObject *parent = nullptr);
+    void appedWorkItem(UkwsWindowBox *winbox);
+    void appedWorkItem(UkwsWindowInfo *wininfo);
     bool isStopped();
 
-    QList<UkwsWindowBox *> workList;
+    QList<UkwsWindowBox *> winboxList;
+    QList<UkwsWindowInfo *> wininfoList;
     int cpu;
     QThread *doingThread;
 
@@ -51,6 +61,7 @@ public slots:
     void stopWork();
 
 private:
+    UkwsWorkerType workerType;
     int status;
 };
 

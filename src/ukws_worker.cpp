@@ -24,8 +24,10 @@
 
 #include <QDebug>
 
-UkwsWorker::UkwsWorker(QObject *parent) : QObject(parent)
+UkwsWorker::UkwsWorker(UkwsWorkerType type, QObject *parent)
+    : QObject(parent)
 {
+    this->workerType = type;
     init();
     doingThread = nullptr;
 }
@@ -34,7 +36,17 @@ void UkwsWorker::init()
 {
     status = UkwsWorker::Stopped;
     cpu = 0;
-    workList.clear();
+    winboxList.clear();
+}
+
+void UkwsWorker::appedWorkItem(UkwsWindowBox *winbox)
+{
+    winboxList.append(winbox);
+}
+
+void UkwsWorker::appedWorkItem(UkwsWindowInfo *wininfo)
+{
+    wininfoList.append(wininfo);
 }
 
 void UkwsWorker::doWork()
@@ -51,14 +63,25 @@ void UkwsWorker::doWork()
     }
 
     // 开始处理
-    UkwsWindowBox *wb;
-    foreach (wb, workList) {
-        if (status == UkwsWorker::Running)
-            wb->setThumbnailByWnck();
-        else
-            break;
+    if (workerType == UkwsWorker::Winbox) {
+        UkwsWindowBox *wb;
+        foreach (wb, winboxList) {
+            if (status == UkwsWorker::Running)
+                wb->setThumbnailByWnck();
+            else
+                break;
+        }
     }
 
+    if (workerType == UkwsWorker::Winpixmap) {
+        UkwsWindowInfo *wi;
+        foreach (wi, wininfoList) {
+            if (status == UkwsWorker::Running)
+                wi->setScaledPixmapByScale();
+            else
+                break;
+        }
+    }
     // 设置状态
     status = UkwsWorker::Stopped;
     emit workDone();

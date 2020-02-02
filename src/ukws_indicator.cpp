@@ -299,7 +299,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
     updateDesktopViewRequestId++;
     for (i = 0; i < cpus; i++) {
         workThread = new QThread;
-        worker = new UkwsWorker;
+        worker = new UkwsWorker(UkwsWorker::Winbox);
 
         // doingThread只是保存索引，无父子关系
         worker->doingThread = workThread;
@@ -316,7 +316,7 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
     int size = winboxList.size();
     for (i = 0; i < size; i++) {
         wb = winboxList.at(i);
-        workerList[i % cpus]->workList.append(wb);
+        workerList[i % cpus]->appedWorkItem(wb);
     }
 
     // 开始处理
