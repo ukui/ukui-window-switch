@@ -24,7 +24,10 @@ SOURCES += \
     src/qhotkey.cpp \
     src/qhotkey_x11.cpp \
     src/ukws_manager.cpp \
-    src/ukws_worker.cpp
+    src/ukws_worker.cpp \
+    src/ukws_fake_desktop.cpp \
+    src/ukws_window_info.cpp \
+    src/ukws_workspace_multiview.cpp
 
 HEADERS += \
     src/ukws_indicator.h \
@@ -41,7 +44,10 @@ HEADERS += \
     src/qhotkey_p.h \
     src/qhotkey.h \
     src/ukws_manager.h \
-    src/ukws_worker.h
+    src/ukws_worker.h \
+    src/ukws_fake_desktop.h \
+    src/ukws_window_info.h \
+    src/ukws_workspace_multiview.h
 
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += x11 libwnck-3.0 gdk-3.0
