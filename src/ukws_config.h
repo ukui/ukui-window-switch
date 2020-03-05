@@ -29,6 +29,10 @@
 
 #define DEFAULT_LOG_LEVEL   5
 
+#define UKWS_WS_PRIMARY_AREA_UNITS  100
+#define UKWS_WS_SIDEBAR_UNITS       20
+#define UKWS_WS_ITEM_UNITS          17
+
 class UkwsConfig : public QObject
 {
     Q_OBJECT
@@ -41,13 +45,20 @@ public:
     void setConfigFile(QString configFilePath);
     void setConfigFile(QString configFileName, QString configDirPath);
 
-
     Qt::TransformationMode scaledMode;
+
     int frameShadowWidth;
     int frameshadowTopOffset;
+
     int logLevel;
+
     QString themeName;
     QString themeString;
+
+    int workspaceAllUnits;
+    int workspacePrimaryAreaUnits;
+    int workspaceSidebarUnits;
+    int workspaceItemUnits;
 
 private:
     QString configFilePath;

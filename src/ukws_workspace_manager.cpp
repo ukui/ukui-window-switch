@@ -78,7 +78,8 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 //    QRect screenRect = desktop->screenGeometry(screenNum);
     QRect screenRect = QGuiApplication::screens().at(screenNum)->geometry();
     WnckScreen *screen = wnck_screen_get(screenNum);
-    float scale = 1.0 / 7.5;
+    float scale = (float)config->workspaceItemUnits / config->workspaceAllUnits;
+
     int w = screenRect.width() * scale;
     int h = screenRect.height() * scale;
 
@@ -110,7 +111,8 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         wsbox->setWnckWorkspace(wws);
         wsbox->setBackground(wsboxBackground);
 
-        ind->setFixedWidth(screenRect.width() - w - 18 - 10);
+        ind->setFixedWidth(screenRect.width() * config->workspacePrimaryAreaUnits
+                           / config->workspaceAllUnits);
         ind->setConfig(config);
         ind->wmOperator->screen = screen;
         ind->wmOperator->workspace = wws;
@@ -355,12 +357,26 @@ void UkwsWorkspaceManager::getBackground()
 
 void UkwsWorkspaceManager::setBackgroundImage()
 {
+    // 背景图置灰
+    QPixmap tempPixmap = background.scaled(size(), Qt::IgnoreAspectRatio,
+                                           Qt::SmoothTransformation);
+    QPainter painter;
+    painter.begin(&tempPixmap);
+
+    // 设置左半区域遮罩
+    int w = size().width() * 100 / 120;
+    qDebug() << w << size().height() << QColor(19, 19, 20, 127);
+    painter.fillRect(0, 0, w, size().height(), QColor(19, 19, 20, 127));
+
+    // 设置右半区域遮罩
+    painter.fillRect(w, 0, size().width() - w, size().height(), QColor(19, 19, 20, 178));
+    painter.end();
+
     setAutoFillBackground(true);   // 这个属性一定要设置
-    QPalette painter(palette());
-    painter.setBrush(QPalette::Window,
-                     QBrush(background.scaled(size(), Qt::IgnoreAspectRatio,
-                                              Qt::SmoothTransformation)));
-    setPalette(painter);
+    QPalette pal(palette());
+    pal.setBrush(QPalette::Window,
+                     QBrush(tempPixmap));
+    setPalette(pal);
 }
 
 void UkwsWorkspaceManager::cleanAllWorkspace()

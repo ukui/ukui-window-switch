@@ -130,6 +130,32 @@ void UkwsConfig::configReload()
         qWarning("Theme parameter not set, use defalut");
     }
 
+    // 获取工作区视图主区域宽度的unit值
+    workspacePrimaryAreaUnits = conf.value("WorkspacePrimaryAreaUnits").toInt(&ok);
+    if (!ok) {
+        workspacePrimaryAreaUnits = UKWS_WS_PRIMARY_AREA_UNITS;
+        qWarning("WorkspacePrimaryAreaUnits parameter type error, use defalut"
+                 " value: %d", workspacePrimaryAreaUnits);
+    }
+
+    // 获取工作区视图侧边栏宽度的unit值
+    workspaceSidebarUnits = conf.value("WorkspaceSidebarUnits").toInt(&ok);
+    if (!ok) {
+        workspaceSidebarUnits = UKWS_WS_SIDEBAR_UNITS;
+        qWarning("WorkspaceSidebarUnits parameter type error, use defalut"
+                 " value: %d", workspaceSidebarUnits);
+    }
+
+    // 获取工作区视图item宽度的unit值
+    workspaceItemUnits = conf.value("WorkspaceItemUnits").toInt(&ok);
+    if (!ok) {
+        workspaceItemUnits = UKWS_WS_ITEM_UNITS;
+        qWarning("WorkspaceItemUnits parameter type error, use defalut"
+                 " value: %d", workspaceItemUnits);
+    }
+
+    workspaceAllUnits = workspacePrimaryAreaUnits + workspaceSidebarUnits;
+
     // 获取主题内容
     QString ukwsThemeString;
     QFile ukwsTheme;
