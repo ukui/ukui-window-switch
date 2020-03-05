@@ -346,6 +346,7 @@ void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
     QSize thumbnailSize = scaledThumbnail.size();
     QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
     thumbnailOffset = QPoint(size.width(), size.height());
+    scaledThumbnail = makeRadiusPixmap(scaledThumbnail, 6);
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
@@ -370,6 +371,7 @@ void UkwsWindowBox::setThumbnailByWnck()
     QSize thumbnailSize = scaledThumbnail.size();
     QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
     thumbnailOffset = QPoint(size.width(), size.height());
+    scaledThumbnail = makeRadiusPixmap(scaledThumbnail, 6);
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
@@ -395,12 +397,16 @@ void UkwsWindowBox::setThumbnailNormal()
 
 void UkwsWindowBox::setWindowBoxSelected()
 {
-    this->setStyleSheet("QWidget#winbox{padding:0px; border:2px solid rgb(255, 255, 255, 255);}");
+    this->setStyleSheet("QWidget#winbox{padding:0px;"
+                        "border:4px solid rgb(255, 255, 255, 127);"
+                        "border-radius: 6px;}");
 }
 
 void UkwsWindowBox::setWindowBoxUnselected()
 {
-    this->setStyleSheet("QWidget#winbox{padding:0px; border:2px solid rgb(255, 255, 255, 0);}");
+    this->setStyleSheet("QWidget#winbox{padding:0px;"
+                        "border:4px solid rgb(255, 255, 255, 0);"
+                        "border-radius: 6px;}");
 }
 
 void UkwsWindowBox::moveToWorkspace(int wsIndex)
@@ -408,6 +414,26 @@ void UkwsWindowBox::moveToWorkspace(int wsIndex)
     WnckScreen *screen = wnck_window_get_screen(wnckWin);
     WnckWorkspace *workspace = wnck_screen_get_workspace(screen, wsIndex);
     wnck_window_move_to_workspace(wnckWin, workspace);
+}
+
+// 构建圆角图片
+QPixmap UkwsWindowBox::makeRadiusPixmap(QPixmap orig, int radius)
+{
+    // 构造圆角裁剪区域
+    QRectF rect = QRectF(0, 0, orig.width(), orig.height());
+    QPainterPath path;
+    path.addRoundedRect(rect, radius, radius);
+
+    // 设置新全透明背景图片
+    QPixmap dest(orig.size());
+    dest.fill(Qt::transparent);
+
+    // 裁剪圆角区域，将原图贴到裁剪好的区域，构建圆角图片
+    QPainter painter(&dest);
+    painter.setClipPath(path);
+    painter.drawPixmap(orig.rect(), orig);
+
+    return dest;
 }
 
 bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)

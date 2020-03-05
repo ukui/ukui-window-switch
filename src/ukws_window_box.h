@@ -121,6 +121,7 @@ public slots:
     void activateWnckWindow();
 
 private:
+    QPixmap makeRadiusPixmap(QPixmap orig, int radius);
     QString title;
 
     UkwsWindowExtraLabel *titleLabel;
