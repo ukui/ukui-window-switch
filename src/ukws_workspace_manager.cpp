@@ -154,7 +154,8 @@ void UkwsWorkspaceManager::reShow(int minScale)
     showStatus = UkwsWidgetShowStatus::Constructing;
 
     reloadWorkspace(minScale);
-    this->show();
+//    this->show();
+    this->showFullScreen();
     this->activateWindow();
 
     showStatus = UkwsWidgetShowStatus::Shown;

@@ -110,9 +110,9 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
      *
      */
 
-    mainLayout->setSpacing(UKWS_WIDGET_SPACING);
+//    mainLayout->setSpacing(UKWS_WIDGET_SPACING);
     mainLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
-    topBarLayout->setSpacing(UKWS_WIDGET_SPACING);
+//    topBarLayout->setSpacing(UKWS_WIDGET_SPACING);
     topBarLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     topBarLayout->addWidget(iconLabel);
@@ -130,7 +130,9 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     thumbnailLabel->setObjectName(UKWS_OBJ_WINBOX_THUMBNAIL);
     this->setObjectName(UKWS_OBJ_WINBOX);
 
-    mainLayout->setContentsMargins(5, 5, 5, 5);
+    // 对齐设置暂时不生效，使用下面的方式修正
+//    mainLayout->setContentsMargins(8, 0, 8, 8);
+    mainLayout->setMargin(8);
     setThumbnailNormal();
 
 //    connect(this, &UkwsWindowBox::clicked, this, &UkwsWindowBox::activateWnckWindow);
@@ -154,29 +156,28 @@ void UkwsWindowBox::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
-void UkwsWindowBox::setSubWidgetSize(int w, int h)
+void UkwsWindowBox::setSubWidgetSizeByThnSize(int w, int h)
 {
-    // winbox宽w，高h，外框2；
-    // icon宽高32，上下间距0，左间距5（缩略图的左边框2，保持对齐），边框0；
-    // title左边距0，右边距5（缩略图右边框2，保持对齐），边框0；
-    // 调整值：2x2 + 5 + 32 + 5 = 46
-    titleLabel->setFixedSize(w - 46, 32);
+    // icon，宽高32，上下间距0，上下边框0，右边距5；
+    // 缩略图控件，外边距8，外边框4，边框紧贴图片，宽占用：(8 + 4) * 2 = 24，高占用：8 + 4 = 12；
+    // 高度调整值：8 + 32 + 16 = 56；
+    // 宽度调整值：32 + 5 = 37
+    // 标题宽度调整值：
+    titleLabel->setFixedSize(w - 37, 32);
     this->updateTitleBySize();
 
-    // winbox宽w，高h，外框2；
-    // icon宽高32，上下间距0
-    // 缩略图，外边距3；
-    // 调整值：宽，2x2 + 3x2 = 10，高，2x2 + 32 + 3x2 = 42
-    thumbnailLabel->setFixedSize(w - 10, h - 42);
+    // 缩略图控件，外边框4，边框紧贴图片，宽、高占用：4 * 2 = 8
+    thumbnailLabel->setFixedSize(w + 8, h + 8);
 }
 
 void UkwsWindowBox::setWinboxSizeByHeight(int height)
 {
-    // winbox边框2；
-    // icon，高32，上下间距0，上下边框0；
-    // 缩略图，外边距3，外边框2，图片间隔2；
-    // 调整值：高，2x2 + 32 + 3x2 + 2x2 + 2x2 = 50
-    int thnHeight = height - 50;
+    // winbox边框4，内边距4，宽、高占用：（4 + 4） * 2 = 16；
+    // icon，高32，上下间距0，上下边框0，宽、高占用：32；
+    // 缩略图控件，外边距8，外边框4，边框紧贴图片，宽占用：(8 + 4) * 2 = 24，高占用：8 + 4 = 12；
+    // 高度调整值：16 + 32 + 12 = 60；
+    // 宽度调整值：24
+    int thnHeight = height - 60;
 
     int w, h;
     float scale;
@@ -199,12 +200,8 @@ void UkwsWindowBox::setWinboxSizeByHeight(int height)
     w = int(w * scale);
     h = int(h * scale);
 
-    // winbox边框2；
-    // icon高32，上下间距0，上下边框0；
-    // 缩略图宽w高h，外边距3，外边框2，图片间隔2；
-    // 调整值：宽，2x2 + 3x2 + 2x2 + 2x2 = 18，高，2x2 + 32 + 3x2 + 2x2 + 2x2 = 50
-    this->setSubWidgetSize(w + 18, h + 48);
-    this->setFixedSize(w + 18, height);
+    this->setSubWidgetSizeByThnSize(w, h);
+    this->setFixedSize(w + 24, height);
 }
 
 WnckWindow *UkwsWindowBox::getWnckWindow()
@@ -336,8 +333,7 @@ void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
     QSize labelSize = thumbnailLabel->size();
     thumbnailLabel->originalQPixmap = origPixmap;
 
-    // 缩略图，外边框2，图片间距2；
-    // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8
+    // 缩略图控件包含4px的外边框，需要减去外边框的大小
     scaledThumbnail = origPixmap.scaled(labelSize.width() - 8,
                                         labelSize.height() - 8,
                                         Qt::KeepAspectRatio,
@@ -361,8 +357,7 @@ void UkwsWindowBox::setThumbnailByWnck()
                                                                         winTopOffset,
                                                                         winBottomOffset);
 
-    // 缩略图，外边框2，图片间距2；
-    // 调整值：宽，2x2 + 2x2 = 8，高，2x2 + 2x2 = 8
+    // 缩略图控件包含4px的外边框，需要减去外边框的大小
     scaledThumbnail = thumbnailLabel->originalQPixmap.scaled(labelSize.width() - 8,
                                                              labelSize.height() - 8,
                                                              Qt::KeepAspectRatio,

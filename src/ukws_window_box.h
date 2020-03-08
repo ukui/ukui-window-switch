@@ -62,7 +62,7 @@ public:
     explicit UkwsWindowBox(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *);
 
-    void setSubWidgetSize(int w, int h);
+    void setSubWidgetSizeByThnSize(int w, int h);
     void setWinboxSizeByHeight(int height);
 
     QString getTitle();

@@ -56,7 +56,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     wmOperator = new UkwsWnckOperator;
     flowScrollArea = new QScrollArea();
     flowArea = new QWidget();
-    winboxFlowLayout = new UkwsFlowLayout(flowArea, 0, 0, 0);
+    winboxFlowLayout = new UkwsFlowLayout(flowArea, 0, 8, 8);
 
     this->setContentsMargins(0, 0, 0, 0);
     flowArea->setLayout(winboxFlowLayout);
@@ -370,7 +370,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     } else {
         maxWidth = screenRect.width();
         maxHeight = screenRect.height();
-        maxWidth = maxWidth * 5 / 6 - maxWidth * 1 / 20;
+//        maxWidth = maxWidth * 5 / 6 - maxWidth * 1 / 20;
+        maxWidth = maxWidth * config->workspacePrimaryAreaUnits / config->workspaceAllUnits;
         maxHeight = maxHeight;
     }
     winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale) - 0 - 32 - 5 - 5;
@@ -379,6 +380,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     mainLayout->setMargin(20);
 
     // 默认以(maxWidth, maxHeight)为大小，以(maxHeight / 5)为winBox高度
+//    winboxFlowLayout->setSizeConstraint(QLayout::SetMaximumSize);
+    winboxFlowLayout->setGeometry(QRect(0, 0, maxWidth, maxHeight));
     this->resize(maxWidth, maxHeight);
     this->reloadWindowList(winBoxHeight);
 
@@ -396,15 +399,19 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         return;
     }
 
-    for (int i = (minScale * 2 - 1); i > 2; i--) {
+    for (int i = (minScale * 2 - 1); i > 4; i--) {
         scale = i / 2.0;
         winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale) - 0 - 32 - 5 - 5;
 
         foreach (UkwsWindowBox *wb, winboxList) {
             wb->setWinboxSizeByHeight(winBoxHeight);
+            wb->show();
         }
 
-        minSize = this->getMaxRect(QRect(0, 0, maxWidth, maxHeight));
+//        minSize = this->getMaxRect(QRect(0, 0, maxWidth, maxHeight));
+        winboxFlowLayout->setGeometry(QRect(0, 0, maxWidth, maxHeight));
+        minSize = QSize(winboxFlowLayout->maxWidth, winboxFlowLayout->maxHeight);
+
         ratio = (float)minSize.width() / minSize.height();
 
         if ((minSize.height() < maxHeight) && (ratio >= 4 / 3)) {
@@ -417,7 +424,9 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     foreach (UkwsWindowBox *wb, winboxList) {
         wb->setWinboxSizeByHeight(winBoxHeight);
     }
-    minSize = this->getMaxRect(QRect(0, 0, maxWidth, maxHeight));
+//    minSize = this->getMaxRect(QRect(0, 0, maxWidth, maxHeight));
+    winboxFlowLayout->setGeometry(QRect(0, 0, maxWidth, maxHeight));
+    minSize = QSize(winboxFlowLayout->maxWidth, winboxFlowLayout->maxHeight);
 
     if (showMode == UkwsIndicatorShowMode::ShowModeSwitch) {
         winboxFlowLayout->setSizeConstraint(QLayout::SetMinimumSize);
