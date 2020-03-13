@@ -37,6 +37,7 @@ extern "C" {
 #include <QEvent>
 #include <QThread>
 #include <QDrag>
+#include <QTimer>
 #include <QMimeData>
 
 #define UKWS_WIDGET_SPACING         3
@@ -54,6 +55,9 @@ extern "C" {
 
 #define UKWS_WINDOWBOX_WIDTH     (UKWS_THUMBNAIL_DEFAULT_WIDTH + UKWS_BORDER_WIDTH * 2)
 #define UKWS_WINDOWBOX_HEIGHT    (UKWS_ICON_DEFAULT_HEIGHT + UKWS_THUMBNAIL_DEFAULT_HEIGHT + UKWS_WIDGET_SPACING + UKWS_ADDITIONAL_SPACING)
+
+#define UKWS_DRAG_SCALE_INTERVAL_MS 125
+#define UKWS_DRAG_SCALE_TIMES       4
 
 class UkwsWindowBox : public QWidget
 {
@@ -122,6 +126,8 @@ public slots:
 
 private:
     QPixmap makeRadiusPixmap(QPixmap orig, int radius);
+    void scaleDragPixmap();
+
     QString title;
 
     UkwsWindowExtraLabel *titleLabel;
@@ -135,6 +141,11 @@ private:
 
     WnckWindow *wnckWin;
     bool hasFrame;
+
+    QDrag *drag;
+    QTimer scaleTimer;
+    int scaleTimes;
+    QSize scaleUnitSize;
 };
 
 #endif // UKWS_WINDOWBOX_H

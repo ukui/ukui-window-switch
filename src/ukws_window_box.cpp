@@ -50,6 +50,7 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     winBottomOffset = 0;
     frameXid = 0;
     hasFrame = false;
+    drag = nullptr;
 
     titleLabel = new UkwsWindowExtraLabel();
     iconLabel = new UkwsWindowExtraLabel();
@@ -136,6 +137,12 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     setThumbnailNormal();
 
 //    connect(this, &UkwsWindowBox::clicked, this, &UkwsWindowBox::activateWnckWindow);
+
+    scaleTimes = 0;
+    scaleTimer.setSingleShot(true);
+    scaleTimer.setTimerType(Qt::CoarseTimer);
+    scaleTimer.setInterval(UKWS_DRAG_SCALE_INTERVAL_MS);
+    connect(&scaleTimer, &QTimer::timeout, this, &UkwsWindowBox::scaleDragPixmap);
 
     this->setAttribute(Qt::WA_TranslucentBackground, true);
     titleLabel->setAttribute(Qt::WA_TranslucentBackground, true);
@@ -341,7 +348,7 @@ void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
 
     QSize thumbnailSize = scaledThumbnail.size();
     QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
-    thumbnailOffset = QPoint(size.width(), size.height());
+    thumbnailOffset = QPoint(size.width() + 4, size.height() + 4);
     scaledThumbnail = makeRadiusPixmap(scaledThumbnail, 6);
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
@@ -365,7 +372,7 @@ void UkwsWindowBox::setThumbnailByWnck()
 
     QSize thumbnailSize = scaledThumbnail.size();
     QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
-    thumbnailOffset = QPoint(size.width(), size.height());
+    thumbnailOffset = QPoint(size.width() + 4, size.height() + 4);
     scaledThumbnail = makeRadiusPixmap(scaledThumbnail, 6);
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
@@ -431,6 +438,39 @@ QPixmap UkwsWindowBox::makeRadiusPixmap(QPixmap orig, int radius)
     return dest;
 }
 
+void UkwsWindowBox::scaleDragPixmap()
+{
+    if (scaleTimes < 0) {
+        qDebug() << "scaleTimes < 0";
+        return;
+    }
+
+    if (scaleTimes == 0) {
+        qDebug() << "scale done";
+        return;
+    }
+
+    if (drag == nullptr) {
+        qDebug() << "drag is null";
+        return;
+    }
+
+    qDebug() << "scale times:" << scaleTimes;
+    scaleTimes--;
+    scaleTimer.start();
+
+    // 设置缩放大小
+    QSize size = scaledThumbnail.size() - scaleUnitSize * (UKWS_DRAG_SCALE_TIMES - scaleTimes);
+    QPixmap pixmap = scaledThumbnail.scaled(size, Qt::KeepAspectRatio,
+                                            Qt::FastTransformation);
+    qDebug() << scaledThumbnail.size() << scaleUnitSize << size << pixmap.size();
+    drag->setPixmap(pixmap);
+    update();
+//    drag->setHotSpot(mouseEvent->pos() - thumbnailOffset);
+
+
+}
+
 bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
 {
     static bool pressed = 0;
@@ -489,7 +529,7 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             thumbnailLabel->setPixmap(tempPixmap);
 
             // 拖拽处理
-            QDrag *drag = new QDrag(this);
+            drag = new QDrag(this);
             QMimeData *mimeData = new QMimeData;
             QByteArray byteData;
             QDataStream dataStream(&byteData, QIODevice::WriteOnly);
@@ -497,8 +537,9 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             dataStream << parentIndex << index << title;
             mimeData->setData("application/x-dnditemdata", byteData);
             drag->setMimeData(mimeData);
-            drag->setPixmap(scaledThumbnail);
-//            drag->setHotSpot(mouseEvent->pos() - winbox->pos() + QPoint(0 - 14, 0 + 32 - 14));
+//            drag->setPixmap(scaledThumbnail);
+            drag->setPixmap(scaledThumbnail.scaled(200, 160, Qt::KeepAspectRatio,
+                                                          Qt::FastTransformation));
 
             qDebug() << "----------------";
             qDebug() << thumbnailLabel->size() - scaledThumbnail.size();
@@ -507,7 +548,17 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             qDebug() << thumbnailLabel->size();
             qDebug() << thumbnailLabel->contentsRect().size();
 
-            drag->setHotSpot(mouseEvent->pos() - thumbnailOffset);
+            // 事件发生时的坐标，减去thn边框的宽度，获得实际图片上的坐标
+            QPoint hotSpot = (mouseEvent->pos() - thumbnailOffset) *
+                    200.0 / (float)scaledThumbnail.width();
+            drag->setHotSpot(hotSpot);
+
+            // 设置缩放大小
+            scaleUnitSize = (scaledThumbnail.size() - QSize(200, 100)) / UKWS_DRAG_SCALE_TIMES;
+
+            // 设置拖拽图片缩放动画的定时器
+            scaleTimer.start();
+            scaleTimes = UKWS_DRAG_SCALE_TIMES;
 
             if (drag->exec()) {
                 qDebug() << "Drag Done";
@@ -518,6 +569,7 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             }
 
             drag->deleteLater();
+            drag = nullptr;
 
             return true;
         }
