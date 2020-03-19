@@ -82,6 +82,7 @@ public:
     void setOrigThumbnailByWnck();
     void setThumbnail(QPixmap origPixmap);
     void setThumbnailByWnck();
+    void setDragIconSize(QSize size);
     QPixmap windowPixmap();
 
     void setThumbnailHover();
@@ -143,6 +144,7 @@ private:
     bool hasFrame;
 
     QDrag *drag;
+    QSize dragIconSize;
     QTimer scaleTimer;
     int scaleTimes;
     QSize scaleUnitSize;

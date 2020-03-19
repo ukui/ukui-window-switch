@@ -251,16 +251,21 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
     wmOperator->updateWindowList();
     int size = wmOperator->windowQList->size();
 
-    /*
-     * 计算indicator大小、window box大小
-     * switch模式：
-     *   1. indicator宽高都限定为3/4屏，即上下左右各留3/8的空白区间
-     *   2. winbox与indicator间距22px（来自windows）
-     *   3. 不需要在indicator中显示当前选定的窗口名称
-     *
-     * 平铺模式：
-     *     对高度进行确定，两行高度计算是否能满足，不行则用三行高度来算
-     */
+    // 获取屏幕大小
+    QDesktopWidget *desktop = QApplication::desktop();
+    int screenNum = desktop->screenNumber(this);
+    QRect screenRect = QGuiApplication::screens().at(screenNum)->geometry();
+
+    // 计算侧边栏工作区控件大小
+    float scale = (float)config->workspaceItemUnits / config->workspaceAllUnits;
+
+    // 计算侧边栏工作区缩略图大小
+    int w = screenRect.width() * scale - 20;
+    int h = screenRect.height() * w / screenRect.width();
+
+    // 计算winbox拖拽缩略图大小
+    QSize dragIconSize = QSize(w * 0.8, h * 0.8);
+
 
     for (int i = 0; i < size; i++) {
         WnckWindow *win = wmOperator->windowQList->at(i);
@@ -271,6 +276,7 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
         // 设置Winbox大小
         wb->setOrigThumbnailByWnck();
         wb->setWinboxSizeByHeight(boxMinHeight);
+        wb->setDragIconSize(dragIconSize);
 
 //        winboxList.append(wb);
         wb->setIconByWnck();

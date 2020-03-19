@@ -59,6 +59,7 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     titleSize = UKWS_TITLE_SIZE;
     iconSize = UKWS_ICON_SIZE;
     winboxSize = QSize(UKWS_WINDOWBOX_WIDTH, UKWS_WINDOWBOX_HEIGHT);
+    dragIconSize = QSize(0, 0);
 
     iconLabel->setAlignment(Qt::AlignCenter);
     thumbnailLabel->setAlignment(Qt::AlignCenter);
@@ -377,6 +378,11 @@ void UkwsWindowBox::setThumbnailByWnck()
     thumbnailLabel->setPixmap(scaledThumbnail);
 }
 
+void UkwsWindowBox::setDragIconSize(QSize size)
+{
+    dragIconSize = size;
+}
+
 QPixmap UkwsWindowBox::windowPixmap()
 {
     return thumbnailLabel->originalQPixmap;
@@ -538,7 +544,7 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             mimeData->setData("application/x-dnditemdata", byteData);
             drag->setMimeData(mimeData);
 //            drag->setPixmap(scaledThumbnail);
-            drag->setPixmap(scaledThumbnail.scaled(200, 160, Qt::KeepAspectRatio,
+            drag->setPixmap(scaledThumbnail.scaled(dragIconSize, Qt::KeepAspectRatio,
                                                           Qt::FastTransformation));
 
             qDebug() << "----------------";
@@ -550,11 +556,11 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
 
             // 事件发生时的坐标，减去thn边框的宽度，获得实际图片上的坐标
             QPoint hotSpot = (mouseEvent->pos() - thumbnailOffset) *
-                    200.0 / (float)scaledThumbnail.width();
+                    (float)drag->pixmap().size().width() / (float)scaledThumbnail.width();
             drag->setHotSpot(hotSpot);
 
             // 设置缩放大小
-            scaleUnitSize = (scaledThumbnail.size() - QSize(200, 100)) / UKWS_DRAG_SCALE_TIMES;
+            scaleUnitSize = (scaledThumbnail.size() - drag->pixmap().size()) / UKWS_DRAG_SCALE_TIMES;
 
             // 设置拖拽图片缩放动画的定时器
             scaleTimer.start();
