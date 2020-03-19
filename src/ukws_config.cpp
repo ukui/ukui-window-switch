@@ -166,15 +166,15 @@ void UkwsConfig::configReload()
                    UKWS_DATA_DEFAULT_DIR;
     foreach(QString ukwsDir, ukswDirList) {
         themeFileInfo.setFile(ukwsDir + "/theme/" + this->themeName + ".qss");
-        qDebug() << "Theme file check:" << themeFileInfo.absoluteFilePath();
+//        qDebug() << "Theme file check:" << themeFileInfo.absoluteFilePath();
         if (themeFileInfo.exists())
             ukwsTheme.setFileName(themeFileInfo.absoluteFilePath());
     }
     if (ukwsTheme.fileName() == "") {
         ukwsThemeString = defaultTheme;
-        qDebug() << "Loading internal default theme";
+//        qDebug() << "Loading internal default theme";
     } else {
-        qDebug() << "Loading theme file:" << ukwsTheme.fileName();
+//        qDebug() << "Loading theme file:" << ukwsTheme.fileName();
         ukwsTheme.open(QFile::ReadOnly);
         ukwsThemeString = ukwsTheme.readAll();
         ukwsTheme.close();

@@ -447,21 +447,17 @@ QPixmap UkwsWindowBox::makeRadiusPixmap(QPixmap orig, int radius)
 void UkwsWindowBox::scaleDragPixmap()
 {
     if (scaleTimes < 0) {
-        qDebug() << "scaleTimes < 0";
         return;
     }
 
     if (scaleTimes == 0) {
-        qDebug() << "scale done";
         return;
     }
 
     if (drag == nullptr) {
-        qDebug() << "drag is null";
         return;
     }
 
-    qDebug() << "scale times:" << scaleTimes;
     scaleTimes--;
     scaleTimer.start();
 
@@ -469,7 +465,6 @@ void UkwsWindowBox::scaleDragPixmap()
     QSize size = scaledThumbnail.size() - scaleUnitSize * (UKWS_DRAG_SCALE_TIMES - scaleTimes);
     QPixmap pixmap = scaledThumbnail.scaled(size, Qt::KeepAspectRatio,
                                             Qt::FastTransformation);
-    qDebug() << scaledThumbnail.size() << scaleUnitSize << size << pixmap.size();
     drag->setPixmap(pixmap);
     update();
 //    drag->setHotSpot(mouseEvent->pos() - thumbnailOffset);
@@ -547,13 +542,6 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             drag->setPixmap(scaledThumbnail.scaled(dragIconSize, Qt::KeepAspectRatio,
                                                           Qt::FastTransformation));
 
-            qDebug() << "----------------";
-            qDebug() << thumbnailLabel->size() - scaledThumbnail.size();
-            qDebug() << thumbnailLabel->contentsRect().size() - scaledThumbnail.size();
-            qDebug() << thumbnailOffset;
-            qDebug() << thumbnailLabel->size();
-            qDebug() << thumbnailLabel->contentsRect().size();
-
             // 事件发生时的坐标，减去thn边框的宽度，获得实际图片上的坐标
             QPoint hotSpot = (mouseEvent->pos() - thumbnailOffset) *
                     (float)drag->pixmap().size().width() / (float)scaledThumbnail.width();
@@ -567,10 +555,8 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             scaleTimes = UKWS_DRAG_SCALE_TIMES;
 
             if (drag->exec()) {
-                qDebug() << "Drag Done";
                 thumbnailLabel->setPixmap(scaledThumbnail);
             } else {
-                qDebug() << "Drag Cancel";
                 thumbnailLabel->setPixmap(scaledThumbnail);
             }
 

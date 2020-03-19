@@ -366,7 +366,6 @@ void UkwsWorkspaceManager::setBackgroundImage()
 
     // 设置左半区域遮罩
     int w = size().width() * 100 / 120;
-    qDebug() << w << size().height() << QColor(19, 19, 20, 127);
     painter.fillRect(0, 0, w, size().height(), QColor(19, 19, 20, 127));
 
     // 设置右半区域遮罩

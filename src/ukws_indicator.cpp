@@ -726,15 +726,12 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
             int wbIndex;
 
             dataStream >> indIndex >> wbIndex >> wbTitle;
-            qDebug() << "===== dragEnter Indicator:" << indIndex << wbIndex << wbTitle;
-
             dragEvent->accept();
         }
 
         if (event->type() == QEvent::DragLeave) {
             QDragLeaveEvent *dragLeave = static_cast<QDragLeaveEvent *>(event);
 
-            qDebug() << "===== DragLeave Indicator:" << index;
             dragLeave->accept();
         }
 
@@ -748,7 +745,6 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
             int wbIndex;
 
             dataStream >> indIndex >> wbIndex >> wbTitle;
-            qDebug() << "===== Window Drop," << indIndex << wbIndex << wbTitle;
             if (indIndex != index) {
 //                emit windowChangeWorkspace(wbIndex, indIndex, index);
 //                dropEvent->accept();
