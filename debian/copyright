@@ -16,6 +16,8 @@ Files: AUTHORS
        src/ukws_config.h
        src/ukws_dbus.cpp
        src/ukws_dbus.h
+       src/ukws_fake_desktop.h
+       src/ukws_fake_desktop.cpp
        src/ukws_helper.cpp
        src/ukws_helper.h
        src/ukws_indicator.cpp
@@ -28,6 +30,8 @@ Files: AUTHORS
        src/ukws_window_extra_label.h
        src/ukws_window_icon.cpp
        src/ukws_window_icon.h
+       src/ukws_window_info.cpp
+       src/ukws_window_info.h
        src/ukws_wnck_operator.cpp
        src/ukws_wnck_operator.h
        src/ukws_worker.cpp
@@ -36,6 +40,8 @@ Files: AUTHORS
        src/ukws_workspace_box.h
        src/ukws_workspace_manager.cpp
        src/ukws_workspace_manager.h
+       src/ukws_workspace_multiview.cpp
+       src/ukws_workspace_multiview.h
        theme/default.qss
 Copyright: 2020, Tianjin KYLIN Information Technology Co., Ltd.
 License: GPL-2+

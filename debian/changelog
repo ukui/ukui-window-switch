@@ -1,3 +1,11 @@
+ukui-window-switch (2.0.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/copyright:
+    - Update the copyright.
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Sat, 21 Mar 2020 15:00:59 +0800
+
 ukui-window-switch (2.0.0-1) unstable; urgency=medium
 
   * New upstream release.
