@@ -30,8 +30,12 @@ extern "C" {
 #include <X11/Xlib.h>
 }
 
+#define NOT_REG_WINDOW_SWITCH_HOTKEY
+#define NOT_REG_WORKSPACE_VIEW_HOTKEY
+
 UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
 {
+#ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
     nextShortcut = new QHotkey(QKeySequence(Qt::AltModifier |
                                             Qt::Key_Tab),
                                true, this);
@@ -39,15 +43,22 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
                                             Qt::ShiftModifier |
                                             Qt::Key_Tab),
                                true, this);
+#endif
+
+#ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
     workspaceShortcut = new QHotkey(QKeySequence(Qt::MetaModifier |
                                                  Qt::Key_Tab),
                                     true, this);
-//    workspaceShortcut = new QHotkey(QKeySequence(Qt::AltModifier |
-//                                                 Qt::Key_A),
-//                                    true, this);
+#endif
+
+#ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
     connect(nextShortcut, &QHotkey::activated, this, &UkwsManager::showNextWinbox);
     connect(prevShortcut, &QHotkey::activated, this, &UkwsManager::showPrevWinbox);
+#endif
+
+#ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
     connect(workspaceShortcut, &QHotkey::activated, this, &UkwsManager::handleWorkspace);
+#endif
 
     // 每10s检测一次热键注册情况
     shortcutCheckTimer.setTimerType(Qt::CoarseTimer);
@@ -91,6 +102,7 @@ void UkwsManager::setConfig(UkwsConfig *config)
 {
     this->config = config;
     setTheme(config->themeString);
+
     ind->setConfig(config);
     ws->setConfig(config);
 }
@@ -186,6 +198,7 @@ void UkwsManager::hideIndicatorAndActivate(bool needActivate)
 
 void UkwsManager::checkShortcutStatus()
 {
+#ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
     if (!nextShortcut->isRegistered()) {
         nextShortcut->setRegistered(true);
     }
@@ -193,10 +206,13 @@ void UkwsManager::checkShortcutStatus()
     if (!prevShortcut->isRegistered()) {
         prevShortcut->setRegistered(true);
     }
+#endif
 
+#ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
     if (!workspaceShortcut->isRegistered()) {
         workspaceShortcut->setRegistered(true);
     }
+#endif
 }
 
 void UkwsManager::checkAltStatus()
