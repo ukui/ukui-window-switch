@@ -426,6 +426,9 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
             break;
     }
 
+    if (showMode == UkwsIndicatorShowMode::ShowModeTiling)
+        actualScale = 2.5;
+
     winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / actualScale) - 0 - 32 - 5 - 5;
     foreach (UkwsWindowBox *wb, winboxList) {
         wb->setWinboxSizeByHeight(winBoxHeight);
