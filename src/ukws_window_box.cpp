@@ -36,6 +36,8 @@ using namespace UkwsHelperXHeader;
 
 #include <QX11Info>
 
+#define NO_ADD_FRAME
+
 static const QSize UKWS_TITLE_SIZE = QSize(UKWS_TITLE_WIDTH, UKWS_TITLE_HEIGHT);
 static const QSize UKWS_ICON_SIZE = QSize(UKWS_ICON_DEFAULT_WIDTH, UKWS_ICON_DEFAULT_HEIGHT);
 static const QSize UKWS_THUMBNAIL_SIZE = QSize(UKWS_THUMBNAIL_DEFAULT_WIDTH, UKWS_THUMBNAIL_DEFAULT_HEIGHT);
@@ -274,6 +276,14 @@ void UkwsWindowBox::fixFrameWindowArea()
     winWidth = frameWidth;
     winHeight = frameHeight;
 
+#ifdef NO_ADD_FRAME
+    winLeftOffset = 0;
+    winRightOffset = 0;
+    winTopOffset = 0;
+    winBottomOffset = 0;
+    frameXid = wnck_window_get_xid(wnckWin);
+    hasFrame = false;
+#else
     if ((origWidth == frameWidth) && (origHeight == frameHeight)) {
         // 无窗口装饰区
         winLeftOffset = 0;
@@ -324,6 +334,7 @@ void UkwsWindowBox::fixFrameWindowArea()
 
         hasFrame = true;
     }
+#endif
 }
 
 void UkwsWindowBox::setOrigThumbnailByWnck()
@@ -525,7 +536,7 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             QPixmap tempPixmap = scaledThumbnail;
             QPainter painter;
             painter.begin(&tempPixmap);
-            painter.fillRect(scaledThumbnail.rect(), QColor(0, 0, 0, 127));
+            painter.fillRect(scaledThumbnail.rect(), QColor(0, 0, 0, 159));
             painter.end();
             thumbnailLabel->setPixmap(tempPixmap);
 
