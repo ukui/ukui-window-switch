@@ -156,6 +156,23 @@ void UkwsConfig::configReload()
 
     workspaceAllUnits = workspacePrimaryAreaUnits + workspaceSidebarUnits;
 
+    // 获取模糊图片时的卷积核大小
+    blurRadius = conf.value("BlurRadius").toInt(&ok);
+    if (!ok) {
+        workspaceItemUnits = UKWS_WS_ITEM_UNITS;
+        qWarning("BlurRadius parameter error, use defalut"
+                 " value: %d", UKWS_BLUR_RADIUS);
+    };
+
+
+    // 获取模糊图片时缩放倍数
+    blurReduce = conf.value("BlurReduce").toInt(&ok);
+    if (!ok) {
+        workspaceItemUnits = UKWS_WS_ITEM_UNITS;
+        qWarning("BlurReduce parameter error, use defalut"
+                 " value: %d", UKWS_BLUR_REDUCE);
+    };
+
     // 获取主题内容
     QString ukwsThemeString;
     QFile ukwsTheme;

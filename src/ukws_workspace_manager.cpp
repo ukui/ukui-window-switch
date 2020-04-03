@@ -31,6 +31,8 @@
 #include <QPainter>
 #include <QX11Info>
 
+#include "ukws_stack_blur.h"
+
 // ukws_helper.h包含X.h，必须放到所有Qt头文件之前
 #include "ukws_helper.h"
 
@@ -358,14 +360,24 @@ void UkwsWorkspaceManager::getBackground()
 
 void UkwsWorkspaceManager::setBackgroundImage()
 {
+    // 计算主区域宽度
+    int w = size().width() * config->workspacePrimaryAreaUnits / config->workspaceAllUnits;
+
     // 背景图置灰
     QPixmap tempPixmap = background.scaled(size(), Qt::IgnoreAspectRatio,
                                            Qt::SmoothTransformation);
+    UkwsStackBlur blurrer;
+    blurrer.setOrigImage(tempPixmap.toImage());
+    blurrer.setReduce(2);
+    blurrer.setRadius(16);
+    blurrer.setBlurRect(QRect(w, 0, size().width() - w + 1, size().height()));
+    blurrer.calculate();
+    tempPixmap = QPixmap::fromImage(blurrer.blurImage());
+
     QPainter painter;
     painter.begin(&tempPixmap);
 
     // 设置左半区域遮罩
-    int w = size().width() * 100 / 120;
     painter.fillRect(0, 0, w, size().height(), QColor(19, 19, 20, 127));
 
     // 设置右半区域遮罩

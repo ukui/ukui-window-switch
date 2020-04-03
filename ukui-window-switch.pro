@@ -12,6 +12,7 @@ TEMPLATE = app
 SOURCES += \
     src/main.cpp \
     src/ukws_indicator.cpp \
+    src/ukws_stack_blur.cpp \
     src/ukws_wnck_operator.cpp \
     src/ukws_helper.cpp \
     src/ukws_window_box.cpp \
@@ -31,6 +32,7 @@ SOURCES += \
 
 HEADERS += \
     src/ukws_indicator.h \
+    src/ukws_stack_blur.h \
     src/ukws_wnck_operator.h \
     src/ukws_helper.h \
     src/ukws_window_box.h \

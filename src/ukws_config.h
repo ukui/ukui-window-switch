@@ -29,6 +29,9 @@
 
 #define DEFAULT_LOG_LEVEL   5
 
+#define UKWS_BLUR_RADIUS    15
+#define UKWS_BLUR_REDUCE    3
+
 #define UKWS_WS_PRIMARY_AREA_UNITS  100
 #define UKWS_WS_SIDEBAR_UNITS       20
 #define UKWS_WS_ITEM_UNITS          17
@@ -59,6 +62,9 @@ public:
     int workspacePrimaryAreaUnits;
     int workspaceSidebarUnits;
     int workspaceItemUnits;
+
+    int blurRadius;
+    int blurReduce;
 
 private:
     QString configFilePath;
