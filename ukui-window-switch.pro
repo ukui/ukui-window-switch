@@ -56,10 +56,14 @@ unix: PKGCONFIG += x11 libwnck-3.0 gdk-3.0
 
 DISTFILES += \
     data/default-background.jpg \
+    data/org.ukui.WindowSwitch.service \
     data/ukui-window-switch.conf \
     theme/default.qss
 
 target.path = /usr/bin/
+
+services.path = /usr/share/dbus-1/services/
+services.files = data/org.ukui.WindowSwitch.service
 
 theme.path = /usr/share/ukui-window-switch/theme/
 theme.files = theme/default.qss
@@ -70,4 +74,4 @@ conf.files = data/ukui-window-switch.conf
 background.path = /usr/share/ukui-window-switch/data/
 background.files = data/default-background.jpg
 
-INSTALLS += target theme conf background
+INSTALLS += target services theme conf background
