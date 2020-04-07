@@ -691,10 +691,15 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
         }
 
         if (event->type() == QEvent::MouseButtonRelease) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->button() == Qt::LeftButton)
-                dragWindow = false;
-            return true;
+            if (dragWindow) {
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+                if (mouseEvent->button() == Qt::LeftButton)
+                    dragWindow = false;
+
+                return true;
+            }
+
+            return false;
         }
 
         if (event->type() == QEvent::MouseMove) {

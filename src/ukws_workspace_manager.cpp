@@ -178,6 +178,7 @@ void UkwsWorkspaceManager::reHide()
     cleanAllWorkspace();
 
     showStatus = UkwsWidgetShowStatus::Hidden;
+    emit isHidden();
 }
 
 void UkwsWorkspaceManager::setShowingIndicator(int index)
@@ -209,7 +210,6 @@ void UkwsWorkspaceManager::selectWinbox(bool needActivate)
         UkwsIndicator *ind = static_cast<UkwsIndicator *>(indStack->currentWidget());
         ind->acitveSelectedWindow();
         reHide();
-        emit isHidden();
     }
 }
 
@@ -219,7 +219,6 @@ void UkwsWorkspaceManager::changeWorkspace(int index)
     unsigned long timestamp = QX11Info::getTimestamp();
     wnck_workspace_activate(workspace, timestamp);
     reHide();
-    emit isHidden();
 }
 
 void UkwsWorkspaceManager::moveWindowWorkspace(int wbIndex, int srcWsIndex, int dstWsIndex)
@@ -424,6 +423,7 @@ bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)
         }
 
         if (event->type() == QEvent::MouseButtonRelease) {
+            reHide();
             return true;
         }
 
@@ -436,8 +436,6 @@ bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Escape) {
                 reHide();
-                emit isHidden();
-
                 return true;
             }
         }
@@ -446,9 +444,7 @@ bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)
             if (showStatus == UkwsWidgetShowStatus::Shown ||
                      showStatus == UkwsWidgetShowStatus::Constructing) {
                 reHide();
-                emit isHidden();
             }
-
             return true;
         }
     }

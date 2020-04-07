@@ -153,7 +153,11 @@ bool UkwsWorkspaceBox::eventFilter(QObject *object, QEvent *event)
 
             return true;
         }
-//		if (event->type() == QEvent::MouseButtonPress) {
+
+        if (event->type() == QEvent::MouseButtonRelease) {
+            return true;
+        }
+
         if (event->type() == QEvent::MouseButtonDblClick) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() == Qt::LeftButton)
