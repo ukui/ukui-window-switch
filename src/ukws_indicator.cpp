@@ -774,8 +774,11 @@ bool UkwsIndicator::eventFilter(QObject *object, QEvent *event)
 
         if (event->type() == QEvent::Enter) {
             if ((winboxFlowLayout->visualHeight > winboxFlowLayout->geometry().height())
-                    && (flowScrollBar->maximum() > 0))
+                    && (flowScrollBar->maximum() > 0)
+                    && (this->showMode == UkwsIndicatorShowMode::ShowModeTiling))
                 flowScrollBar->show();
+            else
+                flowScrollBar->hide();
             QWidget::enterEvent(event);
 
             return false;
