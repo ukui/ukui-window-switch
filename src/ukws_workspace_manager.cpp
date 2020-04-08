@@ -40,14 +40,16 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
 {
     wmOperator = new UkwsWnckOperator;
     indStack = new QStackedWidget;
+    mainLayout = new QHBoxLayout;
     wsboxLayout = new QVBoxLayout;
+    topSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed);
     showStatus = UkwsWidgetShowStatus::Hidden;
     config = nullptr;
 
-    mainLayout = new QHBoxLayout();
     mainLayout->addWidget(indStack);
     mainLayout->addLayout(wsboxLayout);
-//    mainLayout->addSpacing(10);
+    wsboxLayout->addSpacerItem(topSpacer);
+
     mainLayout->setAlignment(Qt::AlignHCenter);
     wsboxLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
@@ -98,7 +100,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     // 设置工作区视图的最底层背景
     this->setBackgroundImage(screenRect.width(), screenRect.height());
 
-    wsboxLayout->addSpacing(5);
+    topSpacer->changeSize(w, screenRect.height() / 40);
 
     QPixmap wsboxBackground = background.scaled(QSize(w, h),
                                                 Qt::IgnoreAspectRatio,

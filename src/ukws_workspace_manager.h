@@ -80,6 +80,7 @@ private:
 
     QHBoxLayout *mainLayout;
     QVBoxLayout *wsboxLayout;
+    QSpacerItem *topSpacer;
 
     QPixmap background;
 };
