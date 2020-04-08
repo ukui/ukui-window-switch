@@ -24,6 +24,8 @@ Files: AUTHORS
        src/ukws_indicator.h
        src/ukws_manager.cpp
        src/ukws_manager.h
+       src/ukws_stack_blur.cpp
+       src/ukws_stack_blur.h
        src/ukws_window_box.cpp
        src/ukws_window_box.h
        src/ukws_window_extra_label.cpp
