@@ -47,9 +47,9 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
     mainLayout = new QHBoxLayout();
     mainLayout->addWidget(indStack);
     mainLayout->addLayout(wsboxLayout);
-    mainLayout->addSpacing(10);
+//    mainLayout->addSpacing(10);
     mainLayout->setAlignment(Qt::AlignHCenter);
-    wsboxLayout->setAlignment(Qt::AlignTop);
+    wsboxLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
     mainLayout->setMargin(0);
     wsboxLayout->setMargin(0);
@@ -141,7 +141,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         spaceBoxList.append(wsbox);
         indList.append(ind);
 
-        wsboxLayout->addWidget(wsbox, 0, Qt::AlignCenter);
+        wsboxLayout->addWidget(wsbox);
         indStack->addWidget(ind);
     }
 
