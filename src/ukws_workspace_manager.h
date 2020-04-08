@@ -52,7 +52,7 @@ public:
     void reHide();
     QString getBackgroundFileByGSettings(QString schemaDir, QString schemaUrl, QString keyName);
     void getBackground();
-    void setBackgroundImage();
+    void setBackgroundImage(int width = 0, int height = 0);
     void cleanAllWorkspace();
 
     void setConfig(UkwsConfig *config);

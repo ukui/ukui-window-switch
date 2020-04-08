@@ -75,9 +75,11 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 {
     cleanAllWorkspace();
 
+    // 获取主屏区域信息
     QDesktopWidget *desktop = QApplication::desktop();
-    int screenNum = desktop->screenNumber(this);
+//    int screenNum = desktop->screenNumber(this);
 //    QRect screenRect = desktop->screenGeometry(screenNum);
+    int screenNum = desktop->primaryScreen();
     QRect screenRect = QGuiApplication::screens().at(screenNum)->geometry();
     WnckScreen *screen = wnck_screen_get(screenNum);
     float scale = (float)config->workspaceItemUnits / config->workspaceAllUnits;
@@ -94,7 +96,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     this->getBackground();
 
     // 设置工作区视图的最底层背景
-    this->setBackgroundImage();
+    this->setBackgroundImage(screenRect.width(), screenRect.height());
 
     wsboxLayout->addSpacing(5);
 
@@ -139,7 +141,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         spaceBoxList.append(wsbox);
         indList.append(ind);
 
-        wsboxLayout->addWidget(wsbox);
+        wsboxLayout->addWidget(wsbox, 0, Qt::AlignCenter);
         indStack->addWidget(ind);
     }
 
@@ -155,9 +157,14 @@ void UkwsWorkspaceManager::reShow(int minScale)
 
     showStatus = UkwsWidgetShowStatus::Constructing;
 
-    reloadWorkspace(minScale);
-//    this->show();
+    // 先让界面显示出来，从而让Qt完成布局重绘
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    this->move(primaryScreen->geometry().topLeft());
     this->showFullScreen();
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+
+    reloadWorkspace(minScale);
+
     this->activateWindow();
 
     showStatus = UkwsWidgetShowStatus::Shown;
@@ -184,14 +191,22 @@ void UkwsWorkspaceManager::reHide()
 void UkwsWorkspaceManager::setShowingIndicator(int index)
 {
     int size = indList.size();
+    int idx = index;
+
+    //
+    if ((idx < 0) || (idx >= indList.size())) {
+        qCritical("Illegal index values: %d, set index to 0\n", index);
+        idx = 0;
+    }
+
     for (int i = 0; i < size; i++)
-        if (i != index)
+        if (i != idx)
             indList.at(i)->hide();
         else
             indList.at(i)->show();
 
-    indStack->setCurrentIndex(index);
-    UkwsIndicator *ind = indList.at(index);
+    indStack->setCurrentIndex(idx);
+    UkwsIndicator *ind = indList.at(idx);
     ind->flowReLayout();
 
     UkwsWorkspaceBox *wsbox;
@@ -199,7 +214,7 @@ void UkwsWorkspaceManager::setShowingIndicator(int index)
         wsbox->setProperty("selected", false);
         wsbox->setStyle(QApplication::style());
     }
-    wsbox = spaceBoxList.at(index);
+    wsbox = spaceBoxList.at(idx);
     wsbox->setProperty("selected", true);
     wsbox->setStyle(QApplication::style());
 }
@@ -357,10 +372,23 @@ void UkwsWorkspaceManager::getBackground()
 
 }
 
-void UkwsWorkspaceManager::setBackgroundImage()
+void UkwsWorkspaceManager::setBackgroundImage(int width, int height)
 {
     // 计算主区域宽度
-    int w = size().width() * config->workspacePrimaryAreaUnits / config->workspaceAllUnits;
+    int w, h, x;
+
+    if (width == 0)
+        w = size().width();
+    else
+        w = width;
+
+    x = w * config->workspacePrimaryAreaUnits / config->workspaceAllUnits;
+
+    if (height == 0)
+        h = size().height();
+    else
+        h = height;
+
 
     // 背景图置灰
     QPixmap tempPixmap = background.scaled(size(), Qt::IgnoreAspectRatio,
@@ -369,7 +397,7 @@ void UkwsWorkspaceManager::setBackgroundImage()
     blurrer.setOrigImage(tempPixmap.toImage());
     blurrer.setReduce(2);
     blurrer.setRadius(16);
-    blurrer.setBlurRect(QRect(w, 0, size().width() - w + 1, size().height()));
+    blurrer.setBlurRect(QRect(x, 0, w - x + 1, size().height()));
     blurrer.calculate();
     tempPixmap = QPixmap::fromImage(blurrer.blurImage());
 
@@ -377,10 +405,10 @@ void UkwsWorkspaceManager::setBackgroundImage()
     painter.begin(&tempPixmap);
 
     // 设置左半区域遮罩
-    painter.fillRect(0, 0, w, size().height(), QColor(19, 19, 20, 127));
+    painter.fillRect(0, 0, x, h, QColor(19, 19, 20, 127));
 
     // 设置右半区域遮罩
-    painter.fillRect(w, 0, size().width() - w, size().height(), QColor(19, 19, 20, 178));
+    painter.fillRect(x, 0, w - x, h, QColor(19, 19, 20, 178));
     painter.end();
 
     setAutoFillBackground(true);   // 这个属性一定要设置

@@ -356,15 +356,23 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
 //    QDesktopWidget *desktop = QApplication::desktop();
 
     // 自当前屏幕上显示indicator
-    // 获取鼠标所在屏幕
+
     QRect screenRect;
     int screenCount = QGuiApplication::screens().count();
     int screenIndex = -1;
-    for (int i = 0  ; i < screenCount; i++) {
-//        screenRect = desktop->screenGeometry(i);
-        screenRect = QGuiApplication::screens().at(i)->geometry() ;
-        if (screenRect.contains(QCursor::pos()))
-            screenIndex = i;
+
+    if (showMode == UkwsIndicatorShowMode::ShowModeSwitch) {
+        // 获取鼠标所在屏幕
+        for (int i = 0  ; i < screenCount; i++) {
+            //        screenRect = desktop->screenGeometry(i);
+            screenRect = QGuiApplication::screens().at(i)->geometry() ;
+            if (screenRect.contains(QCursor::pos()))
+                screenIndex = i;
+        }
+    } else {
+        // 多任务视图展现在主屏上
+        QDesktopWidget *desktop = QApplication::desktop();
+        screenIndex = desktop->primaryScreen();
     }
 
 //    screenRect =  desktop->availableGeometry(screenIndex);
@@ -444,8 +452,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         if (minSize.height() + 20 * 2 + 14 < maxHeight)
             maxHeight =  minSize.height() + 20 * 2 + 14;
         this->setFixedSize(maxWidth, maxHeight);
-        this->move((screenRect.width() - maxWidth) / 2,
-                   (screenRect.height() - maxHeight) / 2);
+        this->move((screenRect.width() - maxWidth) / 2 + screenRect.left(),
+                   (screenRect.height() - maxHeight) / 2 + screenRect.top());
     }
     this->show();
     flowScrollBar->hide();
