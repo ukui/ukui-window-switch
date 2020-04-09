@@ -1,3 +1,21 @@
+ukui-window-switch (2.0.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release:
+    - Fix window thumbnail exception on kwin.
+    - Fix out-of-bounds crash due to wnck not working properly on some
+      window manager.
+    - Fix kwin and ukui-window-switch shortcut key conflict.
+    - Fix the wrong color of hover winbox border.
+    - Fix the wrong window height of multitasking view.
+    - Fix that click on the blank area won't exit the view mode.
+    - Fix view position error in multi-screen.
+    - Fix that the workspace on the right side is ont centerted under
+      highdpi screen.
+    - Fix that workspace box moving down after opening multiple times.
+  * debian/watch: update to monitor the upstream orig.tar.gz.
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Thu, 09 Apr 2020 15:30:47 +0800
+
 ukui-window-switch (2.0.1-1) unstable; urgency=medium
 
   * New upstream release.
