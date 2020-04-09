@@ -24,7 +24,7 @@
 #include <QDebug>
 #include <QScrollArea>
 #include <QtX11Extras/QX11Info>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QApplication>
 #include <QScreen>
 #include <QStyleOption>
@@ -78,11 +78,10 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     cleanAllWorkspace();
 
     // 获取主屏区域信息
-    QDesktopWidget *desktop = QApplication::desktop();
-//    int screenNum = desktop->screenNumber(this);
-//    QRect screenRect = desktop->screenGeometry(screenNum);
-    int screenNum = desktop->primaryScreen();
-    QRect screenRect = QGuiApplication::screens().at(screenNum)->geometry();
+    QList<QScreen *> screenList = QGuiApplication::screens();
+    QScreen* primaryScreen = QGuiApplication::primaryScreen();
+    QRect screenRect = primaryScreen->geometry();
+    int screenNum = screenList.indexOf(primaryScreen);
     WnckScreen *screen = wnck_screen_get(screenNum);
     float scale = (float)config->workspaceItemUnits / config->workspaceAllUnits;
 
@@ -195,7 +194,12 @@ void UkwsWorkspaceManager::setShowingIndicator(int index)
     int size = indList.size();
     int idx = index;
 
-    //
+    if (size <= 0) {
+        qCritical("Indicator list is empty...\n", index);
+        return;
+    }
+
+    // wnck在部分窗管上会出现各种异常问题，所以需要在此做边界判断
     if ((idx < 0) || (idx >= indList.size())) {
         qCritical("Illegal index values: %d, set index to 0\n", index);
         idx = 0;
