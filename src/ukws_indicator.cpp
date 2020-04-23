@@ -209,14 +209,34 @@ void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
 
 void UkwsIndicator::cleanAllWinbox()
 {
+    QTime curTime;
+    curTime = QTime::currentTime();
+    curTime.start();
+
     // 等待处理完成，并在等待时处理其他事件
     UkwsWorker *worker;
     foreach(worker, workerList) {
         worker->stopWork();
 
-        while (!worker->doingThread->isFinished()) {
-            QCoreApplication::processEvents();
+        // 最大事件处理时间1000ms，防止不断上报其他事件，从而影响后续逻辑的执行
+        curTime = QTime::currentTime();
+        curTime.start();
+        while (!worker->doingThread->isFinished() && (curTime.elapsed() < 1000)) {
+            // 最大事件处理时间50ms，防止不断上报其他事件，从而影响后续逻辑的执行
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
         }
+
+        // 强行停止线程
+        if (!worker->doingThread->isFinished()) {
+            // 极端情况下可能会导致内存泄漏，需要后续优化
+            worker->doingThread->terminate();
+            bool ret = worker->doingThread->wait(100);
+            qWarning() << "UkwsIndicator will terminate thread"
+                       << workerList.indexOf(worker) << ret;
+            worker->doingThread->deleteLater();
+            worker->deleteLater();
+        }
+
         // 停止所有更新缩略图的线程
         worker->doingThread->quit();
 

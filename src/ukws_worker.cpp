@@ -89,7 +89,8 @@ void UkwsWorker::doWork()
 
 void UkwsWorker::stopWork()
 {
-    status = UkwsWorker::Stopping;
+    if (status != UkwsWorker::Stopped)
+        status = UkwsWorker::Stopping;
 }
 
 bool UkwsWorker::isStopped()
