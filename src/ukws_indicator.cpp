@@ -213,14 +213,17 @@ void UkwsIndicator::cleanAllWinbox()
     curTime = QTime::currentTime();
     curTime.start();
 
-    // 等待处理完成，并在等待时处理其他事件
     UkwsWorker *worker;
+    // 通知worker，终止处理后续事宜
     foreach(worker, workerList) {
         worker->stopWork();
+    }
 
-        // 最大事件处理时间1000ms，防止不断上报其他事件，从而影响后续逻辑的执行
-        curTime = QTime::currentTime();
-        curTime.start();
+    // 等待处理完成，并在等待时处理其他事件
+    // 最大事件处理时间1000ms，防止不断上报其他事件，从而影响后续逻辑的执行
+    curTime = QTime::currentTime();
+    curTime.start();
+    foreach(worker, workerList) {
         while (!worker->doingThread->isFinished() && (curTime.elapsed() < 1000)) {
             // 最大事件处理时间50ms，防止不断上报其他事件，从而影响后续逻辑的执行
             QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
