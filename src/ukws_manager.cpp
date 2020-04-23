@@ -182,6 +182,9 @@ void UkwsManager::hideIndicator()
 
 void UkwsManager::hideIndicatorAndActivate(bool needActivate)
 {
+    // 无论何种状态，隐藏indicator的时候都释放键盘
+    setGrabKeyboard(false);
+
     if (ind->showStatus == UkwsWidgetShowStatus::Constructing)
         ind->stopConstructing(100000);
 
@@ -193,9 +196,6 @@ void UkwsManager::hideIndicatorAndActivate(bool needActivate)
         altCheckTimer.stop();
         ind->reHide(needActivate);
     }
-
-    // 无论何种状态，隐藏indicator的时候都释放键盘
-    setGrabKeyboard(false);
 }
 
 void UkwsManager::checkShortcutStatus()
