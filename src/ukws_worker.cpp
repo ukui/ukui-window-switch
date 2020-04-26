@@ -85,6 +85,9 @@ void UkwsWorker::doWork()
     // 设置状态
     status = UkwsWorker::Stopped;
     emit workDone();
+
+    // 显示调用quit()来退出事件循环，结束线程
+    this->doingThread->quit();
 }
 
 void UkwsWorker::stopWork()

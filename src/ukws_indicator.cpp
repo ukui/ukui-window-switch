@@ -210,10 +210,8 @@ void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
 void UkwsIndicator::cleanAllWinbox()
 {
     QTime curTime;
-    curTime = QTime::currentTime();
-    curTime.start();
-
     UkwsWorker *worker;
+
     // 通知worker，终止处理后续事宜
     foreach(worker, workerList) {
         worker->stopWork();
@@ -224,24 +222,33 @@ void UkwsIndicator::cleanAllWinbox()
     curTime = QTime::currentTime();
     curTime.start();
     foreach(worker, workerList) {
-        while (!worker->doingThread->isFinished() && (curTime.elapsed() < 1000)) {
+        while (!worker->isStopped() && (curTime.elapsed() < 1000)) {
             // 最大事件处理时间50ms，防止不断上报其他事件，从而影响后续逻辑的执行
             QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
         }
 
-        // 强行停止线程
-        if (!worker->doingThread->isFinished()) {
-            // 极端情况下可能会导致内存泄漏，需要后续优化
+        // 由于未知问题，存在worker已停止，线程未完成的情况，此时直接终止线程即可
+        if (worker->isStopped() && !worker->doingThread->isFinished()) {
+            // 强行停止线程
             worker->doingThread->terminate();
-            bool ret = worker->doingThread->wait(100);
-            qWarning() << "UkwsIndicator will terminate thread"
-                       << workerList.indexOf(worker) << ret;
-            worker->doingThread->deleteLater();
-            worker->deleteLater();
         }
+    }
 
-        // 停止所有更新缩略图的线程
-        worker->doingThread->quit();
+    curTime = QTime::currentTime();
+    curTime.start();
+    foreach(worker, workerList) {
+        // 等待线程终止
+        while (!worker->doingThread->wait(10) && (curTime.elapsed() < 100)) {
+            // 最大事件处理时间50ms，防止不断上报其他事件，从而影响后续逻辑的执行
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+        }
+    }
+
+    foreach(worker, workerList) {
+        // 上述等待后线程还未结束，告警
+        if (!worker->doingThread->isFinished())
+            qWarning() << "UkwsIndicator terminate thread"
+                       << workerList.indexOf(worker) << "timeout";
 
         // doingThread只是保存索引，无父子关系，故需要手动释放
         worker->doingThread->deleteLater();
@@ -268,7 +275,7 @@ UkwsWindowBox *UkwsIndicator::getWinbox(int winboxIndex)
 
 void UkwsIndicator::reloadWindowList(int boxMinHeight)
 {
-    if (winboxList.size() != 0)
+    if (winboxList.size() != 0 || workerList.size() != 0)
         cleanAllWinbox();
 
     wmOperator->updateWindowList();
@@ -432,7 +439,7 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     if (winboxList.size() <= 0) {
         showStatus = UkwsWidgetShowStatus::Shown;
         // 工作线程、CPU数量，线程的CPU亲和力等都需要设置
-        this->reSetWindowThumbnailByWnck();
+//        this->reSetWindowThumbnailByWnck();
         return;
     }
 
