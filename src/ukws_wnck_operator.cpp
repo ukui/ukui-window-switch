@@ -126,7 +126,8 @@ void UkwsWnckOperator::updateWindowList(/*WnckScreen *screen, WnckWorkspace *wor
         WnckWindow *win = static_cast<WnckWindow *>(node->data);
         needShow = true;
         if (needCheckWorkspace) {
-            if (wnck_window_get_workspace(win) != this->workspace)
+//            if (wnck_window_get_workspace(win) != this->workspace)
+            if (!wnck_window_is_on_workspace(win, this->workspace))
                 needShow = false;
         }
 
