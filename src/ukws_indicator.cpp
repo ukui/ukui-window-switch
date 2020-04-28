@@ -386,7 +386,6 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
 //    QDesktopWidget *desktop = QApplication::desktop();
 
     // 自当前屏幕上显示indicator
-
     QRect screenRect;
     int screenCount = QGuiApplication::screens().count();
     int screenIndex = -1;
@@ -584,10 +583,13 @@ bool UkwsIndicator::updateWindowViewPixmap(bool newRequest)
     if (updateDesktopViewHandledId == updateDesktopViewRequestId)
         return false;
 
-    for (i = 0; i < cpus; i++) {
-        worker = workerList.at(i);
-        if (!worker->isStopped())
-            allWorkDone = false;
+    qDebug() << "workerList.size =" << workerList.size();
+
+    if (workerList.size() > 0) {
+        foreach (worker, workerList) {
+            if (!worker->isStopped())
+                allWorkDone = false;
+        }
     }
 
     if (!allWorkDone)
