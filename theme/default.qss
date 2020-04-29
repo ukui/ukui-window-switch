@@ -165,3 +165,9 @@ UkwsWorkspaceBox#wsbox[selected=true] UkwsWindowExtraLabel#wsbox-thumbnail {
     padding: 0px;
     border: 3px solid rgba(255, 255, 255, 255);
 }
+
+UkwsWindowExtraLabel#new-workspace-title {
+    font-size: 14px;
+    color: White;
+    padding: 0px;
+}

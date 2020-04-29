@@ -31,6 +31,8 @@
 #define UKWS_OBJ_WINBOX_THUMBNAIL   "winbox-thumbnail"
 #define UKWS_OBJ_WSBOX              "wsbox"
 #define UKWS_OBJ_WSBOX_THUMBNAIL    "wsbox-thumbnail"
+#define UKWS_OBJ_NEW_WS_TITLE       "new-workspace-title"
+#define UKWS_OBJ_NEW_WS_LABEL       "new-workspace-label"
 
 enum UkwsWidgetShowStatus {
     Hidden = 0,

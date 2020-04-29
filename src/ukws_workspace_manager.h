@@ -24,6 +24,7 @@
 #include "ukws_flowlayout.h"
 #include "ukws_wnck_operator.h"
 #include "ukws_workspace_box.h"
+#include "ukws_new_workspace_button.h"
 #include "ukws_config.h"
 
 #include <QWidget>
@@ -38,6 +39,7 @@
 
 #define UKWS_WORKSPACE_MAX_SCALE 3
 #define UKWS_WORKSPACE_DEFAULT_BACKGROUND   "/usr/share/ukui-window-switch/data/default-background.png"
+#define UKWS_WORKSPACE_MAX  4
 
 class UkwsWorkspaceManager: public QWidget
 {
@@ -77,6 +79,7 @@ private:
     QList<UkwsWorkspaceBox *> spaceBoxList;
 
     QStackedWidget *indStack;
+    UkwsNewWorkspaceButton *newWorkspaceBtn;
 
     QHBoxLayout *mainLayout;
     QVBoxLayout *wsboxLayout;

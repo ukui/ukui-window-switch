@@ -40,9 +40,12 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
 {
     wmOperator = new UkwsWnckOperator;
     indStack = new QStackedWidget;
+    newWorkspaceBtn = new UkwsNewWorkspaceButton;
+
     mainLayout = new QHBoxLayout;
     wsboxLayout = new QVBoxLayout;
     topSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed);
+
     showStatus = UkwsWidgetShowStatus::Hidden;
     config = nullptr;
 
@@ -148,6 +151,14 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 
     for (int i = 0; i < size; i++)
         indList.at(i)->reShow(UkwsIndicator::ShowModeTiling, minScale);
+
+    wsboxLayout->addWidget(newWorkspaceBtn);
+    newWorkspaceBtn->setSizeByButtonSize(w, h);
+//    newWorkspaceBtn->show();
+    newWorkspaceBtn->hide();
+
+    if (size >= UKWS_WORKSPACE_MAX)
+        newWorkspaceBtn->hide();
 }
 
 void UkwsWorkspaceManager::reShow(int minScale)
@@ -431,6 +442,7 @@ void UkwsWorkspaceManager::cleanAllWorkspace()
         wsbox->deleteLater();
     }
     spaceBoxList.clear();
+    wsboxLayout->removeWidget(newWorkspaceBtn);
 
     // 清理indicator
     foreach(UkwsIndicator *ind, indList) {
