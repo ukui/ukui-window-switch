@@ -19,6 +19,7 @@
 
 #include "ukws_workspace_box.h"
 
+#include <QApplication>
 #include <QWidget>
 #include <QStyleOption>
 #include <QPainter>
@@ -41,6 +42,8 @@ UkwsWorkspaceBox::UkwsWorkspaceBox(QWidget *parent) : QWidget(parent)
 
     mainLayout = new QVBoxLayout();
     topBarLayout = new QHBoxLayout();
+
+    isSelected = false;
 
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sizePolicy.setVerticalPolicy(QSizePolicy::Fixed);
@@ -141,7 +144,9 @@ void UkwsWorkspaceBox::setBackground(QPixmap thumbnail)
 {
     QSize size = thumbnailLabel->size();
     background = thumbnail.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    thumbnailLabel->setPixmap(background);
+
+    updateDesktopViewThumbnail(QPixmap(0, 0));
+//    thumbnailLabel->setPixmap(background);
 }
 
 bool UkwsWorkspaceBox::eventFilter(QObject *object, QEvent *event)
@@ -227,14 +232,24 @@ void UkwsWorkspaceBox::onCloseButtonRealsed()
 
 void UkwsWorkspaceBox::updateDesktopViewThumbnail(QPixmap viewPixmap)
 {
-    QPixmap view = background;
-    QPainter painter(&view);
+    QPixmap tmpPixmap;
+    QPainter painter;
     QSize size = thumbnailLabel->size();
 
-    // 将桌面窗口视图叠加到背景上，行程桌面视图
-    desktopViewPixmap = viewPixmap.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    painter.drawPixmap(0, 0, size.width(), size.height(), desktopViewPixmap);
-    thumbnailLabel->setPixmap(view);
+    // 将桌面窗口视图叠加到背景上，形成桌面视图
+    desktopViewPixmap = background;
+    painter.begin((&desktopViewPixmap));
+    if (!viewPixmap.isNull())
+        tmpPixmap = viewPixmap.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    painter.drawPixmap(0, 0, size.width(), size.height(), tmpPixmap);
+    painter.end();
+
+    desktopViewDarkPixmap = desktopViewPixmap;
+    painter.begin(&desktopViewDarkPixmap);
+    painter.fillRect(desktopViewDarkPixmap.rect(), QColor(0, 0, 0, 159));
+    painter.end();
+
+    updateThumbnail();
 }
 
 void UkwsWorkspaceBox::setTitleStyle(QString style)
@@ -245,4 +260,21 @@ void UkwsWorkspaceBox::setTitleStyle(QString style)
 void UkwsWorkspaceBox::setBoxStyle(QString style)
 {
     this->setStyleSheet(style);
+}
+
+void UkwsWorkspaceBox::setSelectStatus(bool status)
+{
+    isSelected = status;
+    setProperty("selected", status);
+    setStyle(QApplication::style());
+
+    updateThumbnail();
+}
+
+void UkwsWorkspaceBox::updateThumbnail()
+{
+    if (isSelected)
+        thumbnailLabel->setPixmap(desktopViewPixmap);
+    else
+        thumbnailLabel->setPixmap(desktopViewDarkPixmap);
 }

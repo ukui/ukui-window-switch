@@ -56,6 +56,8 @@ public:
     void setBackground(QPixmap thumbnail);
     void setTitleStyle(QString style);
     void setBoxStyle(QString style);
+    void setSelectStatus(bool status);
+    void updateThumbnail();
 
     bool eventFilter(QObject *object, QEvent *event);
     void paintEvent(QPaintEvent *);
@@ -76,6 +78,7 @@ public slots:
 private:
     QString title;
     QPixmap desktopViewPixmap;
+    QPixmap desktopViewDarkPixmap;
     QPixmap background;
 
     UkwsWindowExtraLabel *titleLabel;
@@ -86,6 +89,8 @@ private:
     QHBoxLayout *topBarLayout;
 
     WnckWorkspace *wnckWorkspace;
+
+    bool isSelected;
 };
 
 #endif // UKWSWORKSPACEBOX_H

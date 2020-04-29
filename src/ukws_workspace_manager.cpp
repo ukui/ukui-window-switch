@@ -217,12 +217,10 @@ void UkwsWorkspaceManager::setShowingIndicator(int index)
 
     UkwsWorkspaceBox *wsbox;
     foreach (wsbox, spaceBoxList) {
-        wsbox->setProperty("selected", false);
-        wsbox->setStyle(QApplication::style());
+        wsbox->setSelectStatus(false);
     }
     wsbox = spaceBoxList.at(idx);
-    wsbox->setProperty("selected", true);
-    wsbox->setStyle(QApplication::style());
+    wsbox->setSelectStatus(true);
 }
 
 void UkwsWorkspaceManager::selectWinbox(bool needActivate)
