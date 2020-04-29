@@ -142,18 +142,15 @@ void msgHandler(QtMsgType type, const QMessageLogContext& context, const QString
     if (fp != NULL) {
         fprintf(fp, "%s\n", outMsg.toUtf8().data());
         fflush(fp);
-    } else {
+    }
 
-        if (ctrlEnv == NULL)
-            return;
-
+    if (ctrlEnv != NULL) {
         // 环境变量为true或者1，则将信息输出到命令行
         env = QString(ctrlEnv).toLower();
-        if ((env != "true") && (env != "1"))
-            return;
-
-        fprintf(stdout, "%s\n", outMsg.toStdString().c_str());
-        fflush(stdout);
+        if ((env == "true") || (env == "1")) {
+            fprintf(stdout, "%s\n", outMsg.toStdString().c_str());
+            fflush(stdout);
+        }
     }
 
     // 遇到致命错误，需要终止程序
