@@ -35,8 +35,8 @@
 #include <QString>
 #include <QInputEvent>
 
-#define UKWS_WINBOX_SWITCH_WIDTH   (168 + 5 + 5)
-#define UKWS_WINBOX_SWITCH_HEIGHT   (96 + 0 + 32 + 5 + 5)
+//#define UKWS_WINBOX_SWITCH_WIDTH   (168 + 5 + 5)
+//#define UKWS_WINBOX_SWITCH_HEIGHT   (96 + 0 + 32 + 5 + 5)
 #define UKWS_WINBOX_MAX_SCALE   4
 
 typedef struct indicator_size_test_t indicator_size_test;

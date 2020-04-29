@@ -22,6 +22,7 @@
 #include <QString>
 #include <QDate>
 #include <QSize>
+#include <QSizePolicy>
 #include <QEvent>
 #include <QResizeEvent>
 
@@ -53,6 +54,7 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     frameXid = 0;
     hasFrame = false;
     drag = nullptr;
+    titleAutoHide = false;
 
     titleLabel = new UkwsWindowExtraLabel();
     iconLabel = new UkwsWindowExtraLabel();
@@ -84,22 +86,19 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 
     // 设置控件缩放方式
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    sizePolicy.setHorizontalStretch(0);
-//    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setRetainSizeWhenHidden(true);
     iconLabel->setSizePolicy(sizePolicy);
     sizePolicy.setHorizontalPolicy(QSizePolicy::Expanding);
     titleLabel->setSizePolicy(sizePolicy);
     sizePolicy.setVerticalPolicy(QSizePolicy::Expanding);
 
     // 设置控件最大尺寸
-    iconLabel->resize(QSize(32, 32));
-    titleLabel->setFixedHeight(32);
+    iconLabel->resize(QSize(UKWS_ICON_DEFAULT_SIZE, UKWS_ICON_DEFAULT_SIZE));
+    titleLabel->setFixedHeight(UKWS_TITLE_DEFAULT_HEIGHT);
     titleLabel->setMinimumWidth(1);
     thumbnailLabel->setMinimumSize(QSize(1, 1));
 
-//    iconLabel->setContentsMargins(5, 0, 0, 0);
-    titleLabel->setContentsMargins(0, 0, 5, 0);
-//    thumbnailLabel->setContentsMargins(3, 3, 3, 3);
+    titleLabel->setContentsMargins(0, 0, UKWS_WINDOWBOX_PADDING, 0);
 
     /*
      * 设置控件布局（简单布局，直接手写）
@@ -173,11 +172,15 @@ void UkwsWindowBox::setSubWidgetSizeByThnSize(int w, int h)
     // 高度调整值：8 + 32 + 16 = 56；
     // 宽度调整值：32 + 5 = 37
     // 标题宽度调整值：
-    titleLabel->setFixedSize(w - 37, 32);
+    int fixW, fixH;
+    fixW = (UKWS_ICON_DEFAULT_WIDTH + UKWS_WINDOWBOX_PADDING);
+    titleLabel->setFixedSize(w - fixW, UKWS_ICON_DEFAULT_HEIGHT);
     this->updateTitleBySize();
 
     // 缩略图控件，外边框4，边框紧贴图片，宽、高占用：4 * 2 = 8
-    thumbnailLabel->setFixedSize(w + 8, h + 8);
+    fixW = UKWS_WINDOWBOX_BORDER * 2;
+    fixH = UKWS_WINDOWBOX_BORDER * 2;
+    thumbnailLabel->setFixedSize(w + fixW, h + fixH);
 }
 
 void UkwsWindowBox::setWinboxSizeByHeight(int height)
@@ -187,7 +190,12 @@ void UkwsWindowBox::setWinboxSizeByHeight(int height)
     // 缩略图控件，外边距8，外边框4，边框紧贴图片，宽占用：(8 + 4) * 2 = 24，高占用：8 + 4 = 12；
     // 高度调整值：16 + 32 + 12 = 60；
     // 宽度调整值：24
-    int thnHeight = height - 60;
+    int fixW, fixH, thnHeight;
+    fixW = (UKWS_THUMBNAIL_MARGIN + UKWS_WINDOWBOX_BORDER) * 2;
+    fixH = (UKWS_WINDOWBOX_BORDER + UKWS_WINDOWBOX_PADDING) * 2
+            + UKWS_ICON_DEFAULT_HEIGHT
+            + (UKWS_THUMBNAIL_MARGIN + UKWS_WINDOWBOX_BORDER);
+    thnHeight = height - fixH;
 
     int w, h;
     float scale;
@@ -211,7 +219,7 @@ void UkwsWindowBox::setWinboxSizeByHeight(int height)
     h = int(h * scale);
 
     this->setSubWidgetSizeByThnSize(w, h);
-    this->setFixedSize(w + 24, height);
+    this->setFixedSize(w + fixW, height);
 }
 
 WnckWindow *UkwsWindowBox::getWnckWindow()
@@ -428,6 +436,17 @@ void UkwsWindowBox::setWindowBoxUnselected()
                         "border-radius: 6px;}");
 }
 
+void UkwsWindowBox::setTitleAutoHide(bool autoHide)
+{
+    titleAutoHide = autoHide;
+
+    // 设置了自动隐藏则即刻隐藏标题栏
+    if (titleAutoHide) {
+        iconLabel->hide();
+        titleLabel->hide();
+    }
+}
+
 void UkwsWindowBox::moveToWorkspace(int wsIndex)
 {
     WnckScreen *screen = wnck_window_get_screen(wnckWin);
@@ -491,6 +510,10 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::Enter) {
             pressed = false;
             setThumbnailHover();
+            if (titleAutoHide) {
+                iconLabel->show();
+                titleLabel->show();
+            }
 
             return true;
         }
@@ -498,6 +521,10 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::Leave) {
             pressed = false;
             setThumbnailNormal();
+            if (titleAutoHide) {
+                iconLabel->hide();
+                titleLabel->hide();
+            }
 
             return true;
         }

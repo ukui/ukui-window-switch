@@ -312,8 +312,10 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
         wb->setIconByWnck();
         wb->setTitle(wnck_window_get_name(win));
 
-        if (showMode == UkwsIndicatorShowMode::ShowModeTiling)
+        if (showMode == UkwsIndicatorShowMode::ShowModeTiling) {
             wb->dragable = true;
+            wb->setTitleAutoHide(true);
+        }
 
         addWinbox(wb);
     }
@@ -417,7 +419,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         maxWidth = maxWidth * config->workspacePrimaryAreaUnits / config->workspaceAllUnits;
         maxHeight = maxHeight;
     }
-    winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale) - 0 - 32 - 5 - 5;
+    winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale)
+            - 0 - UKWS_ICON_DEFAULT_SIZE - 5 - 5;
 
     // 设置外边距
     mainLayout->setMargin(20);
@@ -444,7 +447,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
 
     for (int i = (minScale * 2 - 1); i > 4; i--) {
         scale = i / 2.0;
-        winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale) - 0 - 32 - 5 - 5;
+        winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale)
+                - 0 - UKWS_ICON_DEFAULT_SIZE - 5 - 5;
 
         foreach (UkwsWindowBox *wb, winboxList) {
             wb->setWinboxSizeByHeight(winBoxHeight);
@@ -466,7 +470,8 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
     if (showMode == UkwsIndicatorShowMode::ShowModeTiling)
         actualScale = 2.5;
 
-    winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / actualScale) - 0 - 32 - 5 - 5;
+    winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / actualScale)
+            - 0 - UKWS_ICON_DEFAULT_SIZE - 5 - 5;
     foreach (UkwsWindowBox *wb, winboxList) {
         wb->setWinboxSizeByHeight(winBoxHeight);
     }
@@ -582,8 +587,6 @@ bool UkwsIndicator::updateWindowViewPixmap(bool newRequest)
     // 已有任务在处理当前的视图，直接返回
     if (updateDesktopViewHandledId == updateDesktopViewRequestId)
         return false;
-
-    qDebug() << "workerList.size =" << workerList.size();
 
     if (workerList.size() > 0) {
         foreach (worker, workerList) {

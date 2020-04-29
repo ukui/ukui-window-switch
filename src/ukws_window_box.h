@@ -44,8 +44,11 @@ extern "C" {
 #define UKWS_ADDITIONAL_SPACING    10
 #define UKWS_BORDER_WIDTH           2
 
-#define UKWS_ICON_DEFAULT_WIDTH     32
-#define UKWS_ICON_DEFAULT_HEIGHT    32
+#define UKWS_ICON_DEFAULT_SIZE      24
+#define UKWS_ICON_DEFAULT_WIDTH     UKWS_ICON_DEFAULT_SIZE
+#define UKWS_ICON_DEFAULT_HEIGHT    UKWS_ICON_DEFAULT_SIZE
+
+#define UKWS_TITLE_DEFAULT_HEIGHT   UKWS_ICON_DEFAULT_HEIGHT
 
 #define UKWS_THUMBNAIL_DEFAULT_WIDTH     320
 #define UKWS_THUMBNAIL_DEFAULT_HEIGHT    180
@@ -55,6 +58,11 @@ extern "C" {
 
 #define UKWS_WINDOWBOX_WIDTH     (UKWS_THUMBNAIL_DEFAULT_WIDTH + UKWS_BORDER_WIDTH * 2)
 #define UKWS_WINDOWBOX_HEIGHT    (UKWS_ICON_DEFAULT_HEIGHT + UKWS_THUMBNAIL_DEFAULT_HEIGHT + UKWS_WIDGET_SPACING + UKWS_ADDITIONAL_SPACING)
+
+// 外边距8，外边框4，边框紧贴图片，宽占用：(8 + 4) * 2 = 24，高占用：8 + 4 = 12
+#define UKWS_THUMBNAIL_MARGIN   8
+#define UKWS_WINDOWBOX_PADDING  5
+#define UKWS_WINDOWBOX_BORDER   4
 
 #define UKWS_DRAG_SCALE_INTERVAL_MS 125
 #define UKWS_DRAG_SCALE_TIMES       4
@@ -89,6 +97,7 @@ public:
     void setThumbnailNormal();
     void setWindowBoxSelected();
     void setWindowBoxUnselected();
+    void setTitleAutoHide(bool autoHide);
 
     void moveToWorkspace(int wsIndex);
 
@@ -148,6 +157,8 @@ private:
     QTimer scaleTimer;
     int scaleTimes;
     QSize scaleUnitSize;
+
+    bool titleAutoHide;
 };
 
 #endif // UKWS_WINDOWBOX_H
