@@ -61,8 +61,11 @@ extern "C" {
 
 // 外边距8，外边框4，边框紧贴图片，宽占用：(8 + 4) * 2 = 24，高占用：8 + 4 = 12
 #define UKWS_THUMBNAIL_MARGIN   8
+#define UKWS_THUMBNAIL_RADIUS   6
 #define UKWS_WINDOWBOX_PADDING  5
 #define UKWS_WINDOWBOX_BORDER   4
+//#define UKWS_WINDOWBOX_RADIUS   6
+
 
 #define UKWS_DRAG_SCALE_INTERVAL_MS 125
 #define UKWS_DRAG_SCALE_TIMES       4
@@ -88,6 +91,7 @@ public:
     void setIconByWnck();
     void fixFrameWindowArea();
     void setOrigThumbnailByWnck();
+    void updateThumbnail();
     void setThumbnail(QPixmap origPixmap);
     void setThumbnailByWnck();
     void setDragIconSize(QSize size);
@@ -144,7 +148,8 @@ private:
     UkwsWindowExtraLabel *iconLabel;
     UkwsWindowExtraLabel *thumbnailLabel;
 
-    QPixmap scaledThumbnail;
+    QPixmap thnUnselectedPixmap;
+    QPixmap thnSelectedPixmap;
 
     QVBoxLayout *mainLayout;
     QHBoxLayout *topBarLayout;

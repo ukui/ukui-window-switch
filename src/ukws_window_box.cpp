@@ -355,22 +355,56 @@ void UkwsWindowBox::setOrigThumbnailByWnck()
                                                                     winBottomOffset);
 }
 
-void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
+void UkwsWindowBox::updateThumbnail()
 {
     QSize labelSize = thumbnailLabel->size();
+
+    thnUnselectedPixmap = QPixmap(labelSize.width(), labelSize.height());
+    thnUnselectedPixmap.fill(Qt::transparent);
+//    thnSelectedPixmap = QPixmap(labelSize.width(), labelSize.height());
+//    thnSelectedPixmap.fill(Qt::transparent);
+
+    // 自绘边框宽度为4px，纯缩略图大小为长宽需要减8
+    QPixmap origThn, radiusThn;
+    origThn = thumbnailLabel->originalQPixmap.scaled(labelSize.width() - UKWS_WINDOWBOX_BORDER * 2,
+                                                     labelSize.height() - UKWS_WINDOWBOX_BORDER * 2,
+                                                     Qt::KeepAspectRatio,
+                                                     Qt::SmoothTransformation);
+
+    QPainter painter;
+    radiusThn = makeRadiusPixmap(origThn, UKWS_THUMBNAIL_RADIUS);
+    painter.begin(&thnUnselectedPixmap);
+    painter.drawPixmap(UKWS_WINDOWBOX_BORDER, UKWS_WINDOWBOX_BORDER,
+                       radiusThn.width(), radiusThn.height(), radiusThn);
+    painter.end();
+    thnSelectedPixmap = thnUnselectedPixmap.copy();
+
+    // 获取圆角边框区域
+    QRectF rect;
+    QPainterPath path;
+
+    rect = QRectF(UKWS_WINDOWBOX_BORDER, UKWS_WINDOWBOX_BORDER,
+                  labelSize.width() - UKWS_WINDOWBOX_BORDER * 2,
+                  labelSize.height() - UKWS_WINDOWBOX_BORDER * 2);
+    path.addRoundedRect(rect, UKWS_THUMBNAIL_RADIUS, UKWS_THUMBNAIL_RADIUS);
+    rect = QRectF(0, 0, labelSize.width(), labelSize.height());
+    path.addRoundedRect(rect, UKWS_THUMBNAIL_RADIUS + UKWS_WINDOWBOX_BORDER,
+                        UKWS_THUMBNAIL_RADIUS + UKWS_WINDOWBOX_BORDER);
+
+    painter.begin(&thnSelectedPixmap);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.setBrush(QBrush(QColor(255, 255, 255, 128)));
+    painter.setPen(QPen(QColor(255, 255, 255, 0)));
+    painter.drawPath(path);
+    painter.end();
+}
+
+void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
+{
+
     thumbnailLabel->originalQPixmap = origPixmap;
-
-    // 缩略图控件包含4px的外边框，需要减去外边框的大小
-    scaledThumbnail = origPixmap.scaled(labelSize.width() - 8,
-                                        labelSize.height() - 8,
-                                        Qt::KeepAspectRatio,
-                                        Qt::SmoothTransformation);
-
-    QSize thumbnailSize = scaledThumbnail.size();
-    QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
-    thumbnailOffset = QPoint(size.width() + 4, size.height() + 4);
-    scaledThumbnail = makeRadiusPixmap(scaledThumbnail, 6);
-    thumbnailLabel->setPixmap(scaledThumbnail);
+    updateThumbnail();
+    thumbnailLabel->setPixmap(thnUnselectedPixmap);
 }
 
 void UkwsWindowBox::setThumbnailByWnck()
@@ -383,18 +417,8 @@ void UkwsWindowBox::setThumbnailByWnck()
                                                                         winRightOffset,
                                                                         winTopOffset,
                                                                         winBottomOffset);
-
-    // 缩略图控件包含4px的外边框，需要减去外边框的大小
-    scaledThumbnail = thumbnailLabel->originalQPixmap.scaled(labelSize.width() - 8,
-                                                             labelSize.height() - 8,
-                                                             Qt::KeepAspectRatio,
-                                                             Qt::SmoothTransformation);
-
-    QSize thumbnailSize = scaledThumbnail.size();
-    QSize size = (thumbnailLabel->contentsRect().size() - thumbnailSize) / 2;
-    thumbnailOffset = QPoint(size.width() + 4, size.height() + 4);
-    scaledThumbnail = makeRadiusPixmap(scaledThumbnail, 6);
-    thumbnailLabel->setPixmap(scaledThumbnail);
+    updateThumbnail();
+    thumbnailLabel->setPixmap(thnUnselectedPixmap);
 }
 
 void UkwsWindowBox::setDragIconSize(QSize size)
@@ -414,12 +438,20 @@ QString UkwsWindowBox::getTitle()
 
 void UkwsWindowBox::setThumbnailHover()
 {
-
+    if (titleAutoHide) {
+        iconLabel->show();
+        titleLabel->show();
+    }
+    thumbnailLabel->setPixmap(thnSelectedPixmap);
 }
 
 void UkwsWindowBox::setThumbnailNormal()
 {
-
+    if (titleAutoHide) {
+        iconLabel->hide();
+        titleLabel->hide();
+    }
+    thumbnailLabel->setPixmap(thnUnselectedPixmap);
 }
 
 void UkwsWindowBox::setWindowBoxSelected()
@@ -492,8 +524,8 @@ void UkwsWindowBox::scaleDragPixmap()
     scaleTimer.start();
 
     // 设置缩放大小
-    QSize size = scaledThumbnail.size() - scaleUnitSize * (UKWS_DRAG_SCALE_TIMES - scaleTimes);
-    QPixmap pixmap = scaledThumbnail.scaled(size, Qt::KeepAspectRatio,
+    QSize size = thnUnselectedPixmap.size() - scaleUnitSize * (UKWS_DRAG_SCALE_TIMES - scaleTimes);
+    QPixmap pixmap = thnUnselectedPixmap.scaled(size, Qt::KeepAspectRatio,
                                             Qt::FastTransformation);
     drag->setPixmap(pixmap);
     update();
@@ -510,10 +542,6 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::Enter) {
             pressed = false;
             setThumbnailHover();
-            if (titleAutoHide) {
-                iconLabel->show();
-                titleLabel->show();
-            }
 
             return true;
         }
@@ -521,10 +549,6 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::Leave) {
             pressed = false;
             setThumbnailNormal();
-            if (titleAutoHide) {
-                iconLabel->hide();
-                titleLabel->hide();
-            }
 
             return true;
         }
@@ -560,10 +584,10 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
                 return true;
 
             // 缩略图置灰
-            QPixmap tempPixmap = scaledThumbnail;
+            QPixmap tempPixmap = thnUnselectedPixmap;
             QPainter painter;
             painter.begin(&tempPixmap);
-            painter.fillRect(scaledThumbnail.rect(), QColor(0, 0, 0, 159));
+            painter.fillRect(thnUnselectedPixmap.rect(), QColor(0, 0, 0, 159));
             painter.end();
             thumbnailLabel->setPixmap(tempPixmap);
 
@@ -576,26 +600,26 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             dataStream << parentIndex << index << title;
             mimeData->setData("application/x-dnditemdata", byteData);
             drag->setMimeData(mimeData);
-//            drag->setPixmap(scaledThumbnail);
-            drag->setPixmap(scaledThumbnail.scaled(dragIconSize, Qt::KeepAspectRatio,
+//            drag->setPixmap(thnUnselectedPixmap);
+            drag->setPixmap(thnUnselectedPixmap.scaled(dragIconSize, Qt::KeepAspectRatio,
                                                           Qt::FastTransformation));
 
             // 事件发生时的坐标，减去thn边框的宽度，获得实际图片上的坐标
             QPoint hotSpot = (mouseEvent->pos() - thumbnailOffset) *
-                    (float)drag->pixmap().size().width() / (float)scaledThumbnail.width();
+                    (float)drag->pixmap().size().width() / (float)thnUnselectedPixmap.width();
             drag->setHotSpot(hotSpot);
 
             // 设置缩放大小
-            scaleUnitSize = (scaledThumbnail.size() - drag->pixmap().size()) / UKWS_DRAG_SCALE_TIMES;
+            scaleUnitSize = (thnUnselectedPixmap.size() - drag->pixmap().size()) / UKWS_DRAG_SCALE_TIMES;
 
             // 设置拖拽图片缩放动画的定时器
             scaleTimer.start();
             scaleTimes = UKWS_DRAG_SCALE_TIMES;
 
             if (drag->exec()) {
-                thumbnailLabel->setPixmap(scaledThumbnail);
+                thumbnailLabel->setPixmap(thnUnselectedPixmap);
             } else {
-                thumbnailLabel->setPixmap(scaledThumbnail);
+                thumbnailLabel->setPixmap(thnUnselectedPixmap);
             }
 
             drag->deleteLater();
