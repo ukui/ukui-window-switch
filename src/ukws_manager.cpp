@@ -80,7 +80,8 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     // 窗口指示器显示所有工作区中的窗口，但是不显示非当前屏幕的窗口
     ind->wmOperator->needCheckWorkspace = false;
     ind->wmOperator->needCheckScreen = true;
-    ind->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    ind->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool |
+                        Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
     ws->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
 
     connect(ind, &UkwsIndicator::isSelected, this, &UkwsManager::hideIndicatorAndActivate);
