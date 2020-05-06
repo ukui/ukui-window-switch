@@ -54,6 +54,7 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     frameXid = 0;
     hasFrame = false;
     drag = nullptr;
+    isSelected = false;
     titleAutoHide = false;
 
     titleLabel = new UkwsWindowExtraLabel();
@@ -161,6 +162,27 @@ void UkwsWindowBox::paintEvent(QPaintEvent *event)
     styleOpt.init(this);
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &styleOpt, &painter, this);
+
+    if (isSelected) {
+        QSize size = this->size();
+
+        // 获取圆角边框区域
+        QRectF rect;
+        QPainterPath path;
+
+        rect = QRectF(UKWS_WINDOWBOX_BORDER, UKWS_WINDOWBOX_BORDER,
+                      size.width() - UKWS_WINDOWBOX_BORDER * 2,
+                      size.height() - UKWS_WINDOWBOX_BORDER * 2);
+        path.addRoundedRect(rect, UKWS_THUMBNAIL_RADIUS, UKWS_THUMBNAIL_RADIUS);
+        rect = QRectF(0, 0, size.width(), size.height());
+        path.addRoundedRect(rect, UKWS_THUMBNAIL_RADIUS + UKWS_WINDOWBOX_BORDER,
+                            UKWS_THUMBNAIL_RADIUS + UKWS_WINDOWBOX_BORDER);
+
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        painter.setBrush(QBrush(QColor(255, 255, 255, 128)));
+        painter.setPen(QPen(QColor(255, 255, 255, 0)));
+        painter.drawPath(path);
+    }
 
     QWidget::paintEvent(event);
 }
@@ -456,16 +478,14 @@ void UkwsWindowBox::setThumbnailNormal()
 
 void UkwsWindowBox::setWindowBoxSelected()
 {
-    this->setStyleSheet("QWidget#winbox{padding:0px;"
-                        "border:4px solid rgb(255, 255, 255, 127);"
-                        "border-radius: 6px;}");
+    isSelected = true;
+    update();
 }
 
 void UkwsWindowBox::setWindowBoxUnselected()
 {
-    this->setStyleSheet("QWidget#winbox{padding:0px;"
-                        "border:4px solid rgb(255, 255, 255, 0);"
-                        "border-radius: 6px;}");
+    isSelected = false;
+    update();
 }
 
 void UkwsWindowBox::setTitleAutoHide(bool autoHide)

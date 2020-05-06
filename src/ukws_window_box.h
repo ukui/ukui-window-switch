@@ -157,6 +157,8 @@ private:
     WnckWindow *wnckWin;
     bool hasFrame;
 
+    bool isSelected;
+
     QDrag *drag;
     QSize dragIconSize;
     QTimer scaleTimer;
