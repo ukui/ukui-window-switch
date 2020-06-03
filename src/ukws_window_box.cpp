@@ -29,6 +29,7 @@
 #include <QDebug>
 #include <QStyleOption>
 #include <QPainter>
+#include <QPainterPath>
 
 #include "ukws_common.h"
 #include "ukws_helper.h"

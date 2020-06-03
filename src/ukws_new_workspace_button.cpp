@@ -2,6 +2,7 @@
 #include "ukws_new_workspace_button.h"
 
 #include <QPainter>
+#include <QPainterPath>
 
 UkwsNewWorkspaceButton::UkwsNewWorkspaceButton(QWidget *parent) : QWidget(parent)
 {
