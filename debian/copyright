@@ -44,6 +44,8 @@ Files: AUTHORS
        src/ukws_workspace_manager.h
        src/ukws_workspace_multiview.cpp
        src/ukws_workspace_multiview.h
+       src/ukws_new_workspace_button.cpp
+       src/ukws_new_workspace_button.h
        theme/default.qss
 Copyright: 2020, Tianjin KYLIN Information Technology Co., Ltd.
 License: GPL-2+
