@@ -206,7 +206,7 @@ void UkwsWorkspaceManager::setShowingIndicator(int index)
     int idx = index;
 
     if (size <= 0) {
-        qCritical("Indicator list is empty...\n", index);
+        qCritical("Indicator list is empty, but get index:%d ...\n", index);
         return;
     }
 
