@@ -31,7 +31,7 @@ extern "C" {
 }
 
 //#define NOT_REG_WINDOW_SWITCH_HOTKEY
-#define NOT_REG_WORKSPACE_VIEW_HOTKEY
+//#define NOT_REG_WORKSPACE_VIEW_HOTKEY
 
 UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
 {
@@ -46,9 +46,13 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
 #endif
 
 #ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
-    workspaceShortcut = new QHotkey(QKeySequence(Qt::MetaModifier |
-                                                 Qt::Key_Tab),
-                                    true, this);
+    workspaceShortcut1 = new QHotkey(QKeySequence(Qt::ControlModifier |
+                                                  Qt::AltModifier |
+                                                  Qt::Key_W),
+                                     true, this);
+    workspaceShortcut2 = new QHotkey(QKeySequence(Qt::MetaModifier |
+                                                  Qt::Key_Tab),
+                                     true, this);
 #endif
 
 #ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
@@ -57,7 +61,8 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
 #endif
 
 #ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
-    connect(workspaceShortcut, &QHotkey::activated, this, &UkwsManager::handleWorkspace);
+    connect(workspaceShortcut1, &QHotkey::activated, this, &UkwsManager::handleWorkspace);
+    connect(workspaceShortcut2, &QHotkey::activated, this, &UkwsManager::handleWorkspace);
 #endif
 
     // 每10s检测一次热键注册情况
@@ -212,8 +217,11 @@ void UkwsManager::checkShortcutStatus()
 #endif
 
 #ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
-    if (!workspaceShortcut->isRegistered()) {
-        workspaceShortcut->setRegistered(true);
+    if (!workspaceShortcut1->isRegistered()) {
+        workspaceShortcut1->setRegistered(true);
+    }
+    if (!workspaceShortcut2->isRegistered()) {
+        workspaceShortcut2->setRegistered(true);
     }
 #endif
 }

@@ -85,7 +85,8 @@ private slots:
 private:
     QHotkey *nextShortcut;
     QHotkey *prevShortcut;
-    QHotkey *workspaceShortcut;
+    QHotkey *workspaceShortcut1;
+    QHotkey *workspaceShortcut2;
 };
 
 class UkwsAltChecker : public QThread
