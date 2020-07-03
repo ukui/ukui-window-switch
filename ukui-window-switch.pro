@@ -77,3 +77,5 @@ background.path = /usr/share/ukui-window-switch/data/
 background.files = data/default-background.jpg
 
 INSTALLS += target services theme conf background
+
+unix: PKGCONFIG += gsettings-qt

@@ -297,12 +297,16 @@ void UkwsWorkspaceManager::doIndicatorWindowViewChange(int indIndex)
 }
 
 QString UkwsWorkspaceManager::getBackgroundFileByGSettings(QString schemaDir,
-                                                    QString schemaUrl,
-                                                    QString keyName)
+                                                           QString schemaUrl,
+                                                           QString keyName)
 {
     QUrl url;
     QString fileUrl = QString("");
 
+    /*
+     * 不再使用glib的方式获取gsettings，使用QGsettings
+     */
+#if 0
     GSettingsSchemaSource *schema_source = NULL;
     GSettingsSchema *schema = NULL;
     GSettings *settings = NULL;
@@ -358,8 +362,53 @@ GSFREE:
 
     if (schema_source != NULL)
         g_settings_schema_source_unref(schema_source);
+#endif
+
+    Q_UNUSED(schemaDir);
+
+    if (QGSettings::isSchemaInstalled(schemaUrl.toUtf8())) {
+        QGSettings gsettings(schemaUrl.toUtf8());
+
+        const QStringList keyList = gsettings.keys();
+//        qDebug() << schemaUrl << "Key List:" << keyList;
+        if (keyList.contains(keyName)) {
+            QString name = gsettings.get(keyName).toString();
+            url = QUrl::fromLocalFile(name);
+            fileUrl = url.toString().replace(QRegExp("^file:/"), "");
+//            qDebug() << "Get background file:" << fileUrl;
+        } else {
+            qWarning() << QString("Cannot get gsettings key(%1) value").arg(keyName);
+        }
+    }
 
     return fileUrl;
+}
+
+QString UkwsWorkspaceManager::getBackgroundColorGSettings(QString schemaDir,
+                                                          QString schemaUrl,
+                                                          QString keyName)
+{
+    QString colorString = "";
+
+    /*
+     * 不再使用glib的方式获取gsettings，使用QGsettings
+     */
+
+    Q_UNUSED(schemaDir);
+
+    if (QGSettings::isSchemaInstalled(schemaUrl.toUtf8())) {
+        QGSettings gsettings(schemaUrl.toUtf8());
+
+        const QStringList keyList = gsettings.keys();
+        if (keyList.contains(keyName)) {
+            colorString = gsettings.get(keyName).toString();
+//            qDebug() << "Get background color:" << colorString;
+        } else {
+            qWarning() << QString("Cannot get gsettings key(%1) value").arg(keyName);
+        }
+    }
+
+    return colorString;
 }
 
 void UkwsWorkspaceManager::getBackground()
@@ -368,23 +417,34 @@ void UkwsWorkspaceManager::getBackground()
 
     filePath = getBackgroundFileByGSettings("/usr/share/glib-2.0/schemas/",
                                             "org.mate.background",
-                                            "picture-filename");
+                                            "pictureFilename");
 
     if (filePath == "") {
+        // 无法从ukui桌面环境获取背景文件，则获取背景颜色
+        QString colorName = getBackgroundColorGSettings("/usr/share/glib-2.0/schemas/",
+                                                        "org.mate.background",
+                                                        "primaryColor");
+        if (colorName != "") {
+            if (background.isNull()) {
+                background = QPixmap(480, 270);
+            }
+            background.fill(QColor(colorName));
+            return;
+        }
+
+        // 无法获取背景色，则继续获取gnome桌面环境的背景图片
         filePath = getBackgroundFileByGSettings("/usr/share/glib-2.0/schemas/",
                                                 "org.gnome.desktop.background",
-                                                "picture-uri");
-    }
-
-    if (filePath == "") {
-        qWarning() << "Cannot get background image, use default:" << UKWS_WORKSPACE_DEFAULT_BACKGROUND;
-        filePath = UKWS_WORKSPACE_DEFAULT_BACKGROUND;
+                                                "pictureUri");
+        if (filePath == "") {
+            qWarning() << "Cannot get background image, use default:" << UKWS_WORKSPACE_DEFAULT_BACKGROUND;
+            filePath = UKWS_WORKSPACE_DEFAULT_BACKGROUND;
+        }
     }
 
     QImage img;
     img.load(filePath);
     background = QPixmap::fromImage(img);
-
 }
 
 void UkwsWorkspaceManager::setBackgroundImage(int width, int height)

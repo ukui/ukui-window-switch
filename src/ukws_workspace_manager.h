@@ -36,6 +36,7 @@
 #include <QString>
 #include <QStackedWidget>
 #include <QPixmap>
+#include <QGSettings>
 
 #define UKWS_WORKSPACE_MAX_SCALE 3
 #define UKWS_WORKSPACE_DEFAULT_BACKGROUND   "/usr/share/ukui-window-switch/data/default-background.png"
@@ -53,6 +54,7 @@ public:
     void reShow(int minScale=UKWS_WORKSPACE_MAX_SCALE);
     void reHide();
     QString getBackgroundFileByGSettings(QString schemaDir, QString schemaUrl, QString keyName);
+    QString getBackgroundColorGSettings(QString schemaDir, QString schemaUrl, QString keyName);
     void getBackground();
     void setBackgroundImage(int width = 0, int height = 0);
     void cleanAllWorkspace();
