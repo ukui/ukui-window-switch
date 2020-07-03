@@ -87,7 +87,8 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     ind->wmOperator->needCheckScreen = true;
     ind->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool |
                         Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
-    ws->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    ws->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool |
+                       Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 
     connect(ind, &UkwsIndicator::isSelected, this, &UkwsManager::hideIndicatorAndActivate);
     connect(ws, &UkwsWorkspaceManager::isHidden, this, &UkwsManager::hideWorkspace);
