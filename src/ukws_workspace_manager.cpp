@@ -86,6 +86,7 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     QRect screenRect = primaryScreen->geometry();
     int screenNum = screenList.indexOf(primaryScreen);
     WnckScreen *screen = wnck_screen_get(screenNum);
+
     float scale = (float)config->workspaceItemUnits / config->workspaceAllUnits;
 
     int w = screenRect.width() * scale;
@@ -151,6 +152,11 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 
     for (int i = 0; i < size; i++)
         indList.at(i)->reShow(UkwsIndicator::ShowModeTiling, minScale);
+
+    // 显示当前的工作区
+    WnckWorkspace *workspace = wnck_screen_get_active_workspace(screen);
+    int workspaceNum = wnck_workspace_get_number(workspace);
+    setShowingIndicator(workspaceNum);
 
     wsboxLayout->addWidget(newWorkspaceBtn);
     newWorkspaceBtn->setSizeByButtonSize(w, h);
@@ -527,6 +533,7 @@ bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)
         }
 
         if (event->type() == QEvent::MouseButtonRelease) {
+            changeWorkspace(indStack->currentIndex());
             reHide();
             return true;
         }
@@ -547,6 +554,7 @@ bool UkwsWorkspaceManager::eventFilter(QObject *object, QEvent *event)
         if (event->type() == QEvent::WindowDeactivate) {
             if (showStatus == UkwsWidgetShowStatus::Shown ||
                      showStatus == UkwsWidgetShowStatus::Constructing) {
+                changeWorkspace(indStack->currentIndex());
                 reHide();
             }
             return true;
