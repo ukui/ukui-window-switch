@@ -103,6 +103,9 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     // 设置工作区视图的最底层背景
     this->setBackgroundImage(screenRect.width(), screenRect.height());
 
+    // 背景设置完毕，留出时间处理绘制事件
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+
     topSpacer->changeSize(w, screenRect.height() / 40);
 
     QPixmap wsboxBackground = background.scaled(QSize(w, h),
