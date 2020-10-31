@@ -97,15 +97,6 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
     wmOperator->updateWorkspaceList();
     int size = wmOperator->workspaceQList->size();
 
-    // 获取背景图片
-    this->getBackground();
-
-    // 设置工作区视图的最底层背景
-    this->setBackgroundImage(screenRect.width(), screenRect.height());
-
-    // 背景设置完毕，留出时间处理绘制事件
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-
     topSpacer->changeSize(w, screenRect.height() / 40);
 
     QPixmap wsboxBackground = background.scaled(QSize(w, h),
@@ -181,8 +172,21 @@ void UkwsWorkspaceManager::reShow(int minScale)
     // 先让界面显示出来，从而让Qt完成布局重绘
     QScreen *primaryScreen = QGuiApplication::primaryScreen();
     this->move(primaryScreen->geometry().topLeft());
+    QRect screenRect = primaryScreen->geometry();
+    this->resize(screenRect.width(), screenRect.height());
+
+    // 获取背景图片
+    this->getBackground();
+
+    // 设置工作区视图的最底层背景
+    this->setBackgroundImage(screenRect.width(), screenRect.height());
+
+    // 背景设置完毕，留出时间处理绘制事件
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+
+    // 全屏并提前显示背景
     this->showFullScreen();
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 200);
 
     reloadWorkspace(minScale);
 
@@ -475,7 +479,7 @@ void UkwsWorkspaceManager::setBackgroundImage(int width, int height)
 
 
     // 背景图置灰
-    QPixmap tempPixmap = background.scaled(size(), Qt::IgnoreAspectRatio,
+    QPixmap tempPixmap = background.scaled(QSize(w, h), Qt::IgnoreAspectRatio,
                                            Qt::SmoothTransformation);
     UkwsStackBlur blurrer;
     blurrer.setOrigImage(tempPixmap.toImage());
