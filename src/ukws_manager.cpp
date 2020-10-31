@@ -102,7 +102,11 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
         qCritical() << "Register DBus Service Error:" << connection.lastError().message();
     }
     // 注册org.ukui.WindowSwitch服务的object，把UkwsManager类的所有公共槽函数导出为object的method
-    connection.registerObject("/org/ukui/WindowSwitch", this, QDBusConnection::ExportAllSlots);
+    QString object = QString(getenv("DISPLAY"));
+    object = object.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    object = "/org/ukui/WindowSwitch/display/" + object;
+    qDebug() << "Register DBus:" << object;
+    connection.registerObject(object, this, QDBusConnection::ExportAllSlots);
 }
 
 void UkwsManager::setConfig(UkwsConfig *config)

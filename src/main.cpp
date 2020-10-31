@@ -64,8 +64,11 @@ int checkProcessRunning(const char *processName)
 
     char pid_file[PATH_MAX_LEN] = {0};
     char pid_string[PID_STRING_LEN] = {0};
+    char *display = NULL;
 
-    snprintf(pid_file, PATH_MAX_LEN, "/run/user/%d/%s.pid", uid, processName);
+    display = getenv("DISPLAY");
+    snprintf(pid_file, PATH_MAX_LEN, "/run/user/%d/%s_%s.pid", uid, processName, display);
+
     int pid_file_fd = open(pid_file, O_CREAT | O_TRUNC | O_RDWR, 0666);
     if (pid_file_fd < 0)
     {
@@ -160,7 +163,10 @@ void msgHandler(QtMsgType type, const QMessageLogContext& context, const QString
 
 void handleWorkspaceView()
 {
-    QDBusInterface interface("org.ukui.WindowSwitch", "/org/ukui/WindowSwitch",
+    QString object = QString(getenv("DISPLAY"));
+    object = object.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    object = "/org/ukui/WindowSwitch/display/" + object;
+    QDBusInterface interface("org.ukui.WindowSwitch", object,
                                 "org.ukui.WindowSwitch",
                                 QDBusConnection::sessionBus());
     if (!interface.isValid()) {
