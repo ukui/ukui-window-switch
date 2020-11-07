@@ -34,6 +34,10 @@
 #define UKWS_OBJ_NEW_WS_TITLE       "new-workspace-title"
 #define UKWS_OBJ_NEW_WS_LABEL       "new-workspace-label"
 
+#define UKWS_DBUS_NAME_PREFIX       "org.ukui.WindowSwitch.Display"
+#define UKWS_DBUS_PATH              "/org/ukui/WindowSwitch"
+#define UKWS_DBUS_INTERFACE         "org.ukui.WindowSwitch"
+
 enum UkwsWidgetShowStatus {
     Hidden = 0,
     Shown,

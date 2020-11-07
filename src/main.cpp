@@ -37,6 +37,7 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QStyleFactory>
+#include <QProcess>
 
 #include <stdio.h>
 #include <sys/file.h>
@@ -161,18 +162,62 @@ void msgHandler(QtMsgType type, const QMessageLogContext& context, const QString
         abort();
 }
 
+bool startUkws(QString serviceName) {
+    bool dbusIsReady = false;
+
+    QProcess *newUkws = new QProcess();
+    newUkws->setProgram("/usr/bin/ukui-window-switch");
+    newUkws->setStandardOutputFile("/dev/null");
+    newUkws->setStandardErrorFile("/dev/null");
+    newUkws->startDetached();
+
+    QTime curTime = QTime::currentTime();
+    curTime.start();
+
+    while (curTime.elapsed() < 1100) {
+        QDBusInterface interface(serviceName, UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
+                                    QDBusConnection::sessionBus());
+        if (!interface.isValid()) {
+            usleep(250 * 1000);
+        } else {
+            dbusIsReady = true;
+            break;
+        }
+    }
+
+    if (dbusIsReady) {
+        qInfo() << "ukui-window-switch is started";
+        return true;
+    } else {
+        qInfo() << "ukui-window-switch start failed";
+        return false;
+    }
+
+    return false;
+}
+
 void handleWorkspaceView()
 {
-    QString object = QString(getenv("DISPLAY"));
-    object = object.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
-    object = "/org/ukui/WindowSwitch/display/" + object;
-    QDBusInterface interface("org.ukui.WindowSwitch", object,
-                                "org.ukui.WindowSwitch",
+    // 根据当前的DISPLAY环境变量构造单独的DBus Name
+    QString serviceName = QString(getenv("DISPLAY"));
+    serviceName = serviceName.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    if (!serviceName.isEmpty())
+        serviceName = QString(UKWS_DBUS_NAME_PREFIX) + "." + serviceName;
+    else
+        serviceName = UKWS_DBUS_NAME_PREFIX;
+    qDebug() << "Access DBus:" << serviceName;
+
+    QDBusInterface interface(serviceName, UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
                                 QDBusConnection::sessionBus());
     if (!interface.isValid()) {
-        qCritical() << QDBusConnection::sessionBus().lastError().message();
-        exit(1);
+        qDebug() << QDBusConnection::sessionBus().lastError().message();
+        qInfo() << "Try to start ukui-window-switch";
+        if (!startUkws(serviceName)) {
+            qCritical() << "Start ukui-window-switch failed";
+            exit(1);
+        }
     }
+
     //调用远程的value方法
     QDBusReply<bool> reply = interface.call("handleWorkspace");
     if (reply.isValid()) {

@@ -94,19 +94,24 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     connect(ws, &UkwsWorkspaceManager::isHidden, this, &UkwsManager::hideWorkspace);
 //    connect(altChecker, &UkwsAltChecker::altReleased, this, &UkwsManager::hideIndicator);
 
+    // 根据当前的DISPLAY环境变量构造单独的DBus Name
+    QString serviceName = QString(getenv("DISPLAY"));
+    serviceName = serviceName.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    if (!serviceName.isEmpty())
+        serviceName = QString(UKWS_DBUS_NAME_PREFIX) + "." + serviceName;
+    else
+        serviceName = UKWS_DBUS_NAME_PREFIX;
+    qDebug() << "Register DBus Name:" << serviceName;
+
     // 连接session总线
     QDBusConnection connection = QDBusConnection::sessionBus();
 
     // 在session总线上为UKWS注册服务
-    if(!connection.registerService("org.ukui.WindowSwitch")) {
+    if(!connection.registerService(serviceName)) {
         qCritical() << "Register DBus Service Error:" << connection.lastError().message();
     }
-    // 注册org.ukui.WindowSwitch服务的object，把UkwsManager类的所有公共槽函数导出为object的method
-    QString object = QString(getenv("DISPLAY"));
-    object = object.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
-    object = "/org/ukui/WindowSwitch/display/" + object;
-    qDebug() << "Register DBus:" << object;
-    connection.registerObject(object, this, QDBusConnection::ExportAllSlots);
+    connection.registerObject(UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
+                              this, QDBusConnection::ExportAllSlots);
 }
 
 void UkwsManager::setConfig(UkwsConfig *config)
