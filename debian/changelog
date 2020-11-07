@@ -1,3 +1,16 @@
+ukui-window-switch (3.0.0-2) unstable; urgency=medium
+
+  * New upstream bugfix release:
+    - Fix: The first time a user opens the multitasking view, a white
+      area flashes in the top left corner
+    - Fix: Background display delay when multi-tasking view is first displayed
+    - Add support for VNC
+      * Create different DBus object path for different DISPLAY
+      * Create different file locks for different DISPLAY
+  * Update debhelper version (#26)
+
+ -- Droiing <droiing@foxmail.com>  Wed, 04 Nov 2020 15:48:06 +0800
+
 ukui-window-switch (3.0.0-1) unstable; urgency=medium
 
   * New upstream release.
