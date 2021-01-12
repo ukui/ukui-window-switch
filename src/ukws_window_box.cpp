@@ -704,7 +704,6 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
 
             if ((0 < mouseX) && (mouseX < limitX) &&
                     (0 < mouseY) && (mouseY < limitY)) {
-                qDebug() << "winbox: emit close window";
                 emit closeBtnClicked(this);
             }
 
