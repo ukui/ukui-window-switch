@@ -29,6 +29,7 @@
 #define UKWS_OBJ_WINBOX             "winbox"
 #define UKWS_OBJ_WINBOX_WIN_NAME    "winbox-wintitle"
 #define UKWS_OBJ_WINBOX_THUMBNAIL   "winbox-thumbnail"
+#define UKWS_OBJ_WINBOX_CLOSEBTN    "winbox-closebtn"
 #define UKWS_OBJ_WSBOX              "wsbox"
 #define UKWS_OBJ_WSBOX_THUMBNAIL    "wsbox-thumbnail"
 #define UKWS_OBJ_NEW_WS_TITLE       "new-workspace-title"

@@ -66,7 +66,6 @@ extern "C" {
 #define UKWS_WINDOWBOX_BORDER   4
 //#define UKWS_WINDOWBOX_RADIUS   6
 
-
 #define UKWS_DRAG_SCALE_INTERVAL_MS 125
 #define UKWS_DRAG_SCALE_TIMES       4
 
@@ -105,6 +104,8 @@ public:
 
     void moveToWorkspace(int wsIndex);
 
+    bool windowIsAlive();
+
     bool eventFilter(QObject *watched, QEvent *event);
 
     unsigned long frameXid;
@@ -121,6 +122,7 @@ public:
     int parentIndex;
     int winType;
     bool dragable;
+    bool isDragged;
 
     QSize iconSize;
     QSize titleSize;
@@ -134,9 +136,14 @@ public:
 
 signals:
     void clicked(UkwsWindowBox *winbox);
+    void closeBtnClicked(UkwsWindowBox *winbox);
 
 public slots:
     void activateWnckWindow();
+    void closeWnckWindow();
+
+protected:
+    void leaveEvent(QEvent *);
 
 private:
     QPixmap makeRadiusPixmap(QPixmap orig, int radius);
@@ -144,8 +151,9 @@ private:
 
     QString title;
 
-    UkwsWindowExtraLabel *titleLabel;
     UkwsWindowExtraLabel *iconLabel;
+    UkwsWindowExtraLabel *titleLabel;
+    UkwsWindowExtraLabel *closeLabel;
     UkwsWindowExtraLabel *thumbnailLabel;
 
     QPixmap thnUnselectedPixmap;

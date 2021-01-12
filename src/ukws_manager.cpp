@@ -165,6 +165,9 @@ bool UkwsManager::showIndicator()
         setGrabKeyboard(true);
         ind->reShow();
 
+        if (!ind->windowListcheckTimer.isActive())
+            ind->windowListcheckTimer.start();
+
         return true;
     }
 
@@ -200,6 +203,7 @@ void UkwsManager::hideIndicatorAndActivate(bool needActivate)
 {
     // 无论何种状态，隐藏indicator的时候都释放键盘
     setGrabKeyboard(false);
+    ind->windowListcheckTimer.stop();
 
     if (ind->showStatus == UkwsWidgetShowStatus::Constructing)
         ind->stopConstructing(100000);

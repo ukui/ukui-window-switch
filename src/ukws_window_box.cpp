@@ -30,6 +30,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QPainterPath>
+#include <QCoreApplication>
 
 #include "ukws_common.h"
 #include "ukws_helper.h"
@@ -48,6 +49,7 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 {
 //    this->setAttribute(Qt::WA_TranslucentBackground, true);
     dragable = false;
+    isDragged = false;
     winLeftOffset = 0;
     winRightOffset = 0;
     winTopOffset = 0;
@@ -58,8 +60,9 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     isSelected = false;
     titleAutoHide = false;
 
-    titleLabel = new UkwsWindowExtraLabel();
     iconLabel = new UkwsWindowExtraLabel();
+    titleLabel = new UkwsWindowExtraLabel();
+    closeLabel = new UkwsWindowExtraLabel();
     thumbnailLabel = new UkwsWindowExtraLabel();
 
     titleSize = UKWS_TITLE_SIZE;
@@ -69,6 +72,7 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 
     iconLabel->setAlignment(Qt::AlignCenter);
     thumbnailLabel->setAlignment(Qt::AlignCenter);
+    closeLabel->setAlignment(Qt::AlignCenter);
 
     iconTransformationMode = Qt::SmoothTransformation;
     thumbnailTransformationMode = Qt::SmoothTransformation;
@@ -85,33 +89,37 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     //	titleLabel->setScaledContents(true);
     iconLabel->setScaledContents(false);
     thumbnailLabel->setScaledContents(false);
+    closeLabel->setScaledContents(false);
 
     // 设置控件缩放方式
     QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     sizePolicy.setRetainSizeWhenHidden(true);
     iconLabel->setSizePolicy(sizePolicy);
+    closeLabel->setSizePolicy(sizePolicy);
     sizePolicy.setHorizontalPolicy(QSizePolicy::Expanding);
     titleLabel->setSizePolicy(sizePolicy);
     sizePolicy.setVerticalPolicy(QSizePolicy::Expanding);
 
     // 设置控件最大尺寸
     iconLabel->resize(QSize(UKWS_ICON_DEFAULT_SIZE, UKWS_ICON_DEFAULT_SIZE));
+    closeLabel->resize(QSize(UKWS_ICON_DEFAULT_SIZE, UKWS_ICON_DEFAULT_SIZE));
     titleLabel->setFixedHeight(UKWS_TITLE_DEFAULT_HEIGHT);
     titleLabel->setMinimumWidth(1);
     thumbnailLabel->setMinimumSize(QSize(1, 1));
+    closeLabel->setFixedSize(QSize(UKWS_ICON_DEFAULT_SIZE, UKWS_ICON_DEFAULT_SIZE));
 
     titleLabel->setContentsMargins(0, 0, UKWS_WINDOWBOX_PADDING, 0);
 
     /*
      * 设置控件布局（简单布局，直接手写）
      *
-     *                 +------+-------+   -╮
-     * topBarLayout -> | icon | title |    |
-     *                 +------+-------+    |
-     *                 |              |    | -> mainLayout
-     *                 |  thumbnail   |    |
-     *                 |              |    |
-     *                 +--------------+   -╯
+     *                 +------+-------+-------+   -╮
+     * topBarLayout -> | icon | title | close |    |
+     *                 +------+-------+-------+    |
+     *                 |                      |    | -> mainLayout
+     *                 |  thumbnail           |    |
+     *                 |                      |    |
+     *                 +----------------------+   -╯
      *
      */
 
@@ -122,17 +130,23 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
 
     topBarLayout->addWidget(iconLabel);
     topBarLayout->addWidget(titleLabel);
+    topBarLayout->addWidget(closeLabel);
 
     mainLayout->addLayout(topBarLayout);
     mainLayout->addWidget(thumbnailLabel);
     this->setLayout(mainLayout);
 
     // 为缩略图控件注册监视对象
+//    iconLabel->installEventFilter(this);
+//    titleLabel->installEventFilter(this);
+    closeLabel->installEventFilter(this);
     thumbnailLabel->installEventFilter(this);
+//    this->installEventFilter(this);
 
     // 设置缩略图控件的objectName
     titleLabel->setObjectName(UKWS_OBJ_WINBOX_WIN_NAME);
     thumbnailLabel->setObjectName(UKWS_OBJ_WINBOX_THUMBNAIL);
+    closeLabel->setObjectName(UKWS_OBJ_WINBOX_CLOSEBTN);
     this->setObjectName(UKWS_OBJ_WINBOX);
 
     // 对齐设置暂时不生效，使用下面的方式修正
@@ -152,7 +166,9 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     titleLabel->setAttribute(Qt::WA_TranslucentBackground, true);
     iconLabel->setAttribute(Qt::WA_TranslucentBackground, true);
     thumbnailLabel->setAttribute(Qt::WA_TranslucentBackground, true);
+    closeLabel->setAttribute(Qt::WA_TranslucentBackground, true);
 
+    closeLabel->setText("X");
     this->setWindowBoxUnselected();
 }
 
@@ -190,13 +206,13 @@ void UkwsWindowBox::paintEvent(QPaintEvent *event)
 
 void UkwsWindowBox::setSubWidgetSizeByThnSize(int w, int h)
 {
-    // icon，宽高32，上下间距0，上下边框0，右边距5；
+    // icon、closeBtn，宽高32，上下间距0，上下边框0，右边距5；
     // 缩略图控件，外边距8，外边框4，边框紧贴图片，宽占用：(8 + 4) * 2 = 24，高占用：8 + 4 = 12；
     // 高度调整值：8 + 32 + 16 = 56；
-    // 宽度调整值：32 + 5 = 37
+    // 宽度调整值：(32 + 5) * 2 = 74
     // 标题宽度调整值：
     int fixW, fixH;
-    fixW = (UKWS_ICON_DEFAULT_WIDTH + UKWS_WINDOWBOX_PADDING);
+    fixW = (UKWS_ICON_DEFAULT_WIDTH + UKWS_WINDOWBOX_PADDING) * 2;
     titleLabel->setFixedSize(w - fixW, UKWS_ICON_DEFAULT_HEIGHT);
     this->updateTitleBySize();
 
@@ -464,6 +480,7 @@ void UkwsWindowBox::setThumbnailHover()
     if (titleAutoHide) {
         iconLabel->show();
         titleLabel->show();
+        closeLabel->show();
     }
     thumbnailLabel->setPixmap(thnSelectedPixmap);
 }
@@ -473,6 +490,7 @@ void UkwsWindowBox::setThumbnailNormal()
     if (titleAutoHide) {
         iconLabel->hide();
         titleLabel->hide();
+        closeLabel->hide();
     }
     thumbnailLabel->setPixmap(thnUnselectedPixmap);
 }
@@ -497,6 +515,7 @@ void UkwsWindowBox::setTitleAutoHide(bool autoHide)
     if (titleAutoHide) {
         iconLabel->hide();
         titleLabel->hide();
+        closeLabel->hide();
     }
 }
 
@@ -505,6 +524,11 @@ void UkwsWindowBox::moveToWorkspace(int wsIndex)
     WnckScreen *screen = wnck_window_get_screen(wnckWin);
     WnckWorkspace *workspace = wnck_screen_get_workspace(screen, wsIndex);
     wnck_window_move_to_workspace(wnckWin, workspace);
+}
+
+bool UkwsWindowBox::windowIsAlive()
+{
+    return WNCK_IS_WINDOW(wnckWin);
 }
 
 // 构建圆角图片
@@ -557,28 +581,25 @@ void UkwsWindowBox::scaleDragPixmap()
 
 bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
 {
-    static bool pressed = 0;
+    static bool thumbnailPressed = false;
 
     if (watched == thumbnailLabel) {
         if (event->type() == QEvent::Enter) {
-            pressed = false;
+            thumbnailPressed = false;
             setThumbnailHover();
 
             return true;
         }
 
         if (event->type() == QEvent::Leave) {
-            pressed = false;
-            setThumbnailNormal();
-
-            return true;
+            thumbnailPressed = false;
         }
 
         // 左键按下则标记按下状态
         if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->buttons() & Qt::LeftButton)
-                pressed = true;
+                thumbnailPressed = true;
 
             return true;
         }
@@ -586,8 +607,8 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         // 在同一个WindowBox中按下鼠标并抬起才算选定
         if (event->type() == QEvent::MouseButtonRelease) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (pressed && (mouseEvent->button() == Qt::LeftButton)) {
-                pressed = false;
+            if (thumbnailPressed && (mouseEvent->button() == Qt::LeftButton)) {
+                thumbnailPressed = false;
                 emit clicked(this);
 
                 return true;
@@ -595,7 +616,7 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
         }
 
         if (event->type() == QEvent::MouseMove) {
-            if (!pressed)
+            if (!thumbnailPressed)
                 return false;
 
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
@@ -605,12 +626,14 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
                 return true;
 
             // 缩略图置灰
+            isDragged = true;
             QPixmap tempPixmap = thnUnselectedPixmap;
             QPainter painter;
             painter.begin(&tempPixmap);
             painter.fillRect(thnUnselectedPixmap.rect(), QColor(0, 0, 0, 159));
             painter.end();
             thumbnailLabel->setPixmap(tempPixmap);
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
 
             // 拖拽处理
             drag = new QDrag(this);
@@ -646,6 +669,45 @@ bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
             drag->deleteLater();
             drag = nullptr;
 
+            isDragged = false;
+            setThumbnailNormal();
+            return true;
+        }
+    }
+
+    if (watched == closeLabel) {
+        if (event->type() == QEvent::Enter) {
+            closeLabel->setStyleSheet("background-color: red;");
+
+            return true;
+        }
+
+        if (event->type() == QEvent::Leave) {
+            closeLabel->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
+
+            return true;
+        }
+
+        if (event->type() == QEvent::MouseButtonPress) {
+            closeLabel->setStyleSheet("background-color: blue;");
+
+            return true;
+        }
+
+        if (event->type() == QEvent::MouseButtonRelease) {
+            closeLabel->setStyleSheet("background-color: red;");
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            int limitX = closeLabel->geometry().width();
+            int limitY = closeLabel->geometry().height();
+            int mouseX = mouseEvent->pos().x();
+            int mouseY = mouseEvent->pos().y();
+
+            if ((0 < mouseX) && (mouseX < limitX) &&
+                    (0 < mouseY) && (mouseY < limitY)) {
+                qDebug() << "winbox: emit close window";
+                emit closeBtnClicked(this);
+            }
+
             return true;
         }
     }
@@ -660,4 +722,21 @@ void UkwsWindowBox::activateWnckWindow()
 
     wnck_workspace_activate(workspace, timestamp);
     wnck_window_activate(wnckWin, timestamp);
+}
+
+void UkwsWindowBox::closeWnckWindow()
+{
+    unsigned long timestamp = QX11Info::getTimestamp();
+    unsigned long xid = wnck_window_get_xid(wnckWin);
+    WnckWindow *p = wnck_window_get(xid);
+    unsigned long actions = wnck_window_get_actions(wnckWin);
+
+    wnck_window_close(wnckWin, timestamp);
+    actions = wnck_window_get_actions(wnckWin);
+}
+
+void UkwsWindowBox::leaveEvent(QEvent *)
+{
+    if (!isDragged)
+        setThumbnailNormal();
 }

@@ -144,8 +144,11 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
         indStack->addWidget(ind);
     }
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < size; i++) {
         indList.at(i)->reShow(UkwsIndicator::ShowModeTiling, minScale);
+        if (!indList.at(i)->windowListcheckTimer.isActive())
+            indList.at(i)->windowListcheckTimer.start();
+    }
 
     // 显示当前的工作区
     WnckWorkspace *workspace = wnck_screen_get_active_workspace(screen);
@@ -519,6 +522,7 @@ void UkwsWorkspaceManager::cleanAllWorkspace()
 
     // 清理indicator
     foreach(UkwsIndicator *ind, indList) {
+        ind->windowListcheckTimer.stop();
         indStack->removeWidget(ind);
         indList.removeOne(ind);
         ind->cleanAllWinbox();

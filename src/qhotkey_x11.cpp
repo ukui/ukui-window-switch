@@ -132,8 +132,8 @@ bool QHotkeyPrivateX11::registerShortcut(QHotkey::NativeShortcut shortcut)
     XSync(display, False);
 
     if(errorHandler.hasError) {
-        qCWarning(logQHotkey) << "Failed to register hotkey. Error:"
-                              << qPrintable(errorHandler.errorString);
+//        qCWarning(logQHotkey) << "Failed to register hotkey. Error:"
+//                              << qPrintable(errorHandler.errorString);
         this->unregisterShortcut(shortcut);
         return false;
     } else
@@ -156,8 +156,8 @@ bool QHotkeyPrivateX11::unregisterShortcut(QHotkey::NativeShortcut shortcut)
     XSync(display, False);
 
     if(errorHandler.hasError) {
-        qCWarning(logQHotkey) << "Failed to unregister hotkey. Error:"
-                              << qPrintable(errorHandler.errorString);
+//        qCWarning(logQHotkey) << "Failed to unregister hotkey. Error:"
+//                              << qPrintable(errorHandler.errorString);
         return false;
     } else
         return true;

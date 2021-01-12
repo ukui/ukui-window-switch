@@ -95,6 +95,10 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     flowScrollBar->setObjectName(UKWS_OBJ_FLOW_SCROLLBAR);
     this->setObjectName(UKWS_OBJ_IND_MAINWIDGET_SWITCH);
 
+    windowListcheckTimer.setTimerType(Qt::CoarseTimer);
+    windowListcheckTimer.setInterval(UKWS_WINDOW_LIST_CHECK_INTERVAL_MS);
+    connect(&(this->windowListcheckTimer), &QTimer::timeout, this, &UkwsIndicator::checkWindowList);
+
     this->installEventFilter(this);
 }
 
@@ -182,6 +186,17 @@ void UkwsIndicator::setConfig(UkwsConfig *config)
     this->config = config;
 }
 
+void UkwsIndicator::checkWindowList()
+{
+    foreach (UkwsWindowBox * winbox, winboxList) {
+        if (winbox->windowIsAlive())
+            continue;
+
+        // 非窗口，则代表窗口被关闭，需要从列表和layout中移除，并释放资源
+        rmWinbox(winbox);
+    }
+}
+
 void UkwsIndicator::addWinbox(UkwsWindowBox *winbox)
 {
     // 添加到列表最后，所以index = size()
@@ -190,13 +205,16 @@ void UkwsIndicator::addWinbox(UkwsWindowBox *winbox)
     winboxList.append(winbox);
     winboxFlowLayout->addWidget(winbox);
     connect(winbox, &UkwsWindowBox::clicked, this, &UkwsIndicator::clickWinbox);
+    connect(winbox, &UkwsWindowBox::closeBtnClicked, this, &UkwsIndicator::closeWinbox);
 }
 
 void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
 {
+    winbox->hide();
     winboxFlowLayout->removeWidget(winbox);
     winboxList.removeOne(winbox);
     disconnect(winbox, &UkwsWindowBox::clicked, this, &UkwsIndicator::clickWinbox);
+    disconnect(winbox, &UkwsWindowBox::closeBtnClicked, this, &UkwsIndicator::closeWinbox);
 
     // 更新索引
     int size = winboxList.size();
@@ -205,6 +223,8 @@ void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
         wb = winboxList.at(i);
         wb->index = i;
     }
+
+    flowReLayout();
 }
 
 void UkwsIndicator::cleanAllWinbox()
@@ -634,6 +654,13 @@ void UkwsIndicator::clickWinbox(UkwsWindowBox *wb)
 {
     selIndex = winboxList.indexOf(wb);
     emit isSelected(true);
+}
+
+void UkwsIndicator::closeWinbox(UkwsWindowBox *wb)
+{
+    selIndex = winboxList.indexOf(wb);
+//    qDebug() << "indicator: winbox" << selIndex << "will close";
+    wb->closeWnckWindow();
 }
 
 void UkwsIndicator::flowReLayout()

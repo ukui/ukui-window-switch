@@ -34,10 +34,13 @@
 #include <QList>
 #include <QString>
 #include <QInputEvent>
+#include <QTimer>
 
 //#define UKWS_WINBOX_SWITCH_WIDTH   (168 + 5 + 5)
 //#define UKWS_WINBOX_SWITCH_HEIGHT   (96 + 0 + 32 + 5 + 5)
 #define UKWS_WINBOX_MAX_SCALE   4
+
+#define UKWS_WINDOW_LIST_CHECK_INTERVAL_MS  10
 
 typedef struct indicator_size_test_t indicator_size_test;
 struct indicator_size_test_t {
@@ -83,6 +86,8 @@ public:
 
     void setConfig(UkwsConfig *config);
 
+    void checkWindowList();
+
     UkwsWnckOperator *wmOperator;
     UkwsConfig *config;
 
@@ -90,6 +95,7 @@ public:
     UkwsWidgetShowStatus showStatus;
     int index;
     int selIndex;
+    QTimer windowListcheckTimer;
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);
@@ -101,6 +107,7 @@ signals:
 public slots:
     void doWorkerDone();
     void clickWinbox(UkwsWindowBox *wb);
+    void closeWinbox(UkwsWindowBox *wb);
     void reShow(UkwsIndicatorShowMode mode=ShowModeUnknown, int minScale=UKWS_WINBOX_MAX_SCALE);
 
 private:
