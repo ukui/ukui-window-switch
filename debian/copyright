@@ -1,0 +1,128 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ukui-window-switch
+Upstream-Contact: Droiing <jianglinxuan@kylios.cn>
+Source: https://github.com/ukui/ukui-window-switch
+
+Files: AUTHORS
+       README
+       NEWS
+       man/*
+       data/*
+       debian/*
+       ukui-window-switch.pro
+       src/main.cpp
+       src/ukws_common.h
+       src/ukws_config.cpp
+       src/ukws_config.h
+       src/ukws_dbus.cpp
+       src/ukws_dbus.h
+       src/ukws_fake_desktop.h
+       src/ukws_fake_desktop.cpp
+       src/ukws_helper.cpp
+       src/ukws_helper.h
+       src/ukws_indicator.cpp
+       src/ukws_indicator.h
+       src/ukws_manager.cpp
+       src/ukws_manager.h
+       src/ukws_stack_blur.cpp
+       src/ukws_stack_blur.h
+       src/ukws_window_box.cpp
+       src/ukws_window_box.h
+       src/ukws_window_extra_label.cpp
+       src/ukws_window_extra_label.h
+       src/ukws_window_icon.cpp
+       src/ukws_window_icon.h
+       src/ukws_window_info.cpp
+       src/ukws_window_info.h
+       src/ukws_wnck_operator.cpp
+       src/ukws_wnck_operator.h
+       src/ukws_worker.cpp
+       src/ukws_worker.h
+       src/ukws_workspace_box.cpp
+       src/ukws_workspace_box.h
+       src/ukws_workspace_manager.cpp
+       src/ukws_workspace_manager.h
+       src/ukws_workspace_multiview.cpp
+       src/ukws_workspace_multiview.h
+       src/ukws_new_workspace_button.cpp
+       src/ukws_new_workspace_button.h
+       theme/default.qss
+Copyright: 2020, Tianjin KYLIN Information Technology Co., Ltd.
+License: GPL-2+
+
+Files: src/qhotkey.cpp
+       src/qhotkey.h
+       src/qhotkey_p.h
+       src/qhotkey_x11.cpp
+Copyright: 2016, Felix Barz
+License: BSD-2-clause
+
+Files: src/ukws_flowlayout.cpp
+       src/ukws_flowlayout.h
+Copyright: 2016, The Qt Company Ltd.
+           2020, Tianjin KYLIN Information Technology Co., Ltd.
+License: BSD-3-clause and GPL-2+
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+License: BSD-2-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
+     the documentation and/or other materials provided with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: BSD-3-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
+     the documentation and/or other materials provided with the distribution.
+   * Neither the name of the copyright holder nor the names of its
+     contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

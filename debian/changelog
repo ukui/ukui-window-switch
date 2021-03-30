@@ -1,0 +1,107 @@
+ukui-window-switch (3.0.0-5kylin) v101; urgency=medium
+
+  * modify the window boxes catch function
+  * 修改窗口截图获取函数，修改获取失败后处理方法
+
+ -- Karloy Yi <yiguang@kylinos.cn>  Fri, 05 Feb 2021 01:04:46 +0000
+
+ukui-window-switch (3.0.0-4kylin) v101; urgency=medium
+
+  * New: New function to close the window
+  * 多任务视图中，新增关闭窗口功能
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Tue, 12 Jan 2021 15:10:04 +0800
+
+ukui-window-switch (3.0.0-3kylin~rc3) v101; urgency=medium
+
+  * Remove the dependency on UKWM
+  * 移除对ukwm的依赖
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Fri, 11 Dec 2020 10:48:45 +0800
+
+ukui-window-switch (3.0.0-3kylin~rc2) v101; urgency=medium
+
+  * Fix: multi process contention for the DBusName in VNC environment
+  * 修复vnc环境下，多进程争用一个DBus Name的问题
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Sat, 07 Nov 2020 14:27:40 +0800
+
+ukui-window-switch (3.0.0-1kord~rc2) v101; urgency=medium
+
+  * 添加对VNC的支持
+    - 为不同的DISPLAY创建不同的DBus object path;
+    - 为不同的DISPLAY创建不同的文件锁;
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Sat, 31 Oct 2020 11:07:53 +0800
+
+ukui-window-switch (3.0.0-1kord~rc1) v101; urgency=medium
+
+  * 更新单例设置方式，添加对多DISPLAY的支持；
+  * 解决第一次打开多任务试图时左上区域有灰色区域的问题；
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Sat, 24 Oct 2020 14:12:16 +0800
+ukui-window-switch (2.0.3-3kord1) v101; urgency=medium
+
+  * 更新单例设置方式，添加对多DISPLAY的支持；
+  * 解决第一次打开多任务试图时左上区域有灰色区域的问题；
+
+ -- jianglinxuan (droiing) <jianglinxuan@kylinos.cn>  Sat, 24 Oct 2020 14:12:16 +0800
+
+ukui-window-switch (3.0.0-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Wed, 26 Aug 2020 20:49:38 +0800
+
+ukui-window-switch (2.0.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release:
+    - Fix window thumbnail exception on kwin.
+    - Fix out-of-bounds crash due to wnck not working properly on some
+      window manager.
+    - Fix kwin and ukui-window-switch shortcut key conflict.
+    - Fix the wrong color of hover winbox border.
+    - Fix the wrong window height of multitasking view.
+    - Fix that click on the blank area won't exit the view mode.
+    - Fix view position error in multi-screen.
+    - Fix that the workspace on the right side is ont centerted under
+      highdpi screen.
+    - Fix that workspace box moving down after opening multiple times.
+  * debian/watch: update to monitor the upstream orig.tar.gz.
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Thu, 09 Apr 2020 15:30:47 +0800
+
+ukui-window-switch (2.0.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/copyright:
+    - Update the copyright.
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Sat, 21 Mar 2020 15:00:59 +0800
+
+ukui-window-switch (2.0.0-1) unstable; urgency=medium
+
+  * New upstream release.
+    - Refactor the ukui-window-switch
+  * debian/{compat,control}:
+    - Use debhelper-compat notation. Bump to DH compat level version 12.
+    - Bump Standards-Version: to 4.5.0. No changes needed.
+    - Add Rules-Requires-Root: no.
+  * debian/copyright:
+    - Update copyright.
+  * debian/rules:
+    - export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Fri, 31 Jan 2020 21:33:13 +0800
+
+ukui-window-switch (1.1.2-1) unstable; urgency=medium
+
+  * Fix the build error with glib 2.58. (Closes: #908104)
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Wed, 19 Sep 2018 14:15:35 +0800
+
+ukui-window-switch (1.1.1-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #903955)
+
+ -- handsome_feng <jianfengli@ubuntukylin.com>  Tue, 17 Jul 2018 15:18:52 +0800

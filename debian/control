@@ -1,0 +1,28 @@
+Source: ukui-window-switch
+Section: x11
+Priority: optional
+Maintainer: Kylin Team <team+kylin@tracker.debian.org>
+Uploaders: Aron Xu <aron@debian.org>,
+           handsome_feng <jianfengli@ubuntukylin.com>
+Build-Depends: debhelper-compat (=12),
+               qtbase5-dev,
+               libblkid-dev,
+               qtbase5-private-dev,
+               libqt5x11extras5-dev,
+               libwnck-3-dev,
+               libgtk-3-dev,
+               libgsettings-qt-dev
+Standards-Version: 4.5.0
+Rules-Requires-Root: no
+Homepage: http://www.ukui.org
+Vcs-Git: https://github.com/ukui/ukui-window-switch.git
+Vcs-Browser: https://github.com/ukui/ukui-window-switch
+
+Package: ukui-window-switch
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Description: Front of the window switch
+ Front of the window switcher in UKUI desktop environment.
+ Provides the display function(Display window thumbnails and application
+ icons) when the window is switching (press Alt+Tab key).
