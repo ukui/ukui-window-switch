@@ -68,6 +68,7 @@
  */
 
 #include <QtWidgets>
+#include <QDebug>
 
 #include "ukws_flowlayout.h"
 UkwsFlowLayout::UkwsFlowLayout(QWidget *parent, int margin, int hSpacing, int vSpacing)
@@ -119,6 +120,7 @@ int UkwsFlowLayout::verticalSpacing() const
 
 int UkwsFlowLayout::count() const
 {
+    qDebug() << "the size of itemList: " << itemList.size();
     return itemList.size();
 }
 

@@ -33,6 +33,7 @@
 #include <QScrollBar>
 #include <QTime>
 #include <QCursor>
+#include <QAction>
 
 extern "C" {
 #include <X11/X.h>
@@ -54,6 +55,8 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     config = nullptr;
 
     wmOperator = new UkwsWnckOperator;
+    wlHandler = new UkwsWaylandHandler;
+
     flowScrollArea = new QScrollArea();
     flowArea = new QWidget();
     winboxFlowLayout = new UkwsFlowLayout(flowArea, 0, 8, 8);
@@ -76,6 +79,7 @@ UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
     mainLayout->setAlignment(Qt::AlignCenter);
     mainLayout->setMargin(0);
     this->setLayout(mainLayout);
+    //this->setBackgroundRole();
 
     // 设置悬浮滚动条
     flowScrollBar = new QScrollBar(Qt::Vertical, this);
@@ -225,6 +229,58 @@ void UkwsIndicator::rmWinbox(UkwsWindowBox *winbox)
     }
 
     flowReLayout();
+} 
+
+void UkwsIndicator::setWaylandWindowHide(quint32 wl_winId, int state)
+{
+    for(int i = 0; i < winboxList.size(); i++)
+    {
+        if(wl_winId == winboxList.at(i)->wl_windowId)
+        {if(state == 3){
+                QDBusMessage message = QDBusMessage::createSignal("/", "com.ukui.kwin", "request");
+                QList<QVariant> args;
+                quint32 m_wid=wl_winId;
+                args.append(m_wid);
+                args.append(0);
+                message.setArguments(args);
+                QDBusConnection::sessionBus().send(message);
+            }
+            else
+            {
+                        
+            }
+        }
+    }
+}
+
+void UkwsIndicator::setWaylandWindowShow(quint32 wl_winId, int state)
+{
+    for(int i = 0; i < winboxList.size(); i++)
+    {
+        if(wl_winId == winboxList.at(i)->wl_windowId)
+        {
+            if(state == 1){
+                QDBusMessage message = QDBusMessage::createSignal("/", "com.ukui.kwin", "request");
+                QList<QVariant> args;
+                quint32 m_wid=wl_winId;
+                args.append(m_wid);
+                args.append(1);
+                message.setArguments(args);
+                QDBusConnection::sessionBus().send(message);
+            }
+            else
+            {
+                QDBusMessage message = QDBusMessage::createSignal("/", "com.ukui.kwin", "request");
+                QList<QVariant> args;
+                quint32 m_wid=wl_winId;
+                args.append(m_wid);
+                args.append(0);
+                message.setArguments(args);
+                QDBusConnection::sessionBus().send(message);
+            }
+
+        }
+    }
 }
 
 void UkwsIndicator::cleanAllWinbox()
@@ -299,7 +355,9 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
         cleanAllWinbox();
 
     wmOperator->updateWindowList();
-    int size = wmOperator->windowQList->size();
+
+    int wnckSize = wmOperator->windowQList->size();
+    int waylandSize = wlHandler->wl_winIdList.size();
 
     // 获取屏幕大小
     QDesktopWidget *desktop = QApplication::desktop();
@@ -317,10 +375,11 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
     QSize dragIconSize = QSize(w * 0.8, h * 0.8);
 
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < wnckSize; i++) {
         WnckWindow *win = wmOperator->windowQList->at(i);
         UkwsWindowBox *wb = new UkwsWindowBox;
 
+        wb->winBaseType = 0;
         wb->setWnckWindow(win);
 
         // 设置Winbox大小
@@ -339,6 +398,45 @@ void UkwsIndicator::reloadWindowList(int boxMinHeight)
 
         addWinbox(wb);
     }
+
+    for(int i = 0; i < waylandSize; i++)
+    {
+        quint32 nWayWin = wlHandler->wl_winIdList.at(i);
+        qDebug() << "add wayland box: " << wlHandler->wl_winIdList.at(i);
+        UkwsWindowBox *wb = new UkwsWindowBox;
+
+        wb->winBaseType = 1;
+
+        wb->setWaylandWindow(nWayWin);
+        wb->setOrigThumbnailOfWayland();
+        wb->setWinboxSizeByHeight(boxMinHeight);
+        wb->setDragIconSize(dragIconSize);
+
+        //wb->setIcon(nullptr);
+        wb->setTitle("kylin-video");
+
+        if (showMode == UkwsIndicatorShowMode::ShowModeTiling) {
+            wb->dragable = true;
+            wb->setTitleAutoHide(true);
+        }
+        addWinbox(wb);
+    }
+}
+
+void UkwsIndicator::removeWaylandWindow(quint32 wl_winId)
+{
+    UkwsWindowBox *wb = new UkwsWindowBox;
+    wlHandler->removeWaylandWindow(wl_winId);
+    wb->setWaylandWindow(wl_winId);
+    wb->closeWaylandWindow();
+}
+
+void UkwsIndicator::getWaylandWinInfo(quint32 wl_winId, QString wl_iconName, QString wl_caption)
+{
+
+    wlHandler->addWaylandWindow(wl_winId);
+    wlHandler->setWaylandWindowIconName(wl_iconName);
+    wlHandler->setWaylandWindowTitle(wl_caption);
 }
 
 void UkwsIndicator::reSetWindowThumbnailByWnck()
@@ -380,7 +478,12 @@ void UkwsIndicator::reSetWindowThumbnailByWnck()
     // 开始处理
     for (i = 0; i < cpus; i++) {
         workerList.at(i)->doingThread->start();
+    }   
+
+    for (i = 0; i < cpus; i++) {
+        workerList.at(i)->doingThread->wait();
     }
+
 
     // 不等待缩略图完全生成，直接进行之后的步骤
 }
@@ -422,8 +525,14 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
         }
     } else {
         // 多任务视图展现在主屏上
-        QDesktopWidget *desktop = QApplication::desktop();
-        screenIndex = desktop->primaryScreen();
+        for(int i = 0; i < screenCount; i++){
+            QScreen *priScreen = QGuiApplication::screens().at(i);
+            if(priScreen == QGuiApplication::primaryScreen())
+                screenIndex = i;
+        }
+        //QDesktopWidget *desktop = QApplication::desktop();
+        //QDesktopWidget *des = QGuiApplication::primaryScreen();
+        //screenIndex = desktop->primaryScreen();
     }
 
 //    screenRect =  desktop->availableGeometry(screenIndex);
@@ -464,7 +573,6 @@ void UkwsIndicator::reShow(UkwsIndicatorShowMode mode, int minScale)
 //        this->reSetWindowThumbnailByWnck();
         return;
     }
-
     for (int i = (minScale * 2 - 1); i > 4; i--) {
         scale = i / 2.0;
         winBoxHeight = ((maxHeight - 5 - 5 - 5 - 5) / scale)
@@ -550,7 +658,11 @@ void UkwsIndicator::reHide(bool needActivate)
 
     if (needActivate) {
         UkwsWindowBox *wb = winboxList.at(selIndex);
-        wb->activateWnckWindow();
+        if(wb->winBaseType == 0)
+            wb->activateWnckWindow();
+        if(wb->winBaseType == 1)
+            wb->activateWaylandWindow();
+
         selIndex = -1;
     }
 
@@ -591,7 +703,12 @@ void UkwsIndicator::acitveSelectedWindow()
         return;
 
     UkwsWindowBox *wb = winboxList.at(selIndex);
-    wb->activateWnckWindow();
+    if(wb->winBaseType == 0)
+        wb->activateWnckWindow();
+    else if(wb->winBaseType == 1)
+        wb->activateWaylandWindow();
+    else
+        return;
 }
 
 bool UkwsIndicator::updateWindowViewPixmap(bool newRequest)
@@ -660,7 +777,18 @@ void UkwsIndicator::closeWinbox(UkwsWindowBox *wb)
 {
     selIndex = winboxList.indexOf(wb);
 //    qDebug() << "indicator: winbox" << selIndex << "will close";
-    wb->closeWnckWindow();
+    if(wb->winBaseType == 0)
+    {
+        wb->closeWnckWindow();
+        emit closeWindowRefresh(this->index);
+    }
+    else if(wb->winBaseType == 1)
+    {
+        wb->closeWaylandWindow();
+        emit closeWindowRefresh(this->index);
+    }
+    else
+        return;
 }
 
 void UkwsIndicator::flowReLayout()

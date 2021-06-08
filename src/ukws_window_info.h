@@ -42,6 +42,9 @@ public:
     WnckWindow *getWnckWindow();
     void setWnckWindow(WnckWindow *window);
 
+    void setWaylandWindow(quint32 waylandId);
+    void setOrigPixmapByWayland();
+
     QPixmap origPixmap;
     QPixmap scaledPixmap;
 
@@ -60,6 +63,8 @@ public:
     QRect winRect;
 
     float scale;
+
+    quint32 wl_windowIndex;
 
 private:
     void fixFrameWindowArea();

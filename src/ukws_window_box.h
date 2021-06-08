@@ -39,6 +39,10 @@ extern "C" {
 #include <QDrag>
 #include <QTimer>
 #include <QMimeData>
+#include <QtDBus/QtDBus>
+#include <QDragEnterEvent>
+#include <QDragLeaveEvent>
+#include <QDragMoveEvent>
 
 #define UKWS_WIDGET_SPACING         3
 #define UKWS_ADDITIONAL_SPACING    10
@@ -105,6 +109,16 @@ public:
     void moveToWorkspace(int wsIndex);
 
     bool windowIsAlive();
+    bool wlWindowIsAlive(quint32 wl_winId);
+    static QPixmap setWlWindowThumbnail();
+    void setOrigThumbnailOfWayland();
+    void setWaylandWindow(quint32 waylandId);
+    void setWaylandThumbnail();
+
+    void getWinBoxBaseType();
+
+    void setWaylandWindowState(int opNo);
+    static QString mimeDataFormat() {return QLatin1Literal("application/x-dnditemdata"); };
 
     bool eventFilter(QObject *watched, QEvent *event);
 
@@ -134,16 +148,27 @@ public:
     Qt::TransformationMode iconTransformationMode;
     Qt::TransformationMode thumbnailTransformationMode;
 
+    int wl_winState;
+    quint32 wl_windowId;
+
+    int winBaseType;
+
 signals:
     void clicked(UkwsWindowBox *winbox);
     void closeBtnClicked(UkwsWindowBox *winbox);
 
 public slots:
     void activateWnckWindow();
+    void activateWaylandWindow();
     void closeWnckWindow();
+    void closeWaylandWindow();
 
 protected:
     void leaveEvent(QEvent *);
+
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dragLeaveEvent(QDragLeaveEvent *event);
 
 private:
     QPixmap makeRadiusPixmap(QPixmap orig, int radius);
@@ -163,6 +188,7 @@ private:
     QHBoxLayout *topBarLayout;
 
     WnckWindow *wnckWin;
+
     bool hasFrame;
 
     bool isSelected;

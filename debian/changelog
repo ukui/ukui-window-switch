@@ -1,3 +1,40 @@
+ukui-window-switch (3.0.0-7kylinhw5) v101; urgency=medium
+
+  * change the interval between showing desktop and hide desktop
+  * 修改显示和隐藏工作区之间的时间间隔
+  * unite the code of HW990 and HW9A0
+  * 统一华为990和9A0的代码
+
+ -- Karloy Yi <yiguang@kylinos.cn>  Mon, 31 May 2021 10:22:13 +0800
+
+ukui-window-switch (3.0.0-7kylinhw4) v101; urgency=medium
+
+  * change WId data type to quintptr, correct redefinition of "None"
+   - 修改WId数据类型为quintptr, 修复None重定义问题 
+
+ -- Karloy Yi <yiguang@kylinos.cn>  Thu, 27 May 2021 11:07:49 +0800
+
+ukui-window-switch (3.0.0-7kylinhw2) v101; urgency=medium
+
+  * change version name of the package
+
+ -- Karloy Yi <yiguang@kylinos.cn>  Mon, 24 May 2021 16:03:58 +0800
+
+ukui-window-switch (3.0.0-7kylin990) v101; urgency=medium
+
+  * Add dependency of libkf5globalaccel
+
+ -- Karloy Yi <yiguang@kylinos.cn>  Sat, 22 May 2021 10:16:20 +0800
+
+ukui-window-switch (3.0.0-6kylin990) v101; urgency=medium
+
+  * repair the issue of desktop getting stucked by keep pressing
+    win+tab
+  * repair the issue of app not responding when wayland app is on 
+    the top of the windows
+
+ -- Karloy Yi <yiguang@kylinos.cn>  Fri, 21 May 2021 19:39:42 +0800
+
 ukui-window-switch (3.0.0-5kylin) v101; urgency=medium
 
   * modify the window boxes catch function

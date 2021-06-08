@@ -27,6 +27,8 @@ extern "C" {
 
 #include <QImage>
 #include <QPixmap>
+#include <QDebug>
+#include <QAction>
 
 namespace UkwsHelperXHeader {
     #include <X11/X.h>

@@ -1,4 +1,4 @@
-/*
+`/*
  * Copyright (C) 2020 Tianjin KYLIN Information Technology Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -46,6 +46,9 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
     wsboxLayout = new QVBoxLayout;
     topSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed);
 
+    resetTimer = new QTimer;
+    showWMCompleted = false;
+
     showStatus = UkwsWidgetShowStatus::Hidden;
     config = nullptr;
 
@@ -63,6 +66,11 @@ UkwsWorkspaceManager::UkwsWorkspaceManager(QWidget *parent) : QWidget(parent)
     this->resize(1200, 600);
 
     this->installEventFilter(this);
+
+    connect(resetTimer, &QTimer::timeout, this, [this](){
+        showWMCompleted = false;// ? showWMCompleted = false : showWMCompleted = true;
+        resetTimer->stop();
+    });
 }
 
 void UkwsWorkspaceManager::paintEvent(QPaintEvent *event)
@@ -136,6 +144,8 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
                 this, &UkwsWorkspaceManager::selectWinbox);
         connect(ind, &UkwsIndicator::windowViewPixmapChange,
                 this, &UkwsWorkspaceManager::doIndicatorWindowViewChange);
+        connect(ind, &UkwsIndicator::closeWindowRefresh,
+                this, &UkwsWorkspaceManager::doIndicatorWindowViewChange);
 
         spaceBoxList.append(wsbox);
         indList.append(ind);
@@ -166,6 +176,8 @@ void UkwsWorkspaceManager::reloadWorkspace(int minScale)
 
 void UkwsWorkspaceManager::reShow(int minScale)
 {
+    if(showWMCompleted == true)
+        return;
     if (showStatus != UkwsWidgetShowStatus::Hidden) {
         return;
     }
@@ -196,10 +208,15 @@ void UkwsWorkspaceManager::reShow(int minScale)
     this->activateWindow();
 
     showStatus = UkwsWidgetShowStatus::Shown;
+
+    showWMCompleted = true;
+    resetTimer->start(1500);
 }
 
 void UkwsWorkspaceManager::reHide()
 {
+    if(showWMCompleted == true)
+        return;
     if (showStatus != UkwsWidgetShowStatus::Shown) {
         return;
     }
@@ -214,6 +231,8 @@ void UkwsWorkspaceManager::reHide()
 
     showStatus = UkwsWidgetShowStatus::Hidden;
     emit isHidden();
+
+    //resetTimer->start(1000);
 }
 
 void UkwsWorkspaceManager::setShowingIndicator(int index)
@@ -294,6 +313,8 @@ void UkwsWorkspaceManager::moveWindowWorkspace(int wbIndex, int srcWsIndex, int 
     // 更新桌面视图
     srcInd->updateWindowViewPixmap(true);
     dstInd->updateWindowViewPixmap(true);
+
+    dstInd->reShow();
 
     // 重新布局
 //    srcInd->flowReLayout();
@@ -488,7 +509,8 @@ void UkwsWorkspaceManager::setBackgroundImage(int width, int height)
     blurrer.setOrigImage(tempPixmap.toImage());
     blurrer.setReduce(2);
     blurrer.setRadius(16);
-    blurrer.setBlurRect(QRect(x, 0, w - x + 1, size().height()));
+    //blurrer.setBlurRect(QRect(x, 0, w - x + 1, size().height()));
+    blurrer.setBlurRect(QRect(0, 0, w, size().height()));
     blurrer.calculate();
     tempPixmap = QPixmap::fromImage(blurrer.blurImage());
 
@@ -499,7 +521,7 @@ void UkwsWorkspaceManager::setBackgroundImage(int width, int height)
     painter.fillRect(0, 0, x, h, QColor(19, 19, 20, 127));
 
     // 设置右半区域遮罩
-    painter.fillRect(x, 0, w - x, h, QColor(19, 19, 20, 178));
+    painter.fillRect(x, 0, w - x, h, QColor(255, 255, 255, 140));
     painter.end();
 
     setAutoFillBackground(true);   // 这个属性一定要设置

@@ -48,14 +48,25 @@ void UkwsFakeDesktop::reloadWindowList()
         cleanWininfo();
 
     wmOperator->updateWindowList();
-    int size = wmOperator->windowQList->size();
+    int wnckSize = wmOperator->windowQList->size();
+    int waylandSize = wlHandler->wl_winIdList.size();
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < wnckSize; i++) {
         WnckWindow *win = wmOperator->windowQList->at(i);
         UkwsWindowInfo *wi = new UkwsWindowInfo(this);
 
         wi->setWnckWindow(win);
         wi->setOrigPixmapByWnck();
+        wininfoList.append(wi);
+    }
+
+    for (int i = 0; i < waylandSize; i++) {
+        quint32 nWayWin = wlHandler->wl_winIdList.at(i);
+        qDebug() << "add wayland box: " << wlHandler->wl_winIdList.at(i);
+        UkwsWindowInfo *wi = new UkwsWindowInfo(this);
+
+        wi->setWaylandWindow(nWayWin);
+        wi->setOrigPixmapByWayland();
         wininfoList.append(wi);
     }
 }
@@ -163,11 +174,15 @@ bool UkwsFakeDesktop::updateWindowViewPixmap(bool newRequest)
     // 获取鼠标所在屏幕的尺寸
     QRect screenRect;
     int screenCount = QGuiApplication::screens().count();
+
     for (int i = 0  ; i < screenCount; i++) {
         screenRect = QGuiApplication::screens().at(i)->geometry();
 
         if (screenRect.contains(QCursor::pos()))
+        {
+            //qDebug() << "Current screen index is: " << i;
             break;
+        }
     }
 
     windowViewPixmap = QPixmap(screenRect.size());

@@ -24,7 +24,6 @@
 #include "ukws_indicator.h"
 #include "ukws_workspace_manager.h"
 #include "ukws_config.h"
-#include "qhotkey.h"
 
 #include <QObject>
 #include <QWidget>
@@ -34,6 +33,9 @@
 #include <QString>
 #include <QTimer>
 #include <QThread>
+#include <QAction>
+
+#include <KF5/KGlobalAccel/KGlobalAccel>
 
 #define UKWS_WM_KEYMAP_OFFSET_ALT_LEFT      8
 #define UKWS_WM_KEYMAP_OFFSET_ALT_RIGHT     13
@@ -43,6 +45,8 @@
 #define UKWS_WM_KEY_CHECK_INTERVAL_TIME_MS          10
 #define UKWS_WM_SHOW_STATUS_CHECK_INTERVAL_TIME_MS  5
 
+#define UKWS_GET_EFFECT_CMD "gsettings get org.ukui.control-center.personalise effect"
+
 class UkwsAltChecker;
 class UkwsManager : public QWidget
 {
@@ -51,13 +55,13 @@ class UkwsManager : public QWidget
 public:
     explicit UkwsManager(QWidget *parent = nullptr);
 
-    void checkShortcutStatus();
     void checkAltStatus();
     void setGrabKeyboard(bool needGrab);
     void setConfig(UkwsConfig *config);
     void setTheme(QString themeString);
 
     bool waitingShowStatusStable(UkwsWidgetShowStatus &status, int timeoutMS);
+    int indexOfWlWinList(quint32 wl_winId);
 
     UkwsConfig *config;
     QTimer altCheckTimer;
@@ -66,11 +70,13 @@ public:
 
     UkwsIndicator *ind;
     UkwsWorkspaceManager *ws;
+    QList<quint32> waylandWindowList;
 
 signals:
 
 public slots:
     bool handleWorkspace();
+    void showDesktopList();
     bool reloadConfig();
 
 private slots:
@@ -82,11 +88,13 @@ private slots:
     bool showWorkspace();
     void hideWorkspace();
 
+    void wl_kwinSigHandler(quint32 wl_winId, int opNo, QString wl_iconName, QString wl_caption);
+
 private:
-    QHotkey *nextShortcut;
-    QHotkey *prevShortcut;
-    QHotkey *workspaceShortcut1;
-    QHotkey *workspaceShortcut2;
+    QAction *nextShortcut;
+    QAction *prevShortcut;
+    QAction *workspaceShortcut1;
+    QAction *workspaceShortcut2;
 };
 
 class UkwsAltChecker : public QThread

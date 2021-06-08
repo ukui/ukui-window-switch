@@ -66,10 +66,19 @@ void UkwsWorker::doWork()
     if (workerType == UkwsWorker::Winbox) {
         UkwsWindowBox *wb;
         foreach (wb, winboxList) {
-            if (status == UkwsWorker::Running)
-                wb->setThumbnailByWnck();
-            else
-                break;
+            if(wb->winBaseType == 0){
+                if (status == UkwsWorker::Running)
+                    wb->setThumbnailByWnck();
+                else
+                    break;
+            }
+            else if(wb->winBaseType == 1)
+            {
+                if (status == UkwsWorker::Running)
+                    wb->setWaylandThumbnail();
+                else
+                    break;
+            }
         }
     }
 

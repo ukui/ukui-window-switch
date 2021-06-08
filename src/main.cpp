@@ -249,7 +249,7 @@ void reloadConfig()
 
 int main(int argc, char *argv[])
 {
-    qInstallMessageHandler(msgHandler);
+//    qInstallMessageHandler(msgHandler);
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
     QApplication a(argc, argv);

@@ -1,0 +1,13 @@
+Package: ukui-window-switch-dbgsym
+Package-Type: ddeb
+Source: ukui-window-switch
+Version: 3.0.0-7kylinhw5
+Auto-Built-Package: debug-symbols
+Architecture: arm64
+Maintainer: Kylin Team <team+kylin@tracker.debian.org>
+Installed-Size: 2706
+Depends: ukui-window-switch (= 3.0.0-7kylinhw5)
+Section: debug
+Priority: optional
+Description: debug symbols for ukui-window-switch
+Build-Ids: 40467fd2b8f1ea9a83c6f5c747005a6134f30ccc

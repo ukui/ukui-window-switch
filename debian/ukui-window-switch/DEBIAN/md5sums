@@ -1,0 +1,7 @@
+dbc1a615a34acbe45cdf670f6513cebb  usr/bin/ukui-window-switch
+e4896b621a2f545d83c8f45bd9a2dacc  usr/share/dbus-1/services/org.ukui.WindowSwitch.service
+972633db925c72185272fd9ab214c52f  usr/share/doc/ukui-window-switch/changelog.Debian.gz
+ee15049a7a6641d93bc1ad5e89f55d3e  usr/share/doc/ukui-window-switch/copyright
+8df1f3da0ff011daad7313963db9aaaa  usr/share/man/man1/ukui-window-switch.1.gz
+5e15152f5e8dbf5c8e2a21a3b12da410  usr/share/ukui-window-switch/data/default-background.jpg
+66a082fe18e4f72f623e2c7282d2cdcc  usr/share/ukui-window-switch/theme/default.qss
