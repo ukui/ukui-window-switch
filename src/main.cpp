@@ -247,6 +247,118 @@ void reloadConfig()
     }
 }
 
+void showNextWinboxview()
+{
+    // 根据当前的DISPLAY环境变量构造单独的DBus Name
+    QString serviceName = QString(getenv("DISPLAY"));
+    serviceName = serviceName.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    if (!serviceName.isEmpty())
+        serviceName = QString(UKWS_DBUS_NAME_PREFIX) + "." + serviceName;
+    else
+        serviceName = UKWS_DBUS_NAME_PREFIX;
+    qDebug() << "Access DBus:" << serviceName;
+
+    QDBusInterface interface(serviceName, UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
+                                QDBusConnection::sessionBus());
+
+    if (!interface.isValid()) {
+        qCritical() << QDBusConnection::sessionBus().lastError().message();
+        exit(1);
+    }
+    //调用远程的value方法
+    QDBusReply<bool> reply = interface.call("showIndicator");
+    if (reply.isValid()) {
+        if (!reply.value())
+            qWarning() << "showNextWinbox Config Failed";
+    } else {
+        qCritical() << "Call Dbus method failed";
+    }
+}
+
+void switchNextWinboxview()
+{
+    // 根据当前的DISPLAY环境变量构造单独的DBus Name
+    QString serviceName = QString(getenv("DISPLAY"));
+    serviceName = serviceName.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    if (!serviceName.isEmpty())
+        serviceName = QString(UKWS_DBUS_NAME_PREFIX) + "." + serviceName;
+    else
+        serviceName = UKWS_DBUS_NAME_PREFIX;
+    qDebug() << "Access DBus:" << serviceName;
+
+    QDBusInterface interface(serviceName, UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
+                                QDBusConnection::sessionBus());
+
+    if (!interface.isValid()) {
+        qCritical() << QDBusConnection::sessionBus().lastError().message();
+        exit(1);
+    }
+    //调用远程的value方法
+    QDBusReply<bool> reply = interface.call("switchNextWinbox");
+    if (reply.isValid()) {
+        if (!reply.value())
+            qWarning() << "switchNextWinbox Failed";
+    } else {
+        qCritical() << "Call Dbus method failed";
+    }
+}
+
+void switchPreWinboxview()
+{
+    // 根据当前的DISPLAY环境变量构造单独的DBus Name
+    QString serviceName = QString(getenv("DISPLAY"));
+    serviceName = serviceName.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    if (!serviceName.isEmpty())
+        serviceName = QString(UKWS_DBUS_NAME_PREFIX) + "." + serviceName;
+    else
+        serviceName = UKWS_DBUS_NAME_PREFIX;
+    qDebug() << "Access DBus:" << serviceName;
+
+    QDBusInterface interface(serviceName, UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
+                                QDBusConnection::sessionBus());
+
+    if (!interface.isValid()) {
+        qCritical() << QDBusConnection::sessionBus().lastError().message();
+        exit(1);
+    }
+    //调用远程的value方法
+    QDBusReply<bool> reply = interface.call("switchPreWinbox");
+    if (reply.isValid()) {
+        if (!reply.value())
+            qWarning() << "switchPreWinbox Failed";
+    } else {
+        qCritical() << "Call Dbus method failed";
+    }
+}
+
+void hideWinboxview()
+{
+    // 根据当前的DISPLAY环境变量构造单独的DBus Name
+    QString serviceName = QString(getenv("DISPLAY"));
+    serviceName = serviceName.trimmed().replace(":", "_").replace(".", "_").replace("-", "_");
+    if (!serviceName.isEmpty())
+        serviceName = QString(UKWS_DBUS_NAME_PREFIX) + "." + serviceName;
+    else
+        serviceName = UKWS_DBUS_NAME_PREFIX;
+    qDebug() << "Access DBus:" << serviceName;
+
+    QDBusInterface interface(serviceName, UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
+                                QDBusConnection::sessionBus());
+
+    if (!interface.isValid()) {
+        qCritical() << QDBusConnection::sessionBus().lastError().message();
+        exit(1);
+    }
+    //调用远程的value方法
+    QDBusReply<bool> reply = interface.call("hideIndicator");
+    if (reply.isValid()) {
+        if (!reply.value())
+            qWarning() << "hideIndicator Failed";
+    } else {
+        qCritical() << "Call Dbus method failed";
+    }
+}
+
 int main(int argc, char *argv[])
 {
 //    qInstallMessageHandler(msgHandler);
@@ -260,8 +372,16 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     QCommandLineOption showWorkspaceOption("show-workspace", "show or hide workspace view");
     QCommandLineOption reloadConfigOption("reload", "reload config");
+    QCommandLineOption showNextWinbox("show-clientlist","show client list view");
+    QCommandLineOption switchNextWinbox("switch-nextwinbox","switch next winbox");
+    QCommandLineOption switchPreWinbox("switch-prewinbox","switch pre list winbox");
+    QCommandLineOption hideWinboxList("hidewinbox","hide list winbox");
     parser.addOption(showWorkspaceOption);
     parser.addOption(reloadConfigOption);
+    parser.addOption(showNextWinbox);
+    parser.addOption(switchNextWinbox);
+    parser.addOption(switchPreWinbox);
+    parser.addOption(hideWinboxList);
     parser.process(a);
 
     if (parser.isSet("show-workspace")) {
@@ -271,6 +391,26 @@ int main(int argc, char *argv[])
 
     if (parser.isSet("reload")) {
         reloadConfig();
+        return 0;
+    }
+
+    if (parser.isSet("switch-nextwinbox")) {
+        switchNextWinboxview();
+        return 0;
+    }
+
+    if (parser.isSet("switch-prewinbox")) {
+        switchPreWinboxview();
+        return 0;
+    }
+
+    if (parser.isSet("show-clientlist")) {
+        showNextWinboxview();
+        return 0;
+    }
+
+    if (parser.isSet("hidewinbox")) {
+        hideWinboxview();
         return 0;
     }
 
