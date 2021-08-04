@@ -199,8 +199,8 @@ bool UkwsManager::showIndicator()
     if (ind->showStatus == UkwsWidgetShowStatus::Shown)
         return true;
 
-    if (!altCheckTimer.isActive())
-        altCheckTimer.start();
+//    if (!altCheckTimer.isActive())
+//        altCheckTimer.start();
 
     // 等待指示器构造或者析构完毕，等待1s钟，超时则不继续之后流程
     if (!waitingShowStatusStable(ind->showStatus, 500))
@@ -224,6 +224,8 @@ void UkwsManager::showNextWinbox()
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         ind->selIndex = 0;
     }
+    if (!altCheckTimer.isActive())
+        altCheckTimer.start();
     showIndicator();
     ind->selectWindow(ind->selIndex + 1);
 }
@@ -233,8 +235,26 @@ void UkwsManager::showPrevWinbox()
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         ind->selIndex = 0;
     }
-
+    if (!altCheckTimer.isActive())
+        altCheckTimer.start();
     showIndicator();
+    ind->selectWindow(ind->selIndex - 1);
+}
+
+void UkwsManager::switchNextWinbox()
+{
+    if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
+        ind->selIndex = 0;
+    }
+
+    ind->selectWindow(ind->selIndex + 1);
+}
+void UkwsManager::switchPreWinbox()
+{
+   if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
+       ind->selIndex = 0;
+   }
+
     ind->selectWindow(ind->selIndex - 1);
 }
 

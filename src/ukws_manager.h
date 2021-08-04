@@ -78,12 +78,14 @@ public slots:
     bool handleWorkspace();
     void showDesktopList();
     bool reloadConfig();
+    bool showIndicator();
+    void switchNextWinbox();
+    void switchPreWinbox();
+    void hideIndicator();
 
 private slots:
     void showNextWinbox();
     void showPrevWinbox();
-    bool showIndicator();
-    void hideIndicator();
     void hideIndicatorAndActivate(bool needActivate);
     bool showWorkspace();
     void hideWorkspace();
