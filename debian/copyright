@@ -10,6 +10,7 @@ Files: AUTHORS
        data/*
        debian/*
        ukui-window-switch.pro
+       ukui-window-switch.pro.swp
        src/main.cpp
        src/ukws_common.h
        src/ukws_config.cpp
@@ -46,22 +47,21 @@ Files: AUTHORS
        src/ukws_workspace_multiview.h
        src/ukws_new_workspace_button.cpp
        src/ukws_new_workspace_button.h
+       src/ukws_wayland_handler.cpp
+       src/ukws_wayland_handler.h
        theme/default.qss
 Copyright: 2020, Tianjin KYLIN Information Technology Co., Ltd.
 License: GPL-2+
 
-Files: src/qhotkey.cpp
-       src/qhotkey.h
-       src/qhotkey_p.h
-       src/qhotkey_x11.cpp
+Files:  src/qhotkey_p.h
 Copyright: 2016, Felix Barz
-License: BSD-2-clause
+License: BSD-2-Clause 
 
 Files: src/ukws_flowlayout.cpp
        src/ukws_flowlayout.h
 Copyright: 2016, The Qt Company Ltd.
            2020, Tianjin KYLIN Information Technology Co., Ltd.
-License: BSD-3-clause and GPL-2+
+License: BSD-3-Clause GPL-2+
 
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
