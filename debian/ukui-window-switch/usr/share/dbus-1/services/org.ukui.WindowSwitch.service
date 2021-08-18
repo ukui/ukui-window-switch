@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=org.ukui.WindowSwitch
-Exec=/usr/bin/ukui-window-switch
