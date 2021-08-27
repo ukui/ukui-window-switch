@@ -20,10 +20,8 @@
 #ifndef UKWS_WINDOWBOX_H
 #define UKWS_WINDOWBOX_H
 
-extern "C" {
 #define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
-}
 
 #include "ukws_window_extra_label.h"
 

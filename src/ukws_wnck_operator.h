@@ -20,10 +20,8 @@
 #ifndef UKWS_WNCK_OPERATOR_H
 #define UKWS_WNCK_OPERATOR_H
 
-extern "C" {
 #define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
-}
 
 #include <QList>
 
