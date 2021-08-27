@@ -35,11 +35,9 @@
 #include <QCursor>
 #include <QAction>
 
-extern "C" {
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <unistd.h>
-}
 
 UkwsIndicator::UkwsIndicator(QWidget *parent) : QWidget(parent)
 {

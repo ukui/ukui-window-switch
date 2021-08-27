@@ -27,9 +27,7 @@
 #include <QTime>
 #include <QAction>
 
-extern "C" {
 #include <X11/Xlib.h>
-}
 
 //#define NOT_REG_WINDOW_SWITCH_HOTKEY
 //#define NOT_REG_WORKSPACE_VIEW_HOTKEY
