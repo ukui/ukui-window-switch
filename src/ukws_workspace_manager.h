@@ -88,9 +88,6 @@ private:
     QSpacerItem *topSpacer;
 
     QPixmap background;
-
-    QTimer *resetTimer;
-    bool showWMCompleted;
 };
 
 #endif // UKWS_WORKSPACE_MANAGER_H

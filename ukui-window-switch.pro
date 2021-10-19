@@ -1,4 +1,4 @@
-QT  += core gui x11extras dbus KGlobalAccel KWaylandClient KWaylandServer
+QT  += core gui x11extras dbus
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11 console
@@ -14,7 +14,6 @@ SOURCES += \
     src/ukws_indicator.cpp \
     src/ukws_new_workspace_button.cpp \
     src/ukws_stack_blur.cpp \
-    src/ukws_wayland_handler.cpp \
     src/ukws_wnck_operator.cpp \
     src/ukws_helper.cpp \
     src/ukws_window_box.cpp \
@@ -24,6 +23,8 @@ SOURCES += \
     src/ukws_dbus.cpp \
     src/ukws_workspace_manager.cpp \
     src/ukws_workspace_box.cpp \
+    src/qhotkey.cpp \
+    src/qhotkey_x11.cpp \
     src/ukws_manager.cpp \
     src/ukws_worker.cpp \
     src/ukws_fake_desktop.cpp \
@@ -34,7 +35,6 @@ HEADERS += \
     src/ukws_indicator.h \
     src/ukws_new_workspace_button.h \
     src/ukws_stack_blur.h \
-    src/ukws_wayland_handler.h \
     src/ukws_wnck_operator.h \
     src/ukws_helper.h \
     src/ukws_window_box.h \
@@ -45,6 +45,8 @@ HEADERS += \
     src/ukws_dbus.h \
     src/ukws_workspace_manager.h \
     src/ukws_workspace_box.h \
+    src/qhotkey_p.h \
+    src/qhotkey.h \
     src/ukws_manager.h \
     src/ukws_worker.h \
     src/ukws_fake_desktop.h \

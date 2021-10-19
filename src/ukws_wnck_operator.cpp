@@ -138,14 +138,8 @@ void UkwsWnckOperator::updateWindowList(/*WnckScreen *screen, WnckWorkspace *wor
 
         // 过滤掉其他类型的窗口，如桌面、panel、dock等
         if ((wnck_window_get_window_type(win) == WNCK_WINDOW_NORMAL) && needShow)
-        {
             windowQList->insert(-1, WNCK_WINDOW(node->data));
-        }
+
         node = node->next;
     }
-}
-
-void UkwsWnckOperator::updateWlWindowList(quint32 wl_winId)
-{
-    Q_UNUSED(wl_winId);
 }
