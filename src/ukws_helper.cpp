@@ -132,8 +132,7 @@ QPixmap UkwsHelper::getThumbnailByXid(XID xid, int offsetLeft, int offsetRight,
     } else {
         // 无法获取到图像时，使用黑色半透明图像替代
         XImage *image1;
-        while (image1 == nullptr)
-        //for(int i=0; i < 10; i++)
+        for(int i=0; i < 5; i++)
         {
             XGetWindowAttributes(display, xid, &attr);
             image1 = XGetImage(display, xid, offsetLeft, offsetTop,
@@ -145,14 +144,11 @@ QPixmap UkwsHelper::getThumbnailByXid(XID xid, int offsetLeft, int offsetRight,
                 thumbnail = qPixmapFromXImage(image);
                 XDestroyImage(image);
             }
-            else
-                return thumbnail;
         }
         if(image1 == nullptr)
             thumbnail = QPixmap(0, 0);
-
-        thumbnail = QPixmap(attr.width, attr.height);
-        thumbnail.fill(QColor(0, 0, 0, 127));
+        //thumbnail = QPixmap(attr.width, attr.height);
+        //thumbnail.fill(QColor(0, 0, 0, 127));
     }
 
     return thumbnail;

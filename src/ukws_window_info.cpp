@@ -40,9 +40,6 @@ UkwsWindowInfo::UkwsWindowInfo(QObject *parent) : QObject(parent)
     winTopOffset = 0;
     winBottomOffset = 0;
     hasFrame = false;
-
-    wl_windowIndex = -1;
-
 }
 
 void UkwsWindowInfo::fixFrameWindowArea()
@@ -119,14 +116,6 @@ void UkwsWindowInfo::setOrigPixmapByWnck()
                                                winBottomOffset);
 }
 
-void UkwsWindowInfo::setOrigPixmapByWayland()
-{
-    QPixmap thumbnail;
-    thumbnail = QPixmap(800, 600);
-    thumbnail.fill(QColor(0, 0, 0, 127));
-    origPixmap = thumbnail;
-}
-
 void UkwsWindowInfo::setScaledPixmapByScale()
 {
     int width = int(origPixmap.width() * scale);
@@ -153,10 +142,5 @@ void UkwsWindowInfo::setWnckWindow(WnckWindow *window)
     wnck_window_get_client_window_geometry(window, &x, &y, &w, &h);
     winType = wnck_window_get_window_type(window);
     winRect.setRect(x, y, w, h);
-    //fixFrameWindowArea();
-}
-
-void UkwsWindowInfo::setWaylandWindow(quint32 waylandId)
-{
-    wl_windowIndex = waylandId;
+    fixFrameWindowArea();
 }

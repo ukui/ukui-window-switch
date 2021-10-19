@@ -59,7 +59,6 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     drag = nullptr;
     isSelected = false;
     titleAutoHide = false;
-    winBaseType = 0;
 
     iconLabel = new UkwsWindowExtraLabel();
     titleLabel = new UkwsWindowExtraLabel();
@@ -82,7 +81,6 @@ UkwsWindowBox::UkwsWindowBox(QWidget *parent) : QWidget(parent)
     topBarLayout = new QHBoxLayout();
 
     wnckWin = NULL;
-    wl_windowId = 0;
     windowRect.setRect(0, 0, 0, 0);
 
     titleLabel->setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
@@ -251,13 +249,23 @@ void UkwsWindowBox::setWinboxSizeByHeight(int height)
     else
         scale = 1;
 
+    if (h < thnHeight) {
+        h = thnHeight;
+    } else {
+        h = int(h * scale);
+    }
+
     // 限制最大宽度，调节缩放因子
     if (w * scale > maxWidth)
         scale = (float)maxWidth / w;
 
+    if (w * scale < 184) {
+        scale = (float)184 / w;
+    }
+
     // 计算缩略图大小
     w = int(w * scale);
-    h = int(h * scale);
+
 
     this->setSubWidgetSizeByThnSize(w, h);
     this->setFixedSize(w + fixW, height);
@@ -269,25 +277,10 @@ WnckWindow *UkwsWindowBox::getWnckWindow()
 }
 void UkwsWindowBox::setWnckWindow(WnckWindow *window)
 {
+    int x, y, w, h;
     wnckWin = window;
-    //wnck_window_get_client_window_geometry(window, &x, &y, &w, &h);
-    //qDebug() << "The geometry of the window: " << wnck_window_get_xid(wnckWin) << x << y << w << h;
-    //windowRect.setRect(x, y, w, h);
-}
-
-void UkwsWindowBox::setWaylandWindow(quint32 waylandId)
-{
-    wl_windowId = waylandId;
-}
-
-void UkwsWindowBox::setWaylandWindowState(int opNo)
-{
-    if(opNo == 1)
-        wl_winState = 0;
-    else if(opNo == 3)
-        wl_winState = 1;
-    else
-        return;
+    wnck_window_get_client_window_geometry(window, &x, &y, &w, &h);
+    windowRect.setRect(x, y, w, h);
 }
 
 void UkwsWindowBox::setTitle(QString title)
@@ -411,19 +404,6 @@ void UkwsWindowBox::setOrigThumbnailByWnck()
                                                                     winBottomOffset);
 }
 
-void UkwsWindowBox::setOrigThumbnailOfWayland()
-{
-    thumbnailLabel->originalQPixmap = setWlWindowThumbnail();
-}
-
-QPixmap UkwsWindowBox::setWlWindowThumbnail()
-{
-    QPixmap thumbnail;
-    thumbnail = QPixmap(800, 600);
-    thumbnail.fill(QColor(0, 0, 0, 127));
-    return thumbnail;
-}
-
 void UkwsWindowBox::updateThumbnail()
 {
     QSize labelSize = thumbnailLabel->size();
@@ -438,15 +418,26 @@ void UkwsWindowBox::updateThumbnail()
     {
         // 自绘边框宽度为4px，纯缩略图大小为长宽需要减8
         QPixmap origThn, radiusThn;
-        origThn = thumbnailLabel->originalQPixmap.scaled(labelSize.width() - UKWS_WINDOWBOX_BORDER * 2,
-                                                         labelSize.height() - UKWS_WINDOWBOX_BORDER * 2,
-                                                         Qt::KeepAspectRatio,
-                                                         Qt::SmoothTransformation);
+
+
+        int fixW = (UKWS_THUMBNAIL_MARGIN + UKWS_WINDOWBOX_BORDER) * 2;
+        if (labelSize.width()-fixW >184) {
+            origThn = thumbnailLabel->originalQPixmap.scaled(labelSize.width() - UKWS_WINDOWBOX_BORDER * 2,
+                                                             labelSize.height() - UKWS_WINDOWBOX_BORDER * 2,
+                                                             Qt::KeepAspectRatio,
+                                                             Qt::SmoothTransformation);
+        } else {
+            origThn = thumbnailLabel->originalQPixmap.scaled(thumbnailLabel->originalQPixmap.size().width(),
+                                                             labelSize.height() - UKWS_WINDOWBOX_BORDER * 2,
+                                                             Qt::KeepAspectRatio,
+                                                             Qt::SmoothTransformation);
+        }
 
         QPainter painter;
         radiusThn = makeRadiusPixmap(origThn, UKWS_THUMBNAIL_RADIUS);
         painter.begin(&thnUnselectedPixmap);
-        painter.drawPixmap(UKWS_WINDOWBOX_BORDER, UKWS_WINDOWBOX_BORDER,
+        painter.drawPixmap((thnUnselectedPixmap.width()-radiusThn.width())/2,
+                           (thnUnselectedPixmap.height()-radiusThn.height())/2,
                            radiusThn.width(), radiusThn.height(), radiusThn);
         painter.end();
         thnSelectedPixmap = thnUnselectedPixmap.copy();
@@ -481,7 +472,7 @@ void UkwsWindowBox::setThumbnail(QPixmap origPixmap)
 
 void UkwsWindowBox::setThumbnailByWnck()
 {
-    //fixFrameWindowArea();
+    fixFrameWindowArea();
     QSize labelSize = thumbnailLabel->size();
     if (labelSize.width() == 0 || labelSize.height() == 0)
         thumbnailLabel->originalQPixmap = UkwsHelper::getThumbnailByXid(frameXid,
@@ -489,15 +480,6 @@ void UkwsWindowBox::setThumbnailByWnck()
                                                                         winRightOffset,
                                                                         winTopOffset,
                                                                         winBottomOffset);
-    updateThumbnail();
-    thumbnailLabel->setPixmap(thnUnselectedPixmap);
-}
-
-void UkwsWindowBox::setWaylandThumbnail()
-{
-    QSize labelsize = thumbnailLabel->size();
-    if (labelsize.width() == 0 || labelsize.height() == 0)
-        thumbnailLabel->originalQPixmap = setWlWindowThumbnail();
     updateThumbnail();
     thumbnailLabel->setPixmap(thnUnselectedPixmap);
 }
@@ -570,26 +552,7 @@ void UkwsWindowBox::moveToWorkspace(int wsIndex)
 
 bool UkwsWindowBox::windowIsAlive()
 {
-    if(winBaseType == 0)
-        return WNCK_IS_WINDOW(wnckWin);
-    else if(winBaseType == 1)
-    {
-        return true;
-    }
-    return false;
-}
-
-bool UkwsWindowBox::wlWindowIsAlive(quint32 wl_winId)
-{
-    QDBusMessage message = QDBusMessage::createSignal("/", "com.ukui.kwin", "request");
-    QList<QVariant> args;
-    quint32 m_wid = wl_winId;
-    args.append(m_wid);
-    //args.append((_getActive ? WAYLAND_GROUP_ACTIVATE : WAYLAND_GROUP_HIDE));
-    repaint();
-    message.setArguments(args);
-    QDBusConnection::sessionBus().send(message);
-    return false;
+    return WNCK_IS_WINDOW(wnckWin);
 }
 
 // 构建圆角图片
@@ -637,38 +600,7 @@ void UkwsWindowBox::scaleDragPixmap()
     update();
 //    drag->setHotSpot(mouseEvent->pos() - thumbnailOffset);
 
-}
 
-void UkwsWindowBox::dragEnterEvent(QDragEnterEvent *event)
-{
-    if(!dragable)
-        return;
-
-    event->acceptProposedAction();
-    if(event->mimeData()->hasFormat(mimeDataFormat()))
-    {
-        isDragged = true;
-        QPixmap tempPixmap = thnUnselectedPixmap;
-        QPainter painter;
-        painter.begin(&tempPixmap);
-        painter.fillRect(thnUnselectedPixmap.rect(), QColor(0, 0, 0, 159));
-        painter.end();
-        thumbnailLabel->setPixmap(tempPixmap);
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
-
-        setAttribute(Qt::WA_UnderMouse, false);
-    }
-    QWidget::dragEnterEvent(event);
-}
-
-void UkwsWindowBox::dragMoveEvent(QDragMoveEvent *event)
-{
-    QWidget::dragMoveEvent(event);
-}
-
-void UkwsWindowBox::dragLeaveEvent(QDragLeaveEvent *event)
-{
-    QWidget::dragLeaveEvent(event);
 }
 
 bool UkwsWindowBox::eventFilter(QObject *watched, QEvent *event)
@@ -818,34 +750,16 @@ void UkwsWindowBox::activateWnckWindow()
 void UkwsWindowBox::closeWnckWindow()
 {
     unsigned long timestamp = QX11Info::getTimestamp();
+    unsigned long xid = wnck_window_get_xid(wnckWin);
+    WnckWindow *p = wnck_window_get(xid);
+    unsigned long actions = wnck_window_get_actions(wnckWin);
+
     wnck_window_close(wnckWin, timestamp);
+    actions = wnck_window_get_actions(wnckWin);
 }
 
 void UkwsWindowBox::leaveEvent(QEvent *)
 {
     if (!isDragged)
         setThumbnailNormal();
-}
-
-void UkwsWindowBox::activateWaylandWindow()
-{
-    qDebug() << "Wayland window status of " << wl_windowId << "is " << wl_winState;
-    QDBusMessage message = QDBusMessage::createSignal("/", "com.ukui.kwin", "request");
-    QList<QVariant> args;
-    quint32 m_wid=wl_windowId;
-    args.append(m_wid);
-    args.append(1);
-    message.setArguments(args);
-    QDBusConnection::sessionBus().send(message);
-}
-
-void UkwsWindowBox::closeWaylandWindow()
-{
-    qDebug() << "close window " << wl_windowId;
-    QDBusMessage message = QDBusMessage::createSignal("/", "com.ukui.kwin", "request");
-    QList<QVariant> args;
-    args.append(wl_windowId);
-    args.append(2);
-    message.setArguments(args);
-    QDBusConnection::sessionBus().send(message);
 }

@@ -20,9 +20,11 @@
 #ifndef UKWSWORKSPACEBOX_H
 #define UKWSWORKSPACEBOX_H
 
+extern "C" {
 #define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
 #include <xcb/xcb.h>
+}
 
 #include "ukws_window_extra_label.h"
 #include "ukws_wnck_operator.h"

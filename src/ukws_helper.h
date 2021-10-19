@@ -20,13 +20,13 @@
 #ifndef UKWS_HELPER_H
 #define UKWS_HELPER_H
 
+extern "C" {
 #include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+}
 
 #include <QImage>
 #include <QPixmap>
-#include <QDebug>
-#include <QAction>
 
 namespace UkwsHelperXHeader {
     #include <X11/X.h>

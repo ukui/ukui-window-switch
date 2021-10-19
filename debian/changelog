@@ -1,39 +1,20 @@
-ukui-window-switch (3.0.0-7kylinhw5) v101; urgency=medium
+ukui-window-switch (3.0.0-7kylinhw9) v101; urgency=medium
 
-  * change the interval between showing desktop and hide desktop
-  * 修改显示和隐藏工作区之间的时间间隔
-  * unite the code of HW990 and HW9A0
-  * 统一华为990和9A0的代码
+  * Fix   61814 【截图】截图后固定在桌面的任务在窗口切换界面图标显示不全
 
- -- Karloy Yi <yiguang@kylinos.cn>  Mon, 31 May 2021 10:22:13 +0800
+ -- Jiao Dian <jiaodian@kylinos.cn>  Mon, 31 May 2021 10:22:13 +0800
 
-ukui-window-switch (3.0.0-7kylinhw4) v101; urgency=medium
+ukui-window-switch (3.0.0-7kylinhw8) v101; urgency=medium
 
-  * change WId data type to quintptr, correct redefinition of "None"
-   - 修改WId数据类型为quintptr, 修复None重定义问题 
+  * Fix  74287 【多任务视图】Alt+Tab不能切换多任务视图
 
- -- Karloy Yi <yiguang@kylinos.cn>  Thu, 27 May 2021 11:07:49 +0800
+ -- Jiao Dian <jiaodian@kylinos.cn>  Mon, 31 May 2021 10:22:13 +0800
 
-ukui-window-switch (3.0.0-7kylinhw2) v101; urgency=medium
+ukui-window-switch (3.0.0-7kylinhw6) v101; urgency=medium
 
-  * change version name of the package
+  * Fix 65564 【窗口管理器】在桌面预览界面，移动窗口后，预览界面显示不正确
 
- -- Karloy Yi <yiguang@kylinos.cn>  Mon, 24 May 2021 16:03:58 +0800
-
-ukui-window-switch (3.0.0-7kylin990) v101; urgency=medium
-
-  * Add dependency of libkf5globalaccel
-
- -- Karloy Yi <yiguang@kylinos.cn>  Sat, 22 May 2021 10:16:20 +0800
-
-ukui-window-switch (3.0.0-6kylin990) v101; urgency=medium
-
-  * repair the issue of desktop getting stucked by keep pressing
-    win+tab
-  * repair the issue of app not responding when wayland app is on 
-    the top of the windows
-
- -- Karloy Yi <yiguang@kylinos.cn>  Fri, 21 May 2021 19:39:42 +0800
+ -- Jiao Dian <jiaodian@kylinos.cn>  Mon, 31 May 2021 10:22:13 +0800
 
 ukui-window-switch (3.0.0-5kylin) v101; urgency=medium
 

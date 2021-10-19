@@ -35,7 +35,6 @@
 #include <QString>
 #include <QInputEvent>
 #include <QTimer>
-#include "ukws_wayland_handler.h"
 
 //#define UKWS_WINBOX_SWITCH_WIDTH   (168 + 5 + 5)
 //#define UKWS_WINBOX_SWITCH_HEIGHT   (96 + 0 + 32 + 5 + 5)
@@ -89,15 +88,8 @@ public:
 
     void checkWindowList();
 
-    void removeWaylandWindow(quint32 wl_winId);
-    void getWaylandWinInfo(quint32 wl_winId, QString wl_iconName, QString wl_caption);
-    void setWaylandWindowHide(quint32 wl_winId, int state);
-    void setWaylandWindowShow(quint32 wl_winId, int state);
-
-
     UkwsWnckOperator *wmOperator;
     UkwsConfig *config;
-    UkwsWaylandHandler *wlHandler;
 
     UkwsIndicatorShowMode showMode;
     UkwsWidgetShowStatus showStatus;
@@ -111,11 +103,9 @@ protected:
 signals:
     void isSelected(bool needActivate);
     void windowViewPixmapChange(int index);
-    void closeWindowRefresh(int index);
 
 public slots:
     void doWorkerDone();
-
     void clickWinbox(UkwsWindowBox *wb);
     void closeWinbox(UkwsWindowBox *wb);
     void reShow(UkwsIndicatorShowMode mode=ShowModeUnknown, int minScale=UKWS_WINBOX_MAX_SCALE);

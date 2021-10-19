@@ -25,7 +25,6 @@
 #include "ukws_wnck_operator.h"
 #include "ukws_config.h"
 #include "ukws_worker.h"
-#include "ukws_wayland_handler.h"
 
 #include <QWidget>
 #include <QLayout>
@@ -52,7 +51,6 @@ public:
     int index;
     UkwsConfig *config;
     UkwsWnckOperator *wmOperator;
-    UkwsWaylandHandler *wlHandler;
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);

@@ -20,8 +20,10 @@
 #ifndef UKWS_WINDOW_INFO_H
 #define UKWS_WINDOW_INFO_H
 
+extern "C" {
 #define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
+}
 
 #include <QObject>
 #include <QLabel>
@@ -39,9 +41,6 @@ public:
     void setScaledPixmapByScale(float scale);
     WnckWindow *getWnckWindow();
     void setWnckWindow(WnckWindow *window);
-
-    void setWaylandWindow(quint32 waylandId);
-    void setOrigPixmapByWayland();
 
     QPixmap origPixmap;
     QPixmap scaledPixmap;
@@ -61,8 +60,6 @@ public:
     QRect winRect;
 
     float scale;
-
-    quint32 wl_windowIndex;
 
 private:
     void fixFrameWindowArea();
