@@ -25,7 +25,6 @@
 #include <QDBusError>
 #include <QX11Info>
 #include <QTime>
-#include <QAction>
 
 #include <X11/Xlib.h>
 
@@ -35,44 +34,41 @@
 UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
 {
 #ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
-    nextShortcut= new QAction(this);
-    nextShortcut->setObjectName(QStringLiteral("windows switch next"));
-    nextShortcut->setProperty("componentName", QStringLiteral("ukui-window-switch"));
-    KGlobalAccel::self()->setDefaultShortcut(nextShortcut, QList<QKeySequence>{Qt::AltModifier + Qt::Key_Tab});
-    KGlobalAccel::self()->setShortcut(nextShortcut, QList<QKeySequence>{Qt::AltModifier + Qt::Key_Tab});
-    connect(nextShortcut, &QAction::triggered, this,&UkwsManager::showNextWinbox);
-
-    prevShortcut= new QAction(this);
-    prevShortcut->setObjectName(QStringLiteral("windows   previous"));
-    prevShortcut->setProperty("componentName", QStringLiteral("ukui-window-switch"));
-    KGlobalAccel::self()->setDefaultShortcut(prevShortcut, QList<QKeySequence>{Qt::AltModifier +
-                                                                               Qt::ShiftModifier +
-                                                                               Qt::Key_Tab});
-    KGlobalAccel::self()->setShortcut(prevShortcut, QList<QKeySequence>{Qt::AltModifier +
-                                                                        Qt::ShiftModifier +
-                                                                        Qt::Key_Tab});
-    connect(prevShortcut, &QAction::triggered, this,&UkwsManager::showPrevWinbox);
-
-
+    nextShortcut = new QHotkey(QKeySequence(Qt::AltModifier |
+                                            Qt::Key_Tab),
+                               true, this);
+    prevShortcut = new QHotkey(QKeySequence(Qt::AltModifier |
+                                            Qt::ShiftModifier |
+                                            Qt::Key_Tab),
+                               true, this);
 #endif
 
 #ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
-    workspaceShortcut1 = new QAction(this);
-    workspaceShortcut1->setObjectName(QStringLiteral("workspace shortcut 1"));
-    workspaceShortcut1->setProperty("componentName", QStringLiteral("ukui-window-switch"));
-
-    KGlobalAccel::self()->setDefaultShortcut(workspaceShortcut1, QList<QKeySequence>{Qt::ControlModifier + Qt::AltModifier + Qt::Key_W});
-    KGlobalAccel::self()->setShortcut(workspaceShortcut1, QList<QKeySequence>{Qt::ControlModifier + Qt::AltModifier + Qt::Key_W});
-    connect(workspaceShortcut1, &QAction::triggered, this, &UkwsManager::handleWorkspace);
-
-    workspaceShortcut2 = new QAction(this);
-    workspaceShortcut2->setObjectName(QStringLiteral("workspace shortcut 2"));
-    workspaceShortcut2->setProperty("componentName", QStringLiteral("ukui-window-switch"));
-
-    KGlobalAccel::self()->setDefaultShortcut(workspaceShortcut2, QList<QKeySequence>{Qt::MetaModifier + Qt::Key_Tab});
-    KGlobalAccel::self()->setShortcut(workspaceShortcut2, QList<QKeySequence>{Qt::MetaModifier + Qt::Key_Tab});
-    connect(workspaceShortcut2, &QAction::triggered, this, &UkwsManager::showDesktopList);
+    workspaceShortcut1 = new QHotkey(QKeySequence(Qt::ControlModifier |
+                                                  Qt::AltModifier |
+                                                  Qt::Key_W),
+                                     true, this);
+    workspaceShortcut2 = new QHotkey(QKeySequence(Qt::MetaModifier |
+                                                  Qt::Key_Tab),
+                                     true, this);
 #endif
+
+#ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
+    connect(nextShortcut, &QHotkey::activated, this, &UkwsManager::showNextWinbox);
+    connect(prevShortcut, &QHotkey::activated, this, &UkwsManager::showPrevWinbox);
+#endif
+
+#ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
+    connect(workspaceShortcut1, &QHotkey::activated, this, &UkwsManager::handleWorkspace);
+    connect(workspaceShortcut2, &QHotkey::activated, this, &UkwsManager::handleWorkspace);
+#endif
+
+    // 每10s检测一次热键注册情况
+    shortcutCheckTimer.setTimerType(Qt::CoarseTimer);
+    shortcutCheckTimer.setInterval(UKWS_WM_KEY_CHECK_INTERVAL_TIME_MS * 1000);
+    connect(&(this->shortcutCheckTimer), &QTimer::timeout, this, &UkwsManager::checkShortcutStatus);
+    shortcutCheckTimer.start();
+
     // 每10ms检测一次Alt键状态
     altCheckTimer.setTimerType(Qt::CoarseTimer);
     altCheckTimer.setInterval(UKWS_WM_KEY_CHECK_INTERVAL_TIME_MS);
@@ -114,47 +110,6 @@ UkwsManager::UkwsManager(QWidget *parent) : QWidget(parent)
     }
     connection.registerObject(UKWS_DBUS_PATH, UKWS_DBUS_INTERFACE,
                               this, QDBusConnection::ExportAllSlots);
-
-    waylandWindowList.clear();
-    QDBusConnection::sessionBus().connect(QString(), QString("/"), "com.ukui.panel", "event", this, SLOT(wl_kwinSigHandler(quint32,int, QString, QString)));
-}
-
-int UkwsManager::indexOfWlWinList(quint32 wl_winId)
-{
-
-    for(int i = 0; i < waylandWindowList.size(); i++)
-    {
-        if(waylandWindowList.at(i) == wl_winId)
-            return i;
-    }
-    return -1;
-}
-
-void UkwsManager::wl_kwinSigHandler(quint32 wl_winId, int opNo, QString wl_iconName, QString wl_caption)
-{
-    qDebug()<<"UKUITaskBar::wl_kwinSigHandler"<<wl_winId<<opNo<<wl_iconName<<wl_caption;
-
-    if (!opNo) {
-        qDebug()<<" ! opNo";
-        return;
-    }
-
-    switch(opNo) {
-    case 1:
-        ind->setWaylandWindowHide(wl_winId, opNo);
-        break;
-    case 2:
-        ind->removeWaylandWindow(wl_winId);
-        waylandWindowList.removeAt(indexOfWlWinList(wl_winId));
-        break;
-    case 3:
-        ind->setWaylandWindowShow(wl_winId, opNo);
-        break;
-    case 4:
-        ind->getWaylandWinInfo(wl_winId, wl_iconName, wl_caption);
-        waylandWindowList.insert(-1, wl_winId);
-        break;
-    }
 }
 
 void UkwsManager::setConfig(UkwsConfig *config)
@@ -197,11 +152,11 @@ bool UkwsManager::showIndicator()
     if (ind->showStatus == UkwsWidgetShowStatus::Shown)
         return true;
 
-//    if (!altCheckTimer.isActive())
-//        altCheckTimer.start();
+    if (!altCheckTimer.isActive())
+        altCheckTimer.start();
 
     // 等待指示器构造或者析构完毕，等待1s钟，超时则不继续之后流程
-    if (!waitingShowStatusStable(ind->showStatus, 500))
+    if (!waitingShowStatusStable(ind->showStatus, 1000))
         return false;
 
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
@@ -222,8 +177,7 @@ void UkwsManager::showNextWinbox()
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         ind->selIndex = 0;
     }
-    if (!altCheckTimer.isActive())
-        altCheckTimer.start();
+
     showIndicator();
     ind->selectWindow(ind->selIndex + 1);
 }
@@ -233,26 +187,8 @@ void UkwsManager::showPrevWinbox()
     if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
         ind->selIndex = 0;
     }
-    if (!altCheckTimer.isActive())
-        altCheckTimer.start();
+
     showIndicator();
-    ind->selectWindow(ind->selIndex - 1);
-}
-
-void UkwsManager::switchNextWinbox()
-{
-    if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
-        ind->selIndex = 0;
-    }
-
-    ind->selectWindow(ind->selIndex + 1);
-}
-void UkwsManager::switchPreWinbox()
-{
-   if (ind->showStatus == UkwsWidgetShowStatus::Hidden) {
-       ind->selIndex = 0;
-   }
-
     ind->selectWindow(ind->selIndex - 1);
 }
 
@@ -278,6 +214,28 @@ void UkwsManager::hideIndicatorAndActivate(bool needActivate)
         altCheckTimer.stop();
         ind->reHide(needActivate);
     }
+}
+
+void UkwsManager::checkShortcutStatus()
+{
+#ifndef NOT_REG_WINDOW_SWITCH_HOTKEY
+    if (!nextShortcut->isRegistered()) {
+        nextShortcut->setRegistered(true);
+    }
+
+    if (!prevShortcut->isRegistered()) {
+        prevShortcut->setRegistered(true);
+    }
+#endif
+
+#ifndef NOT_REG_WORKSPACE_VIEW_HOTKEY
+    if (!workspaceShortcut1->isRegistered()) {
+        workspaceShortcut1->setRegistered(true);
+    }
+    if (!workspaceShortcut2->isRegistered()) {
+        workspaceShortcut2->setRegistered(true);
+    }
+#endif
 }
 
 void UkwsManager::checkAltStatus()
@@ -332,17 +290,6 @@ bool UkwsManager::handleWorkspace()
     }
 
     return false;
-}
-
-void UkwsManager::showDesktopList()
-{
-    if (ws->showStatus == UkwsWidgetShowStatus::Hidden) {
-        showWorkspace();
-    }
-
-    if (ws->showStatus == UkwsWidgetShowStatus::Shown) {
-        hideWorkspace();
-    }
 }
 
 bool UkwsManager::reloadConfig()

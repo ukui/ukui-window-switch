@@ -37,7 +37,6 @@ public:
 
     void updateWorkspaceList(WnckScreen *screen = nullptr);
     void updateWindowList();
-    void updateWlWindowList(quint32 wl_winId);
 
     WnckScreen *screen;
     WnckWorkspace *workspace;
