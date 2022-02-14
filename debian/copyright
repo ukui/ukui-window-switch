@@ -47,6 +47,7 @@ Files: AUTHORS
        src/ukws_new_workspace_button.cpp
        src/ukws_new_workspace_button.h
        theme/default.qss
+       .gitattributes
 Copyright: 2020, Tianjin KYLIN Information Technology Co., Ltd.
 License: GPL-2+
 
